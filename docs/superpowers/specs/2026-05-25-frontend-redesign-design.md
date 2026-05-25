@@ -87,12 +87,38 @@ The existing `seed_user_budget()` trigger function is extended to also insert a 
 
 - `supabase/migrations/0005_user_preferences.sql` — creates the table, RLS policies, **and backfills a default preferences row for every existing `auth.users`** (so v1 users get a row immediately, not on next signup).
 - `supabase/migrations/0006_extend_seed_trigger.sql` — `create or replace` the function so new signups get a preferences row. The insert uses `on conflict (user_id) do nothing` to be safe against race conditions with the 0005 backfill.
+- `supabase/migrations/0007_rls_perf.sql` *(folded from v1.1 backlog)* — drops and recreates each RLS policy on `income`, `categories`, `line_items`, `user_preferences` so that `auth.uid()` and `auth.jwt()` are wrapped in `(select …)` subqueries. Postgres can then cache the values per query instead of re-evaluating per row.
+- `supabase/migrations/0008_name_length.sql` *(folded from v1.1 backlog)* — adds CHECK constraints capping `categories.name` at 80 chars and `line_items.name` at 80 chars (matching the frontend `maxLength`).
 
 ```sql
 -- in 0005 after the policies:
 insert into public.user_preferences (user_id)
   select id from auth.users
   on conflict (user_id) do nothing;
+```
+
+```sql
+-- 0007_rls_perf.sql shape:
+drop policy "own income, mfa required" on public.income;
+create policy "own income, mfa required" on public.income
+  for all
+  using (
+    (select auth.uid()) = user_id
+    and ((select auth.jwt()) ->> 'aal') = 'aal2'
+  )
+  with check (
+    (select auth.uid()) = user_id
+    and ((select auth.jwt()) ->> 'aal') = 'aal2'
+  );
+-- repeat for categories, line_items, and user_preferences
+```
+
+```sql
+-- 0008_name_length.sql:
+alter table public.line_items
+  add constraint line_items_name_length check (char_length(name) <= 80);
+alter table public.categories
+  add constraint categories_name_length check (char_length(name) <= 80);
 ```
 
 ## 6. Theme architecture
@@ -225,7 +251,7 @@ updatePreferences(patch: Partial<Preferences>): Promise<void>
 - **`App.tsx`** — wraps `BudgetApp` in `ThemeProvider`. Adds simple page routing (top-level state `'budget' | 'settings'`; no router library needed for two pages).
 - **`IncomeSummary.tsx`** — restyled with new tokens. Computes the narrative string for `BalanceHero`. Layout grid moves from 3-col to a responsive 1/2/3-col depending on viewport.
 - **`CategoryTable.tsx`** — when `items.length === 0`, renders `EmptyCategoryCard` instead of the table. When non-empty, restyled with new tokens, category icon next to the name, subtotal moves into the header row.
-- **`LineItemRow.tsx`** — restyled with new tokens. **The +Add item draft flow moves out of `CategoryTable` into a new `DraftRow` subcomponent** that owns its own focus-tracking (see Section 9).
+- **`LineItemRow.tsx`** — restyled with new tokens. **The +Add item draft flow moves out of `CategoryTable` into a new `DraftRow` subcomponent** that owns its own focus-tracking (see Section 9). The name `<input>` adds `maxLength={80}` *(folded from v1.1 backlog)* matching the DB CHECK constraint added in migration 0008.
 - **`GrandTotals.tsx`** — restyled as the dark "hero footer" using `bg-hero-bg` / `text-hero-text`.
 - **Auth screens** (`Login`, `Signup`, `MFAEnroll`, `MFAChallenge`) — restyled with new tokens. Logo + tagline added. Layout otherwise unchanged.
 
@@ -363,7 +389,9 @@ src/
 
 supabase/migrations/
 ├── 0005_user_preferences.sql         (new)
-└── 0006_extend_seed_trigger.sql      (new)
+├── 0006_extend_seed_trigger.sql      (new)
+├── 0007_rls_perf.sql                 (new — folded from v1.1 backlog)
+└── 0008_name_length.sql              (new — folded from v1.1 backlog)
 ```
 
 ## 13. Testing
@@ -379,27 +407,25 @@ No new E2E tests in this iteration.
 
 ## 14. Out of scope (deferred to v1.2 or later)
 
-- WebAuthn / passkey MFA factor (still in the v1 deferred list).
-- Custom color picker beyond the three presets.
-- Per-category icon customization.
-- Animated transitions between themes.
-- Reduced-density or compact mode.
-- Charts and CSV export.
-- Month rollover and historical view.
+- **v1.2 (next):** Vercel deployment + QA Supabase project + Vercel preview environments.
+- **v1.3:** WebAuthn / passkey MFA factor + remaining test gaps (CategoryTable add/discard, IncomeSummary blur, GrandTotals math) + `leaked-password protection` toggle in Supabase Auth dashboard.
+- **v1.4+ (each its own brainstorm):** Month rollover and history, custom user-editable categories, sharing budgets with another user, charts and CSV export.
+- **Probably never:** Custom color picker beyond the three presets, custom fonts/border-radius/density, animated transitions between themes, per-category icon customization.
 
 ## 15. Migration plan / order of operations
 
 1. Add `user_preferences` table + extended signup trigger (migrations 0005 and 0006).
-2. Build CSS variable system (`themes.css`) and update `tailwind.config.js`.
-3. Build `ThemeProvider` + `preferences` API + `Settings` page.
-4. Refactor `LineItemRow` and `CategoryTable` to use new tokens + extract `DraftRow`.
-5. Add `BalanceHero` (replacing `BalanceCards`).
-6. Add `EmptyCategoryCard` and wire into `CategoryTable`.
-7. Add `Header` + page-level routing in `App.tsx`.
-8. Mobile responsive pass.
-9. Restyle auth screens.
-10. Accessibility audit (contrast, focus rings, ARIA).
-11. Manual smoke test (full flow + theme switch + mobile via DevTools).
+2. Apply RLS performance fix (migration 0007) and name-length constraints (migration 0008).
+3. Build CSS variable system (`themes.css`) and update `tailwind.config.js`.
+4. Build `ThemeProvider` + `preferences` API + `Settings` page.
+5. Refactor `LineItemRow` and `CategoryTable` to use new tokens + extract `DraftRow` + add `maxLength={80}` to name inputs.
+6. Add `BalanceHero` (replacing `BalanceCards`) + `balanceNarrative` helper with tests.
+7. Add `EmptyCategoryCard` and wire into `CategoryTable`.
+8. Add `Header` + page-level routing in `App.tsx`.
+9. Mobile responsive pass.
+10. Restyle auth screens.
+11. Accessibility audit (contrast, focus rings, ARIA).
+12. Manual smoke test (full flow + theme switch + mobile via DevTools).
 
 ---
 
