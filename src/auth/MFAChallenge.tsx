@@ -47,9 +47,12 @@ export default function MFAChallenge() {
   }
 
   return (
-    <div className="mx-auto max-w-md p-8 space-y-4">
-      <h1 className="text-2xl font-semibold">Authenticator code</h1>
-      <p className="text-sm text-gray-600">
+    <div className="mx-auto max-w-sm p-8 space-y-4">
+      <div className="text-center">
+        <div className="text-4xl mb-1">🔑</div>
+        <h1 className="text-xl font-extrabold">Authenticator code</h1>
+      </div>
+      <p className="text-sm text-muted">
         Enter the 6-digit code from your authenticator app.
       </p>
       <form onSubmit={submit} className="space-y-2">
@@ -61,22 +64,22 @@ export default function MFAChallenge() {
           placeholder="123456"
           value={code}
           onChange={(e) => setCode(e.target.value)}
-          className="w-full border rounded px-3 py-2"
+          className="w-full border border-highlight bg-card rounded-lg px-3 py-2 text-center text-lg tracking-widest"
           required
           autoFocus
         />
-        {error && <p className="text-red-600 text-sm">{error}</p>}
+        {error && <p className="text-negative text-sm">{error}</p>}
         <button
           type="submit"
           disabled={busy || code.length !== 6}
-          className="w-full bg-blue-600 text-white rounded py-2 disabled:opacity-50"
+          className="w-full bg-hero-bg text-hero-text rounded-lg py-2 font-bold disabled:opacity-50"
         >
           {busy ? 'Verifying…' : 'Continue'}
         </button>
         <button
           type="button"
           onClick={signOut}
-          className="w-full text-sm text-gray-500 underline"
+          className="w-full text-sm text-muted underline"
         >
           Sign out
         </button>

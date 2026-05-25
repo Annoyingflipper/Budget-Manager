@@ -47,7 +47,6 @@ export default function MFAEnroll() {
     });
     setBusy(false);
     if (result.error) setError(result.error.message);
-    // On success, AuthGate observes the AAL change and routes to the budget.
   }
 
   async function signOut() {
@@ -55,25 +54,28 @@ export default function MFAEnroll() {
   }
 
   return (
-    <div className="mx-auto max-w-md p-8 space-y-4">
-      <h1 className="text-2xl font-semibold">Set up two-factor authentication</h1>
-      <p className="text-sm text-gray-600">
-        Scan this QR code with an authenticator app (Google Authenticator, 1Password,
-        Authy, etc.), then enter the 6-digit code to confirm.
+    <div className="mx-auto max-w-sm p-8 space-y-4">
+      <div className="text-center">
+        <div className="text-4xl mb-1">🔐</div>
+        <h1 className="text-xl font-extrabold">Set up two-factor authentication</h1>
+      </div>
+      <p className="text-sm text-muted">
+        Scan this QR code with an authenticator app (Google Authenticator, 1Password, Authy, etc.),
+        then enter the 6-digit code to confirm.
       </p>
       {qr && (
         <img
           src={qr}
           alt="TOTP QR code"
-          className="border rounded mx-auto"
+          className="border border-highlight rounded-lg mx-auto bg-card p-2"
           width={200}
           height={200}
         />
       )}
       {secret && (
-        <p className="text-xs text-gray-500 break-all">
+        <p className="text-xs text-muted break-all">
           Or enter this secret manually:{' '}
-          <code className="bg-gray-100 px-1">{secret}</code>
+          <code className="bg-bg px-1 rounded">{secret}</code>
         </p>
       )}
       <form onSubmit={verify} className="space-y-2">
@@ -85,21 +87,21 @@ export default function MFAEnroll() {
           placeholder="123456"
           value={code}
           onChange={(e) => setCode(e.target.value)}
-          className="w-full border rounded px-3 py-2"
+          className="w-full border border-highlight bg-card rounded-lg px-3 py-2 text-center text-lg tracking-widest"
           required
         />
-        {error && <p className="text-red-600 text-sm">{error}</p>}
+        {error && <p className="text-negative text-sm">{error}</p>}
         <button
           type="submit"
           disabled={busy || code.length !== 6}
-          className="w-full bg-blue-600 text-white rounded py-2 disabled:opacity-50"
+          className="w-full bg-hero-bg text-hero-text rounded-lg py-2 font-bold disabled:opacity-50"
         >
           {busy ? 'Verifying…' : 'Verify and continue'}
         </button>
         <button
           type="button"
           onClick={signOut}
-          className="w-full text-sm text-gray-500 underline"
+          className="w-full text-sm text-muted underline"
         >
           Sign out
         </button>
