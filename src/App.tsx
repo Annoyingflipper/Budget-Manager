@@ -1,3 +1,9 @@
+import AuthGate from './auth/AuthGate';
+
 export default function App() {
-  return <div className="p-8 text-2xl">Budget Manager</div>;
+  return (
+    <AuthGate>
+      <div className="p-8 text-2xl">Budget Manager — Authenticated</div>
+    </AuthGate>
+  );
 }
