@@ -1,15 +1,21 @@
 import { useCallback, useEffect, useState } from 'react';
 import AuthGate from './auth/AuthGate';
+import { ThemeProvider } from './theme/ThemeProvider';
+import Header from './components/Header';
+import BalanceHero from './components/BalanceHero';
 import IncomeSummary from './components/IncomeSummary';
 import CategoryTable from './components/CategoryTable';
 import GrandTotals from './components/GrandTotals';
+import Settings from './pages/Settings';
 import { getBudget } from './api/budget';
-import { supabase } from './lib/supabase';
 import type { Budget, CategoryWithItems, Income } from './types';
+
+type Page = 'budget' | 'settings';
 
 function BudgetApp() {
   const [budget, setBudget] = useState<Budget | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState<Page>('budget');
 
   useEffect(() => {
     getBudget()
@@ -30,27 +36,21 @@ function BudgetApp() {
     []
   );
 
-  if (error) return <div className="p-8 text-red-600">Error: {error}</div>;
-  if (!budget) return <div className="p-8">Loading budget…</div>;
+  if (error) return <div className="p-8 text-negative">Error: {error}</div>;
+  if (!budget) return <div className="p-8 text-muted">Loading budget…</div>;
+
+  if (page === 'settings') {
+    return <Settings onBack={() => setPage('budget')} />;
+  }
+
+  const now = new Date();
+  const monthLabel = now.toLocaleString('en-US', { month: 'long', year: 'numeric' });
 
   return (
-    <div className="mx-auto max-w-4xl p-6 space-y-6">
-      <header className="flex justify-between items-center">
-        <h1 className="text-3xl font-semibold">Budget Manager</h1>
-        <button
-          type="button"
-          onClick={() => supabase.auth.signOut()}
-          className="text-sm text-gray-500 underline"
-        >
-          Log out
-        </button>
-      </header>
-
-      <IncomeSummary
-        income={budget.income}
-        onChange={updateIncomeLocal}
-      />
-
+    <div className="mx-auto max-w-3xl p-6">
+      <Header monthLabel={monthLabel} onOpenSettings={() => setPage('settings')} />
+      <BalanceHero income={budget.income} categories={budget.categories} />
+      <IncomeSummary income={budget.income} onChange={updateIncomeLocal} />
       {budget.categories.map((c) => (
         <CategoryTable
           key={c.id}
@@ -58,7 +58,6 @@ function BudgetApp() {
           onCategoryChange={(next) => updateCategoryLocal(c.id, next)}
         />
       ))}
-
       <GrandTotals categories={budget.categories} />
     </div>
   );
@@ -67,7 +66,9 @@ function BudgetApp() {
 export default function App() {
   return (
     <AuthGate>
-      <BudgetApp />
+      <ThemeProvider>
+        <BudgetApp />
+      </ThemeProvider>
     </AuthGate>
   );
 }
