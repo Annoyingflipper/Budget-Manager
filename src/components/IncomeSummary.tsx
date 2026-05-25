@@ -1,16 +1,14 @@
 import { useEffect, useState } from 'react';
 import { updateIncome } from '../api/budget';
-import { difference, differenceClass, formatMoney, sum } from '../utils/money';
-import BalanceCards from './BalanceCards';
-import type { CategoryWithItems, Income } from '../types';
+import { difference, differenceClass, formatMoney } from '../utils/money';
+import type { Income } from '../types';
 
 type Props = {
   income: Income;
-  categories: CategoryWithItems[];
   onChange: (patch: Partial<Income>) => void;
 };
 
-export default function IncomeSummary({ income, categories, onChange }: Props) {
+export default function IncomeSummary({ income, onChange }: Props) {
   const [projectedDraft, setProjectedDraft] = useState(String(income.projected));
   const [actualDraft, setActualDraft] = useState(String(income.actual));
 
@@ -24,11 +22,8 @@ export default function IncomeSummary({ income, categories, onChange }: Props) {
     if (value === income.projected) return;
     const previous = income.projected;
     onChange({ projected: value });
-    try {
-      await updateIncome({ projected: value });
-    } catch {
-      onChange({ projected: previous });
-    }
+    try { await updateIncome({ projected: value }); }
+    catch { onChange({ projected: previous }); }
   }
 
   async function saveActual() {
@@ -36,52 +31,46 @@ export default function IncomeSummary({ income, categories, onChange }: Props) {
     if (value === income.actual) return;
     const previous = income.actual;
     onChange({ actual: value });
-    try {
-      await updateIncome({ actual: value });
-    } catch {
-      onChange({ actual: previous });
-    }
+    try { await updateIncome({ actual: value }); }
+    catch { onChange({ actual: previous }); }
   }
 
-  const totalProjectedCost = sum(categories.flatMap((c) => c.items.map((i) => i.projected)));
-  const totalActualCost = sum(categories.flatMap((c) => c.items.map((i) => i.actual)));
-  const projectedBalance = income.projected - totalProjectedCost;
-  const actualBalance = income.actual - totalActualCost;
-
   return (
-    <section className="border rounded-lg p-4 bg-white space-y-3">
-      <h2 className="text-xl font-medium">Income</h2>
-      <div className="grid grid-cols-3 gap-4">
+    <section className="bg-card rounded-xl p-4 mb-3">
+      <div className="flex items-center gap-1.5 mb-2.5">
+        <span className="text-lg">💰</span>
+        <span className="font-extrabold text-sm">Income</span>
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
         <label className="block">
-          <span className="text-sm text-gray-500">Projected</span>
+          <div className="text-xs text-muted">Projected</div>
           <input
             type="number"
             step="0.01"
             value={projectedDraft}
             onChange={(e) => setProjectedDraft(e.target.value)}
             onBlur={saveProjected}
-            className="w-full border rounded px-2 py-1"
+            className="w-full px-2 py-1 border border-highlight rounded-md bg-bg text-base font-bold"
           />
         </label>
         <label className="block">
-          <span className="text-sm text-gray-500">Actual</span>
+          <div className="text-xs text-muted">Actual</div>
           <input
             type="number"
             step="0.01"
             value={actualDraft}
             onChange={(e) => setActualDraft(e.target.value)}
             onBlur={saveActual}
-            className="w-full border rounded px-2 py-1"
+            className="w-full px-2 py-1 border border-highlight rounded-md bg-bg text-base font-bold"
           />
         </label>
-        <div>
-          <span className="text-sm text-gray-500">Difference</span>
-          <p className={`text-lg font-medium ${differenceClass('income', diff)}`}>
+        <div className="col-span-2 sm:col-span-1">
+          <div className="text-xs text-muted">Difference</div>
+          <div className={`text-base font-bold ${differenceClass('income', diff)}`}>
             {formatMoney(diff)}
-          </p>
+          </div>
         </div>
       </div>
-      <BalanceCards projected={projectedBalance} actual={actualBalance} />
     </section>
   );
 }

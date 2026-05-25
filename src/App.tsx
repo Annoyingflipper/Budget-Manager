@@ -48,7 +48,6 @@ function BudgetApp() {
 
       <IncomeSummary
         income={budget.income}
-        categories={budget.categories}
         onChange={updateIncomeLocal}
       />
 
