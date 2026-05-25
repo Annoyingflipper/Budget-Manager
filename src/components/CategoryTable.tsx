@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import LineItemRow from './LineItemRow';
+import DraftRow from './DraftRow';
+import EmptyCategoryCard from './EmptyCategoryCard';
 import { addLineItem } from '../api/budget';
+import { categoryIcon } from '../utils/categoryIcons';
 import { difference, differenceClass, formatMoney, sum } from '../utils/money';
 import type { CategoryWithItems, LineItem } from '../types';
 
@@ -9,35 +12,20 @@ type Props = {
   onCategoryChange: (next: CategoryWithItems) => void;
 };
 
-type Draft = { name: string; projected: number; actual: number };
-
 export default function CategoryTable({ category, onCategoryChange }: Props) {
-  const [draft, setDraft] = useState<Draft | null>(null);
+  const [drafting, setDrafting] = useState(false);
 
   const items = category.items;
   const subProjected = sum(items.map((i) => i.projected));
   const subActual = sum(items.map((i) => i.actual));
   const subDiff = difference(subActual, subProjected);
 
-  function startDraft() {
-    if (draft) return;
-    setDraft({ name: '', projected: 0, actual: 0 });
-  }
-
-  async function commitDraft() {
-    if (!draft) return;
-    const name = draft.name.trim();
-    if (!name) { setDraft(null); return; }
+  async function commit(draft: { name: string; projected: number; actual: number }) {
     try {
-      const created = await addLineItem(category.id, {
-        name,
-        projected: draft.projected,
-        actual: draft.actual,
-      });
+      const created = await addLineItem(category.id, draft);
       onCategoryChange({ ...category, items: [...items, created] });
-      setDraft(null);
-    } catch {
-      setDraft(null);
+    } finally {
+      setDrafting(false);
     }
   }
 
@@ -52,90 +40,71 @@ export default function CategoryTable({ category, onCategoryChange }: Props) {
     onCategoryChange({ ...category, items: items.filter((i) => i.id !== id) });
   }
 
+  if (items.length === 0 && !drafting) {
+    return <EmptyCategoryCard categoryName={category.name} onAddFirst={() => setDrafting(true)} />;
+  }
+
   return (
-    <section className="border rounded-lg p-4 bg-white space-y-2">
-      <h2 className="text-xl font-medium">{category.name}</h2>
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="text-left text-gray-500">
-            <th className="font-normal py-1">Name</th>
-            <th className="font-normal py-1 w-32">Projected</th>
-            <th className="font-normal py-1 w-32">Actual</th>
-            <th className="font-normal py-1 w-32 text-right pr-2">Difference</th>
-            <th className="w-12"></th>
-          </tr>
-        </thead>
-        <tbody>
-          {items.map((item) => (
-            <LineItemRow
-              key={item.id}
-              item={item}
-              onChange={(next) => replaceItem(item.id, next)}
-              onDelete={() => removeItem(item.id)}
-            />
-          ))}
-          {draft && (
-            <tr>
-              <td>
-                <input
-                  autoFocus
-                  type="text"
-                  value={draft.name}
-                  placeholder="Item name"
-                  onChange={(e) => setDraft({ ...draft, name: e.target.value })}
-                  onBlur={commitDraft}
-                  className="w-full border rounded px-2 py-1"
-                />
-              </td>
-              <td>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={draft.projected}
-                  onChange={(e) =>
-                    setDraft({ ...draft, projected: Number(e.target.value) || 0 })
-                  }
-                  className="w-full border rounded px-2 py-1"
-                />
-              </td>
-              <td>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={draft.actual}
-                  onChange={(e) =>
-                    setDraft({ ...draft, actual: Number(e.target.value) || 0 })
-                  }
-                  className="w-full border rounded px-2 py-1"
-                />
-              </td>
-              <td></td>
-              <td></td>
-            </tr>
-          )}
-          <tr>
-            <td colSpan={5} className="pt-2">
-              <button
-                type="button"
-                onClick={startDraft}
-                className="text-sm text-blue-600"
-                disabled={!!draft}
-              >
-                + Add item
-              </button>
-            </td>
-          </tr>
-          <tr className="border-t font-medium">
-            <td className="py-1">Subtotal</td>
-            <td className="pl-2">{formatMoney(subProjected)}</td>
-            <td className="pl-2">{formatMoney(subActual)}</td>
-            <td className={`text-right pr-2 ${differenceClass('cost', subDiff)}`}>
-              {formatMoney(subDiff)}
-            </td>
-            <td></td>
-          </tr>
-        </tbody>
-      </table>
+    <section className="bg-card rounded-xl p-4 mb-3">
+      <div className="flex justify-between items-center mb-2">
+        <div className="flex items-center gap-1.5">
+          <span className="text-base">{categoryIcon(category.name)}</span>
+          <span className="font-extrabold text-sm">{category.name}</span>
+        </div>
+        <span className={`text-xs font-bold ${differenceClass('cost', subDiff)}`}>
+          {subDiff === 0 ? 'on budget' : (subDiff > 0 ? `${formatMoney(subDiff)} over` : `${formatMoney(Math.abs(subDiff))} under`)}
+        </span>
+      </div>
+
+      <div
+        className="grid gap-1.5 items-center mb-1"
+        style={{ gridTemplateColumns: '1.4fr 80px 80px 80px 24px' }}
+      >
+        <div className="text-muted text-xs uppercase tracking-wider">Name</div>
+        <div className="text-muted text-xs uppercase tracking-wider text-right">Proj</div>
+        <div className="text-muted text-xs uppercase tracking-wider text-right">Actual</div>
+        <div className="text-muted text-xs uppercase tracking-wider text-right">Diff</div>
+        <div />
+      </div>
+
+      <div className="space-y-1.5">
+        {items.map((item) => (
+          <LineItemRow
+            key={item.id}
+            item={item}
+            onChange={(next) => replaceItem(item.id, next)}
+            onDelete={() => removeItem(item.id)}
+          />
+        ))}
+        {drafting && (
+          <DraftRow
+            onCommit={commit}
+            onDiscard={() => setDrafting(false)}
+          />
+        )}
+      </div>
+
+      <button
+        type="button"
+        onClick={() => setDrafting(true)}
+        disabled={drafting}
+        className="mt-2 w-full text-xs text-muted bg-bg rounded-lg px-2.5 py-1.5 disabled:opacity-50"
+        style={{ border: '1px dashed var(--dashed)' }}
+      >
+        + Add item
+      </button>
+
+      <div
+        className="mt-2 pt-1.5 flex justify-between text-xs"
+        style={{ borderTop: '1px dashed var(--dashed)' }}
+      >
+        <span className="font-bold">Subtotal</span>
+        <span>
+          <span className="text-muted">{formatMoney(subProjected)} / {formatMoney(subActual)}</span>{' '}
+          ·{' '}
+          <span className={`font-bold ${differenceClass('cost', subDiff)}`}>{formatMoney(subDiff)}</span>
+        </span>
+      </div>
     </section>
   );
 }
