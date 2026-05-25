@@ -1,0 +1,88 @@
+/* --- Peach (default) ------------------------------------------- */
+:root,
+:root[data-theme="peach"][data-mode="light"] {
+  --bg:        #fef3ec;
+  --card:      #ffffff;
+  --highlight: #f5d5c0;
+  --text:      #3d2c2e;
+  --muted:     #a88373;
+  --positive:  #86a578;
+  --negative:  #b54545;
+  --dashed:    #e7c4ac;
+  --hero-bg:   #3d2c2e;
+  --hero-text: #fef3ec;
+}
+
+:root[data-theme="peach"][data-mode="dark"] {
+  --bg:        #2a1f1c;
+  --card:      #3a2c28;
+  --highlight: #5a3d35;
+  --text:      #f5e6d3;
+  --muted:     #c4a896;
+  --positive:  #a3c897;
+  --negative:  #d97777;
+  --dashed:    #6a5044;
+  --hero-bg:   #f5e6d3;
+  --hero-text: #2a1f1c;
+}
+
+/* --- Sage ----------------------------------------------------- */
+:root[data-theme="sage"][data-mode="light"] {
+  --bg:        #f4f6ee;
+  --card:      #ffffff;
+  --highlight: #d5e3c0;
+  --text:      #2e3d2c;
+  --muted:     #8ca873;
+  --positive:  #6a9558;
+  --negative:  #c05454;
+  --dashed:    #c7d8b3;
+  --hero-bg:   #2e3d2c;
+  --hero-text: #f4f6ee;
+}
+
+:root[data-theme="sage"][data-mode="dark"] {
+  --bg:        #1f2a1c;
+  --card:      #2c3a28;
+  --highlight: #3d5a35;
+  --text:      #e6f0d3;
+  --muted:     #a8c496;
+  --positive:  #97c897;
+  --negative:  #d97777;
+  --dashed:    #4a6a3a;
+  --hero-bg:   #e6f0d3;
+  --hero-text: #1f2a1c;
+}
+
+/* --- Lavender ------------------------------------------------- */
+:root[data-theme="lavender"][data-mode="light"] {
+  --bg:        #f5f0fa;
+  --card:      #ffffff;
+  --highlight: #e0d5f5;
+  --text:      #3d2c4a;
+  --muted:     #a888c4;
+  --positive:  #7a9572;
+  --negative:  #c05478;
+  --dashed:    #d4c0e8;
+  --hero-bg:   #3d2c4a;
+  --hero-text: #f5f0fa;
+}
+
+:root[data-theme="lavender"][data-mode="dark"] {
+  --bg:        #2a1f3a;
+  --card:      #3a2c4a;
+  --highlight: #5a3d6a;
+  --text:      #f0e6f5;
+  --muted:     #c4a8d8;
+  --positive:  #a8c897;
+  --negative:  #d977a3;
+  --dashed:    #4a3a5a;
+  --hero-bg:   #f0e6f5;
+  --hero-text: #2a1f3a;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: 'Nunito', ui-sans-serif, system-ui, sans-serif;
+  font-feature-settings: 'tnum';
+}
