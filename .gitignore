@@ -11,3 +11,4 @@ dist-tsc-node
 .idea
 supabase/.branches
 supabase/.temp
+.superpowers/
