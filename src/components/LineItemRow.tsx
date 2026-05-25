@@ -27,11 +27,8 @@ export default function LineItemRow({ item, onChange, onDelete }: Props) {
     if (next === item.name) return;
     const previous = item;
     onChange({ ...item, name: next });
-    try {
-      await updateLineItem(item.id, { name: next });
-    } catch {
-      onChange(previous);
-    }
+    try { await updateLineItem(item.id, { name: next }); }
+    catch { onChange(previous); }
   }
 
   async function saveProjected() {
@@ -39,11 +36,8 @@ export default function LineItemRow({ item, onChange, onDelete }: Props) {
     if (value === item.projected) return;
     const previous = item;
     onChange({ ...item, projected: value });
-    try {
-      await updateLineItem(item.id, { projected: value });
-    } catch {
-      onChange(previous);
-    }
+    try { await updateLineItem(item.id, { projected: value }); }
+    catch { onChange(previous); }
   }
 
   async function saveActual() {
@@ -51,63 +45,55 @@ export default function LineItemRow({ item, onChange, onDelete }: Props) {
     if (value === item.actual) return;
     const previous = item;
     onChange({ ...item, actual: value });
-    try {
-      await updateLineItem(item.id, { actual: value });
-    } catch {
-      onChange(previous);
-    }
+    try { await updateLineItem(item.id, { actual: value }); }
+    catch { onChange(previous); }
   }
 
   async function handleDelete() {
     onDelete();
-    try {
-      await deleteLineItem(item.id);
-    } catch {
-      // Best-effort: the next page load will reconcile.
-    }
+    try { await deleteLineItem(item.id); }
+    catch { /* Best-effort */ }
   }
 
   return (
-    <tr>
-      <td>
-        <input
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          onBlur={saveName}
-          className="w-full border rounded px-2 py-1"
-        />
-      </td>
-      <td>
-        <input
-          type="number"
-          step="0.01"
-          value={projected}
-          onChange={(e) => setProjected(e.target.value)}
-          onBlur={saveProjected}
-          className="w-full border rounded px-2 py-1"
-        />
-      </td>
-      <td>
-        <input
-          type="number"
-          step="0.01"
-          value={actual}
-          onChange={(e) => setActual(e.target.value)}
-          onBlur={saveActual}
-          className="w-full border rounded px-2 py-1"
-        />
-      </td>
-      <td className={`text-right pr-2 ${differenceClass('cost', diff)}`}>
+    <div
+      className="grid items-center gap-1.5"
+      style={{ gridTemplateColumns: '1.4fr 80px 80px 80px 24px' }}
+    >
+      <input
+        type="text"
+        value={name}
+        maxLength={80}
+        onChange={(e) => setName(e.target.value)}
+        onBlur={saveName}
+        className="px-2 py-1 border border-highlight rounded-md bg-card text-sm"
+      />
+      <input
+        type="number"
+        step="0.01"
+        value={projected}
+        onChange={(e) => setProjected(e.target.value)}
+        onBlur={saveProjected}
+        className="px-2 py-1 border border-highlight rounded-md bg-card text-sm text-right"
+      />
+      <input
+        type="number"
+        step="0.01"
+        value={actual}
+        onChange={(e) => setActual(e.target.value)}
+        onBlur={saveActual}
+        className="px-2 py-1 border border-highlight rounded-md bg-card text-sm text-right"
+      />
+      <div className={`text-right pr-1 text-sm font-bold ${differenceClass('cost', diff)}`}>
         {formatMoney(diff)}
-      </td>
-      <td className="text-center">
+      </div>
+      <div className="text-center">
         {confirmDelete ? (
           <button
             type="button"
             onClick={handleDelete}
             aria-label="Confirm delete"
-            className="text-red-600 text-xs"
+            className="text-negative text-xs"
           >
             Confirm
           </button>
@@ -116,12 +102,12 @@ export default function LineItemRow({ item, onChange, onDelete }: Props) {
             type="button"
             onClick={() => setConfirmDelete(true)}
             aria-label="Delete row"
-            className="text-gray-400 hover:text-red-600"
+            className="text-muted hover:text-negative"
           >
             ✕
           </button>
         )}
-      </td>
-    </tr>
+      </div>
+    </div>
   );
 }
