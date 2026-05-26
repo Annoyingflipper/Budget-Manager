@@ -1,4 +1,4 @@
-import { balanceNarrative, differenceClass, formatMoney } from '../utils/money';
+import { differenceClass, formatMoney } from '../utils/money';
 import type { CategoryWithItems, Income } from '../types';
 
 type Props = {
@@ -14,15 +14,6 @@ export default function BalanceHero({ income, categories }: Props) {
   const balanceDelta = actualBalance - projectedBalance;
   const balanceClass = differenceClass('income', balanceDelta);
 
-  const narrative = balanceNarrative({
-    projectedBalance,
-    actualBalance,
-    incomeProjected: income.projected,
-    incomeActual: income.actual,
-    costProjected,
-    costActual,
-  });
-
   return (
     <section className="bg-card rounded-xl p-4 mb-4">
       <div className="text-xs uppercase tracking-wider text-muted">Where you stand</div>
@@ -37,9 +28,6 @@ export default function BalanceHero({ income, categories }: Props) {
             {formatMoney(actualBalance)}
           </div>
         </div>
-      </div>
-      <div className="mt-2 px-2.5 py-2 bg-bg rounded-lg text-xs">
-        🎯 {narrative}
       </div>
     </section>
   );

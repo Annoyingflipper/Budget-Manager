@@ -57,7 +57,7 @@ export default function CategoryTable({ category, onCategoryChange }: Props) {
       </div>
 
       <div
-        className="grid gap-1.5 items-center mb-1"
+        className="hidden sm:grid gap-1.5 items-center mb-1"
         style={{ gridTemplateColumns: '1.4fr 80px 80px 80px 24px' }}
       >
         <div className="text-muted text-xs uppercase tracking-wider">Name</div>
