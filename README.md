@@ -1,61 +1,56 @@
 # Budget Manager
 
 A personal budgeting web app that tracks projected vs. actual values across eight
-expense categories, with email/password auth and TOTP MFA. Built on React + Vite
-+ Tailwind + Supabase.
+expense categories, with email/password + TOTP MFA auth. Themeable (Peach default,
+Sage, Lavender) with light + dark modes. Built on React + Vite + Tailwind + Supabase
+and deployed to Vercel.
 
-## Setup (first time)
+## Environments
 
-1. Create a Supabase project at https://supabase.com and note the Project URL +
-   anon key from **Project Settings → API**.
-2. Install dependencies:
-   ```
-   npm install
-   ```
-3. Copy `.env.example` to `.env.local` and fill in your Supabase values:
-   ```
-   cp .env.example .env.local
-   # Edit .env.local
-   ```
-4. Apply database migrations:
-   ```
-   supabase login
-   supabase link --project-ref <your-project-ref>
-   supabase db push
-   ```
-5. Confirm TOTP MFA is enabled under **Project Settings → Authentication → Multi-Factor Authentication**.
+- **Production:** [budget-manager-drab.vercel.app](https://budget-manager-drab.vercel.app) — backed by the PRD Supabase project. Deployed automatically from the `main` branch.
+- **QA:** [budget-manager-qa.vercel.app](https://budget-manager-qa.vercel.app) — backed by a separate QA Supabase project. Deployed automatically from the `staging` branch.
+- **Local dev** (`npm run dev`): also hits the QA Supabase project, so day-to-day coding never touches production data.
 
-## Running
+See [`docs/superpowers/DEPLOYMENT.md`](docs/superpowers/DEPLOYMENT.md) for the full workflow, migration runbook, and rollback procedures.
+
+## Local development
+
+1. Clone the repo and `npm install`.
+2. Get the QA Supabase URL + anon key (from the project owner; or, if you're the owner, from `mcp__plugin_supabase_supabase__get_project_url` and `get_publishable_keys` against project ref `ovnkgwnlquislfdwaifh`).
+3. Create `.env.development.local` at the repo root:
+   ```
+   VITE_SUPABASE_URL=https://ovnkgwnlquislfdwaifh.supabase.co
+   VITE_SUPABASE_ANON_KEY=<qa-anon-key>
+   ```
+4. `npm run dev` — http://localhost:5173.
+
+## Scripts
 
 ```
-npm run dev          # dev server at http://localhost:5173
-npm run build        # production build
-npm run preview      # preview the production build
-npm test             # run unit and component tests
+npm run dev          # dev server at http://localhost:5173, points at QA via .env.development.local
+npm run build        # production build (Vercel also runs `npm test` first via vercel.json buildCommand)
+npm run preview      # preview the production build (use .env.production.local if testing against PRD)
+npm test             # vitest run, 32 tests across money utilities, ThemeProvider, LineItemRow, DraftRow
 npm run typecheck    # TypeScript-only check
 ```
 
 ## Architecture
 
-- **Frontend:** React 18 + Vite 5 + TypeScript (strict) + Tailwind CSS 3.
-- **Backend:** Supabase (Postgres + Auth). No custom server.
-- **Auth:** email + password + TOTP MFA. Budget data is unreachable until the
-  session reaches AAL2 (MFA completed), enforced by Row-Level Security policies.
-- **Data model:** three tables — `income` (singleton per user), `categories`
-  (eight per user, auto-seeded on signup), `line_items` (user-managed). All
-  derived math (difference, subtotals, totals, balance) is computed in the UI.
-- **Editing:** every cell is a live input. Changes auto-save on blur with
-  optimistic UI; failures revert the local state.
+- **Frontend:** React 18 + Vite 5 + TypeScript (strict) + Tailwind CSS 3 with CSS-variable theme tokens.
+- **Backend:** Supabase (Postgres + Auth + RLS). No custom server.
+- **Auth:** email + password + TOTP MFA. Budget data is unreachable until the session reaches AAL2 (MFA completed), enforced by Row-Level Security policies.
+- **Data model:** four tables — `income`, `categories`, `line_items`, `user_preferences`. All derived math (difference, subtotals, totals, balance) is computed in the UI.
+- **Editing:** every cell is a live input. Changes auto-save on blur with optimistic UI; failures revert the local state.
+- **Theming:** three preset themes (Peach, Sage, Lavender) × light/dark, persisted per user in `user_preferences`. Single CSS variable system; switching themes is one HTML attribute change.
+- **Deployment:** single Vercel project, `main` → production, `staging` → preview (aliased to the QA URL).
 
-## Project layout
+## Project history
 
-See `docs/superpowers/specs/` for the design spec and
-`docs/superpowers/plans/` for the implementation plan.
+- `docs/superpowers/specs/` — design specs for each version
+- `docs/superpowers/plans/` — implementation plans for each version
+- `docs/superpowers/DEPLOYMENT.md` — operational deployment workflow
 
-## Deferred for v1
+## Deferred (future versions)
 
-- WebAuthn / passkey MFA factor (TOTP only for now).
-- Month rollover and history.
-- User-editable categories.
-- Sharing budgets with another user.
-- Charts and CSV export.
+- **v1.3:** WebAuthn / passkey MFA + leaked-password protection + remaining test gaps
+- **v1.4+:** Month rollover and history, custom user-editable categories, sharing budgets with another user, charts + CSV export — each its own brainstorm + spec + plan cycle.
