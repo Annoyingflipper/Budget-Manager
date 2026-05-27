@@ -14,8 +14,11 @@ export default function MFAEnroll() {
     let cancelled = false;
     async function enroll() {
       setBusy(true);
+      const appUrl = import.meta.env.VITE_APP_URL;
+      const issuer = appUrl ? new URL(appUrl).host : window.location.host;
       const { data, error } = await supabase.auth.mfa.enroll({
         factorType: 'totp',
+        issuer,
         friendlyName: `Authenticator ${new Date().toISOString().slice(0, 10)}`,
       });
       if (cancelled) return;
