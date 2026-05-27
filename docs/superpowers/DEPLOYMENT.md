@@ -88,3 +88,35 @@ When you ship a new version (v1.3, v1.4, etc.):
 3. Rename to the new version. Update the **What shipped** and **Smoke test** sections.
 4. Link the new sub-page from the hub's Versions index.
 5. Mark the previous version Complete once the new one is validated.
+
+## Session lifetime & "remember me" behavior
+
+Supabase persists each user's session to `localStorage` with auto-refresh, so users stay signed in across browser restarts by default — no "remember me" checkbox needed. The relevant configuration:
+
+| Setting | Value | Where |
+|---|---|---|
+| Access token (JWT) expiry | default (~1h) | Supabase Auth → JWT Settings |
+| Refresh token lifetime | default (very long, multi-month) | Supabase Auth → Sessions |
+| AAL2 (MFA verification) | preserved across refresh until explicit sign-out | Implicit in Supabase JWT claims |
+
+A user is re-MFA-challenged only when they sign out explicitly, when the refresh token expires (rare), or when their session is cleared (incognito mode, manual localStorage wipe, etc.). If you want to sign out, click "Log out" in the header — otherwise you'll stay at AAL2 for weeks.
+
+## TOTP issuer (authenticator-app label)
+
+Each environment registers its TOTP factor with a different `issuer`, which is the leading label in Google Authenticator / 1Password / etc. The issuer comes from `VITE_APP_URL`, set per Vercel env scope:
+
+| Env | `VITE_APP_URL` | Label in authenticator |
+|---|---|---|
+| QA (Vercel Preview, `staging` branch) | `https://budget-manager-qa.vercel.app` | `budget-manager-qa.vercel.app: <email>` |
+| PRD (Vercel Production, `main` branch) | `https://budget-manager-drab.vercel.app` | `budget-manager-drab.vercel.app: <email>` |
+| Local dev | matches `.env.development.local` | same as QA (default) |
+
+The issuer is baked into the QR code at enroll time; changing `VITE_APP_URL` only affects future enrollments. To rebrand an existing factor, unenroll it in Supabase Auth → Users → (user) → Factors and re-enroll on next sign-in.
+
+## Passkey / WebAuthn — deferred
+
+Supabase Auth currently supports only `totp` and `phone` as MFA factor types. Native WebAuthn (passkey) support is being worked on but not yet GA. We intentionally don't build custom WebAuthn or a trusted-device cookie scheme; we'll revisit when Supabase ships native support.
+
+## Leaked-password protection — deferred (Pro plan)
+
+Supabase's HaveIBeenPwned integration (rejects sign-ups using known-breached passwords) is gated to Pro-plan projects. Both QA and PRD are on the free tier, so the toggle in Auth → Providers → Email is read-only for us. Revisit if/when we upgrade.
