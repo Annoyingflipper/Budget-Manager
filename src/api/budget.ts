@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase';
-import type { Budget, LineItem } from '../types';
+import type { Budget, Income, LineItem } from '../types';
 
 async function currentUserId(): Promise<string> {
   const { data } = await supabase.auth.getUser();
@@ -7,14 +7,15 @@ async function currentUserId(): Promise<string> {
   return data.user.id;
 }
 
-export async function getBudget(): Promise<Budget> {
+export async function getBudget(periodMonth: string): Promise<Budget> {
   const userId = await currentUserId();
 
   const { data: income, error: incomeErr } = await supabase
     .from('income')
     .select('projected, actual')
     .eq('user_id', userId)
-    .single();
+    .eq('period_month', periodMonth)
+    .maybeSingle();
   if (incomeErr) throw incomeErr;
 
   const { data: categories, error: catErr } = await supabase
@@ -28,6 +29,7 @@ export async function getBudget(): Promise<Budget> {
     .from('line_items')
     .select('id, category_id, name, projected, actual')
     .eq('user_id', userId)
+    .eq('period_month', periodMonth)
     .order('created_at');
   if (itemsErr) throw itemsErr;
 
@@ -47,8 +49,8 @@ export async function getBudget(): Promise<Budget> {
 
   return {
     income: {
-      projected: Number(income.projected),
-      actual: Number(income.actual),
+      projected: Number(income?.projected ?? 0),
+      actual: Number(income?.actual ?? 0),
     },
     categories: (categories ?? []).map((c) => ({
       id: c.id,
@@ -59,24 +61,57 @@ export async function getBudget(): Promise<Budget> {
   };
 }
 
+export async function listMonths(): Promise<string[]> {
+  const userId = await currentUserId();
+  const { data: incomeRows, error: e1 } = await supabase
+    .from('income')
+    .select('period_month')
+    .eq('user_id', userId)
+    .order('period_month', { ascending: false });
+  if (e1) throw e1;
+  const { data: itemRows, error: e2 } = await supabase
+    .from('line_items')
+    .select('period_month')
+    .eq('user_id', userId)
+    .order('period_month', { ascending: false });
+  if (e2) throw e2;
+  const set = new Set<string>();
+  for (const r of incomeRows ?? []) set.add(r.period_month as string);
+  for (const r of itemRows ?? []) set.add(r.period_month as string);
+  return Array.from(set).sort().reverse();
+}
+
+export async function rolloverMonth(fromMonth: string, toMonth: string): Promise<void> {
+  const { error } = await supabase.rpc('rollover_month', {
+    from_month: fromMonth,
+    to_month: toMonth,
+  });
+  if (error) throw error;
+}
+
 export async function updateIncome(
-  patch: { projected?: number; actual?: number }
+  periodMonth: string,
+  patch: Partial<Income>,
 ): Promise<void> {
   const userId = await currentUserId();
-  // Upsert so a missing income row (e.g., a user whose seed trigger never
-  // fired) self-heals instead of silently no-op'ing.
   const { error } = await supabase
     .from('income')
     .upsert(
-      { user_id: userId, ...patch, updated_at: new Date().toISOString() },
-      { onConflict: 'user_id' }
+      {
+        user_id: userId,
+        period_month: periodMonth,
+        ...patch,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: 'user_id,period_month' },
     );
   if (error) throw error;
 }
 
 export async function addLineItem(
+  periodMonth: string,
   categoryId: number,
-  item: { name: string; projected: number; actual: number }
+  item: { name: string; projected: number; actual: number },
 ): Promise<LineItem> {
   const userId = await currentUserId();
   const { data, error } = await supabase
@@ -87,6 +122,7 @@ export async function addLineItem(
       name: item.name,
       projected: item.projected,
       actual: item.actual,
+      period_month: periodMonth,
     })
     .select('id, category_id, name, projected, actual')
     .single();
@@ -102,7 +138,7 @@ export async function addLineItem(
 
 export async function updateLineItem(
   id: number,
-  patch: Partial<{ name: string; projected: number; actual: number }>
+  patch: Partial<{ name: string; projected: number; actual: number }>,
 ): Promise<void> {
   const { error } = await supabase.from('line_items').update(patch).eq('id', id);
   if (error) throw error;
