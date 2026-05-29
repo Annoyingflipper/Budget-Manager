@@ -5,10 +5,11 @@ import type { Income } from '../types';
 
 type Props = {
   income: Income;
+  periodMonth: string;
   onChange: (patch: Partial<Income>) => void;
 };
 
-export default function IncomeSummary({ income, onChange }: Props) {
+export default function IncomeSummary({ income, periodMonth, onChange }: Props) {
   const [projectedDraft, setProjectedDraft] = useState(String(income.projected));
   const [actualDraft, setActualDraft] = useState(String(income.actual));
 
@@ -22,7 +23,7 @@ export default function IncomeSummary({ income, onChange }: Props) {
     if (value === income.projected) return;
     const previous = income.projected;
     onChange({ projected: value });
-    try { await updateIncome({ projected: value }); }
+    try { await updateIncome(periodMonth, { projected: value }); }
     catch { onChange({ projected: previous }); }
   }
 
@@ -31,7 +32,7 @@ export default function IncomeSummary({ income, onChange }: Props) {
     if (value === income.actual) return;
     const previous = income.actual;
     onChange({ actual: value });
-    try { await updateIncome({ actual: value }); }
+    try { await updateIncome(periodMonth, { actual: value }); }
     catch { onChange({ actual: previous }); }
   }
 

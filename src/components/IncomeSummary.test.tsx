@@ -6,16 +6,16 @@ import * as api from '../api/budget';
 
 vi.mock('../api/budget');
 
-function setup(initial = { projected: 1500, actual: 1500 }) {
+function setup(initial = { projected: 1500, actual: 1500 }, periodMonth = '2026-06-01') {
   const onChange = vi.fn();
-  render(<IncomeSummary income={initial} onChange={onChange} />);
+  render(<IncomeSummary income={initial} periodMonth={periodMonth} onChange={onChange} />);
   return { onChange };
 }
 
 beforeEach(() => { vi.resetAllMocks(); });
 
 describe('IncomeSummary', () => {
-  it('calls updateIncome on Projected blur with the new value', async () => {
+  it('calls updateIncome on Projected blur with the new value and period', async () => {
     const user = userEvent.setup();
     vi.mocked(api.updateIncome).mockResolvedValue();
     setup();
@@ -24,7 +24,7 @@ describe('IncomeSummary', () => {
     await user.type(projected, '2000');
     await user.tab();
     await waitFor(() => {
-      expect(api.updateIncome).toHaveBeenCalledWith({ projected: 2000 });
+      expect(api.updateIncome).toHaveBeenCalledWith('2026-06-01', { projected: 2000 });
     });
   });
 
