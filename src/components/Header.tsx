@@ -1,19 +1,64 @@
 import { useTheme } from '../theme/ThemeProvider';
 import { supabase } from '../lib/supabase';
+import { formatMonthLabel, nextMonth } from '../utils/month';
 
 type Props = {
-  monthLabel: string;
+  selectedMonth: string;
+  latestMonth: string | null;
+  onPrev: () => void;
+  onNext: () => void;
+  onRollover: () => void;
   onOpenSettings: () => void;
 };
 
-export default function Header({ monthLabel, onOpenSettings }: Props) {
+export default function Header({
+  selectedMonth,
+  latestMonth,
+  onPrev,
+  onNext,
+  onRollover,
+  onOpenSettings,
+}: Props) {
   const { mode, setMode } = useTheme();
+  const showRollover = latestMonth === null || selectedMonth >= latestMonth;
+  const nextLabel = formatMonthLabel(nextMonth(selectedMonth));
+
   return (
-    <header className="flex justify-between items-center mb-4">
-      <div className="flex items-baseline gap-2">
+    <header className="flex flex-wrap justify-between items-center gap-2 mb-4">
+      <div className="flex items-center gap-2">
         <span className="text-2xl">🍑</span>
         <span className="font-extrabold text-xl">Budget</span>
-        <span className="text-muted text-sm">{monthLabel}</span>
+      </div>
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={onPrev}
+          aria-label="Previous month"
+          className="bg-card border-0 rounded-lg px-2 py-1 text-sm font-bold"
+        >
+          ←
+        </button>
+        <span className="text-sm text-muted min-w-[7rem] text-center">
+          {formatMonthLabel(selectedMonth)}
+        </span>
+        {showRollover ? (
+          <button
+            type="button"
+            onClick={onRollover}
+            className="bg-card border-0 rounded-lg px-2.5 py-1 text-xs font-bold"
+          >
+            Start {nextLabel}
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={onNext}
+            aria-label="Next month"
+            className="bg-card border-0 rounded-lg px-2 py-1 text-sm font-bold"
+          >
+            →
+          </button>
+        )}
       </div>
       <div className="flex gap-2 items-center">
         <button
