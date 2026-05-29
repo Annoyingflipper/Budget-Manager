@@ -22,9 +22,15 @@ const claudeItem: LineItem = {
   actual: 20,
 };
 
-function setup(category: CategoryWithItems = baseCategory) {
+function setup(category: CategoryWithItems = baseCategory, periodMonth = '2026-06-01') {
   const onCategoryChange = vi.fn();
-  render(<CategoryTable category={category} onCategoryChange={onCategoryChange} />);
+  render(
+    <CategoryTable
+      category={category}
+      periodMonth={periodMonth}
+      onCategoryChange={onCategoryChange}
+    />,
+  );
   return { onCategoryChange };
 }
 
@@ -51,7 +57,7 @@ describe('CategoryTable', () => {
     expect(screen.getByPlaceholderText('Item name')).toBeInTheDocument();
   });
 
-  it('typing name + projected + actual and tabbing away calls addLineItem and onCategoryChange', async () => {
+  it('typing name + projected + actual and tabbing away calls addLineItem with periodMonth and onCategoryChange', async () => {
     const user = userEvent.setup();
     vi.mocked(api.addLineItem).mockResolvedValue({
       id: 200,
@@ -69,9 +75,9 @@ describe('CategoryTable', () => {
     await user.tab();
     await user.clear(screen.getByLabelText('Actual'));
     await user.type(screen.getByLabelText('Actual'), '17');
-    await user.tab(); // out of the row
+    await user.tab();
     await waitFor(() => {
-      expect(api.addLineItem).toHaveBeenCalledWith(1, {
+      expect(api.addLineItem).toHaveBeenCalledWith('2026-06-01', 1, {
         name: 'Netflix',
         projected: 15,
         actual: 17,

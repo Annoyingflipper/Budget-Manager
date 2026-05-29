@@ -9,10 +9,11 @@ import type { CategoryWithItems, LineItem } from '../types';
 
 type Props = {
   category: CategoryWithItems;
+  periodMonth: string;
   onCategoryChange: (next: CategoryWithItems) => void;
 };
 
-export default function CategoryTable({ category, onCategoryChange }: Props) {
+export default function CategoryTable({ category, periodMonth, onCategoryChange }: Props) {
   const [drafting, setDrafting] = useState(false);
 
   const items = category.items;
@@ -22,7 +23,7 @@ export default function CategoryTable({ category, onCategoryChange }: Props) {
 
   async function commit(draft: { name: string; projected: number; actual: number }) {
     try {
-      const created = await addLineItem(category.id, draft);
+      const created = await addLineItem(periodMonth, category.id, draft);
       onCategoryChange({ ...category, items: [...items, created] });
     } finally {
       setDrafting(false);
