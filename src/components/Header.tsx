@@ -26,7 +26,7 @@ export default function Header({
   return (
     <header className="flex flex-wrap justify-between items-center gap-2 mb-4">
       <div className="flex items-center gap-2">
-        <span className="text-2xl">🍑</span>
+        <span className="text-2xl">💵</span>
         <span className="font-extrabold text-xl">Budget</span>
       </div>
       <div className="flex items-center gap-2">
