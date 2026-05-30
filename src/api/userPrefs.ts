@@ -21,7 +21,13 @@ export async function setLastSeenChangelogVersion(version: string): Promise<void
   const userId = await currentUserId();
   const { error } = await supabase
     .from('user_preferences')
-    .update({ last_seen_changelog_version: version, updated_at: new Date().toISOString() })
-    .eq('user_id', userId);
+    .upsert(
+      {
+        user_id: userId,
+        last_seen_changelog_version: version,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: 'user_id' },
+    );
   if (error) throw error;
 }
