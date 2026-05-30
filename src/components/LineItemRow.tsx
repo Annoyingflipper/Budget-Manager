@@ -6,16 +6,23 @@ import type { LineItem } from '../types';
 
 type Props = {
   item: LineItem;
+  isConfirming: boolean;
+  onConfirmRequest: () => void;
   onChange: (next: LineItem) => void;
   onDelete: () => void;
 };
 
-export default function LineItemRow({ item, onChange, onDelete }: Props) {
+export default function LineItemRow({
+  item,
+  isConfirming,
+  onConfirmRequest,
+  onChange,
+  onDelete,
+}: Props) {
   const isMobile = useIsMobile();
   const [name, setName] = useState(item.name);
   const [projected, setProjected] = useState(String(item.projected));
   const [actual, setActual] = useState(String(item.actual));
-  const [confirmDelete, setConfirmDelete] = useState(false);
 
   useEffect(() => setName(item.name), [item.name]);
   useEffect(() => setProjected(String(item.projected)), [item.projected]);
@@ -58,19 +65,19 @@ export default function LineItemRow({ item, onChange, onDelete }: Props) {
     catch { /* Best-effort */ }
   }
 
-  const deleteButton = confirmDelete ? (
+  const deleteButton = isConfirming ? (
     <button
       type="button"
       onClick={handleDelete}
       aria-label="Confirm delete"
-      className="text-negative text-xs"
+      className="text-negative text-base"
     >
-      Confirm
+      ✓
     </button>
   ) : (
     <button
       type="button"
-      onClick={() => setConfirmDelete(true)}
+      onClick={onConfirmRequest}
       aria-label="Delete row"
       className="text-muted hover:text-negative"
     >

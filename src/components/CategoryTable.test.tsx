@@ -95,4 +95,24 @@ describe('CategoryTable', () => {
     await user.keyboard('{Escape}');
     expect(api.addLineItem).not.toHaveBeenCalled();
   });
+
+  it('only one row at a time is in confirm state (click delete on row B clears row A)', async () => {
+    const user = userEvent.setup();
+    const itemA: LineItem = { id: 100, category_id: 1, name: 'A', projected: 1, actual: 1 };
+    const itemB: LineItem = { id: 101, category_id: 1, name: 'B', projected: 2, actual: 2 };
+    setup({ ...baseCategory, items: [itemA, itemB] });
+    // Two delete buttons visible initially.
+    const deleteButtons = screen.getAllByLabelText('Delete row');
+    expect(deleteButtons).toHaveLength(2);
+    // Click A's delete -> A turns into Confirm, B stays as Delete.
+    await user.click(deleteButtons[0]);
+    expect(screen.getAllByLabelText('Confirm delete')).toHaveLength(1);
+    expect(screen.getAllByLabelText('Delete row')).toHaveLength(1);
+    // Click B's delete -> B turns into Confirm, A goes back to Delete.
+    await user.click(screen.getByLabelText('Delete row'));
+    expect(screen.getAllByLabelText('Confirm delete')).toHaveLength(1);
+    expect(screen.getAllByLabelText('Delete row')).toHaveLength(1);
+    // Sanity check: row B is the confirming one (it has the projected value 2).
+    expect(screen.getAllByDisplayValue('2').length).toBeGreaterThan(0);
+  });
 });

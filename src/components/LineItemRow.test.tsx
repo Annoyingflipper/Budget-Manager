@@ -15,17 +15,25 @@ const baseItem: LineItem = {
   actual: 17,
 };
 
-function renderRow(item: LineItem = baseItem) {
+function renderRow(props: Partial<React.ComponentProps<typeof LineItemRow>> = {}) {
   const onChange = vi.fn();
   const onDelete = vi.fn();
+  const onConfirmRequest = vi.fn();
   render(
     <table>
       <tbody>
-        <LineItemRow item={item} onChange={onChange} onDelete={onDelete} />
+        <LineItemRow
+          item={baseItem}
+          isConfirming={false}
+          onConfirmRequest={onConfirmRequest}
+          onChange={onChange}
+          onDelete={onDelete}
+          {...props}
+        />
       </tbody>
     </table>
   );
-  return { onChange, onDelete };
+  return { onChange, onDelete, onConfirmRequest };
 }
 
 beforeEach(() => { vi.resetAllMocks(); });
@@ -67,14 +75,21 @@ describe('LineItemRow', () => {
     });
   });
 
-  it('requires a confirm click before deleting', async () => {
+  it('isConfirming=false renders Delete button that calls onConfirmRequest, no API call', async () => {
     const user = userEvent.setup();
     vi.mocked(api.deleteLineItem).mockResolvedValue();
-    const { onDelete } = renderRow();
+    const { onConfirmRequest } = renderRow({ isConfirming: false });
     await user.click(screen.getByLabelText('Delete row'));
+    expect(onConfirmRequest).toHaveBeenCalledTimes(1);
     expect(api.deleteLineItem).not.toHaveBeenCalled();
+  });
+
+  it('isConfirming=true renders Confirm button that calls onDelete and deleteLineItem', async () => {
+    const user = userEvent.setup();
+    vi.mocked(api.deleteLineItem).mockResolvedValue();
+    const { onDelete } = renderRow({ isConfirming: true });
     await user.click(screen.getByLabelText('Confirm delete'));
-    expect(onDelete).toHaveBeenCalled();
+    expect(onDelete).toHaveBeenCalledTimes(1);
     await waitFor(() => {
       expect(api.deleteLineItem).toHaveBeenCalledWith(42);
     });

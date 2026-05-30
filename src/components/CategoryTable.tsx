@@ -14,6 +14,7 @@ type Props = {
 
 export default function CategoryTable({ category, periodMonth, onCategoryChange }: Props) {
   const [drafting, setDrafting] = useState(false);
+  const [confirmingItemId, setConfirmingItemId] = useState<number | null>(null);
 
   const items = category.items;
   const subProjected = sum(items.map((i) => i.projected));
@@ -78,8 +79,13 @@ export default function CategoryTable({ category, periodMonth, onCategoryChange 
           <LineItemRow
             key={item.id}
             item={item}
+            isConfirming={confirmingItemId === item.id}
+            onConfirmRequest={() => setConfirmingItemId(item.id)}
             onChange={(next) => replaceItem(item.id, next)}
-            onDelete={() => removeItem(item.id)}
+            onDelete={() => {
+              setConfirmingItemId(null);
+              removeItem(item.id);
+            }}
           />
         ))}
         {drafting && (
