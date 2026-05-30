@@ -101,6 +101,11 @@ export default function CategoriesEditor() {
   async function confirmDelete() {
     if (!dialog.open) return;
     const src = dialog.source;
+    if (categories.length <= 1) {
+      setError('Cannot delete your last category.');
+      setDialog({ open: false });
+      return;
+    }
     setDialog({ open: false });
     try {
       if (dialog.itemCount === 0) {

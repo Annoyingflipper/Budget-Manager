@@ -52,6 +52,7 @@ export default function CategoryRow({ category, onChange, onDelete, dragHandleLa
         <button
           type="button"
           onClick={() => setPickerOpen((o) => !o)}
+          onMouseDown={(e) => e.stopPropagation()}
           aria-label={`Change icon for ${category.name}`}
           className="text-xl hover:bg-card rounded-md w-full text-center"
         >
