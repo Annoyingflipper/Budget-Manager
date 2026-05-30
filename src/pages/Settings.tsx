@@ -1,4 +1,5 @@
 import ThemeCard from '../components/ThemeCard';
+import CategoriesEditor from '../components/CategoriesEditor';
 import { useTheme } from '../theme/ThemeProvider';
 import type { Theme } from '../theme/types';
 
@@ -76,6 +77,12 @@ export default function Settings({ onBack }: Props) {
           />
         ))}
       </div>
+
+      <div>
+        <h2 className="text-2xl font-extrabold">Categories</h2>
+        <p className="text-muted text-sm">Make the budget match what you actually spend on.</p>
+      </div>
+      <CategoriesEditor />
     </div>
   );
 }
