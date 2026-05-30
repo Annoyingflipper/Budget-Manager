@@ -3,11 +3,15 @@ import CategoriesEditor from '../components/CategoriesEditor';
 import { useTheme } from '../theme/ThemeProvider';
 import type { Theme } from '../theme/types';
 
-type Props = { onBack: () => void };
+type Props = {
+  onBack: () => void;
+  onCategoriesChanged: (action: 'added' | 'renamed' | 'icon' | 'deleted' | 'reordered') => void;
+  onOpenChangelog: () => void;
+};
 
 const THEMES: Theme[] = ['peach', 'sage', 'lavender'];
 
-export default function Settings({ onBack }: Props) {
+export default function Settings({ onBack, onCategoriesChanged, onOpenChangelog }: Props) {
   const { theme, mode, setTheme, setMode } = useTheme();
 
   return (
@@ -82,7 +86,17 @@ export default function Settings({ onBack }: Props) {
         <h2 className="text-2xl font-extrabold">Categories</h2>
         <p className="text-muted text-sm">Make the budget match what you actually spend on.</p>
       </div>
-      <CategoriesEditor />
+      <CategoriesEditor onCategoriesChanged={onCategoriesChanged} />
+
+      <div className="pt-4">
+        <button
+          type="button"
+          onClick={onOpenChangelog}
+          className="bg-card border-0 rounded-lg px-3 py-2 text-sm font-bold"
+        >
+          🆕 What's new
+        </button>
+      </div>
     </div>
   );
 }
