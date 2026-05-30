@@ -40,6 +40,7 @@ Notion hub page ID: `36bb6bed-f453-81cb-8f5a-c62e801b5cfd`. All shipped versions
 - **v1.1** (2026-05-26): Themes (Peach/Sage/Lavender × light/dark), Settings page, BalanceHero, EmptyCategoryCard, mobile responsive.
 - **v1.2** (2026-05-26): Vercel QA + PRD deployment, `staging` branch model, `DEPLOYMENT.md` runbook.
 - **v1.3** (2026-05-27): TOTP issuer rename driven by `VITE_APP_URL` (authenticator labels now read `budget-manager-{qa,drab}.vercel.app: <email>` instead of `localhost:3000`), 12 new tests (44 total), session-persistence + deferred-feature docs.
+- **v1.4** (2026-05-30): Month rollover + history view. `period_month date` column on `income` + `line_items` (income PK is now `(user_id, period_month)`), header switcher (`← Month YYYY →`), explicit "Start <next month>" rollover button backed by a `rollover_month(date, date)` Postgres RPC with AAL2 guard. Seed trigger no longer inserts an income row — first save lazily creates it. Existing data backfilled to `2026-06-01`. 12 new tests (56 total).
 
 ## Deferred (with reasons)
 
@@ -50,8 +51,8 @@ Notion hub page ID: `36bb6bed-f453-81cb-8f5a-c62e801b5cfd`. All shipped versions
 
 ## Next likely brainstorms
 
-- **v1.4** — Month rollover + history view (which month am I looking at; archive past months).
-- **v1.5+** — Custom user-editable categories; sharing budgets with another user; charts + CSV export.
+- **v1.5** — Custom user-editable categories (rename / add / delete / reorder).
+- **v1.6+** — Sharing budgets with another user; charts + CSV export; month-to-month comparisons.
 
 Each gets its own brainstorm → spec → plan → execute cycle. Don't bundle.
 
