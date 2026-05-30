@@ -25,7 +25,7 @@ export default function Signup({ onSwitch }: Props) {
   return (
     <div className="mx-auto max-w-sm p-8 space-y-4">
       <div className="text-center mb-2">
-        <div className="text-4xl mb-1">🍑</div>
+        <div className="text-4xl mb-1">💵</div>
         <h1 className="text-2xl font-extrabold">Budget</h1>
       </div>
       <form onSubmit={submit} className="space-y-2">
