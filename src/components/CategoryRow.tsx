@@ -7,10 +7,17 @@ type Props = {
   category: Category;
   onChange: (next: Category) => void;
   onDelete: (category: Category) => void;
+  onCategoryChanged?: (action: 'renamed' | 'icon') => void;
   dragHandleLabel?: string;
 };
 
-export default function CategoryRow({ category, onChange, onDelete, dragHandleLabel }: Props) {
+export default function CategoryRow({
+  category,
+  onChange,
+  onDelete,
+  onCategoryChanged,
+  dragHandleLabel,
+}: Props) {
   const [name, setName] = useState(category.name);
   const [pickerOpen, setPickerOpen] = useState(false);
 
@@ -22,8 +29,13 @@ export default function CategoryRow({ category, onChange, onDelete, dragHandleLa
     if (next === category.name) return;
     const previous = category;
     onChange({ ...category, name: next });
-    try { await renameCategory(category.id, next); }
-    catch { onChange(previous); setName(previous.name); }
+    try {
+      await renameCategory(category.id, next);
+      onCategoryChanged?.('renamed');
+    } catch {
+      onChange(previous);
+      setName(previous.name);
+    }
   }
 
   async function pickIcon(emoji: string) {
@@ -31,8 +43,12 @@ export default function CategoryRow({ category, onChange, onDelete, dragHandleLa
     if (emoji === category.icon) return;
     const previous = category;
     onChange({ ...category, icon: emoji });
-    try { await setCategoryIcon(category.id, emoji); }
-    catch { onChange(previous); }
+    try {
+      await setCategoryIcon(category.id, emoji);
+      onCategoryChanged?.('icon');
+    } catch {
+      onChange(previous);
+    }
   }
 
   return (
