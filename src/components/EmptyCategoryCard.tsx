@@ -1,17 +1,16 @@
-import { categoryIcon } from '../utils/categoryIcons';
-
 type Props = {
   categoryName: string;
+  categoryIcon: string;
   onAddFirst: () => void;
 };
 
-export default function EmptyCategoryCard({ categoryName, onAddFirst }: Props) {
+export default function EmptyCategoryCard({ categoryName, categoryIcon, onAddFirst }: Props) {
   return (
     <section
       className="rounded-xl p-4 mb-3 text-center bg-card/50"
       style={{ border: '2px dashed var(--dashed)' }}
     >
-      <div className="text-2xl mb-0.5">{categoryIcon(categoryName)}</div>
+      <div className="text-2xl mb-0.5">{categoryIcon}</div>
       <div className="font-extrabold text-sm">{categoryName}</div>
       <div className="text-xs text-muted">Nothing here yet</div>
       <button

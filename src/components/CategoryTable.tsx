@@ -3,7 +3,6 @@ import LineItemRow from './LineItemRow';
 import DraftRow from './DraftRow';
 import EmptyCategoryCard from './EmptyCategoryCard';
 import { addLineItem } from '../api/budget';
-import { categoryIcon } from '../utils/categoryIcons';
 import { difference, differenceClass, formatMoney, sum } from '../utils/money';
 import type { CategoryWithItems, LineItem } from '../types';
 
@@ -42,14 +41,20 @@ export default function CategoryTable({ category, periodMonth, onCategoryChange 
   }
 
   if (items.length === 0 && !drafting) {
-    return <EmptyCategoryCard categoryName={category.name} onAddFirst={() => setDrafting(true)} />;
+    return (
+      <EmptyCategoryCard
+        categoryName={category.name}
+        categoryIcon={category.icon}
+        onAddFirst={() => setDrafting(true)}
+      />
+    );
   }
 
   return (
     <section className="bg-card rounded-xl p-4 mb-3">
       <div className="flex justify-between items-center mb-2">
         <div className="flex items-center gap-1.5">
-          <span className="text-base">{categoryIcon(category.name)}</span>
+          <span className="text-base">{category.icon}</span>
           <span className="font-extrabold text-sm">{category.name}</span>
         </div>
         <span className={`text-xs font-bold ${differenceClass('cost', subDiff)}`}>
