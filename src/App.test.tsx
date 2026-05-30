@@ -1,14 +1,21 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import * as api from './api/budget';
+import * as userPrefs from './api/userPrefs';
 
 vi.mock('./api/budget');
+vi.mock('./api/userPrefs', () => ({
+  getLastSeenChangelogVersion: vi.fn().mockResolvedValue('1.5.1'),
+  setLastSeenChangelogVersion: vi.fn().mockResolvedValue(undefined),
+}));
 vi.mock('./auth/AuthGate', () => ({
   default: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 vi.mock('./lib/supabase', () => ({
   supabase: { auth: { signOut: vi.fn(), getUser: vi.fn() } },
 }));
+vi.mock('@vercel/analytics/react', () => ({ Analytics: () => null }));
+vi.mock('@vercel/speed-insights/react', () => ({ SpeedInsights: () => null }));
 
 import App from './App';
 
@@ -20,6 +27,8 @@ const emptyBudget = {
 beforeEach(() => {
   vi.resetAllMocks();
   vi.mocked(api.getBudget).mockResolvedValue(emptyBudget);
+  vi.mocked(userPrefs.getLastSeenChangelogVersion).mockResolvedValue('1.5.1');
+  vi.mocked(userPrefs.setLastSeenChangelogVersion).mockResolvedValue(undefined);
 });
 
 describe('App', () => {
