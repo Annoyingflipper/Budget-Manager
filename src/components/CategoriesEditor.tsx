@@ -12,7 +12,11 @@ type DeleteDialogState =
   | { open: false }
   | { open: true; source: Category; itemCount: number };
 
-export default function CategoriesEditor() {
+type Props = {
+  onCategoriesChanged?: (action: 'added' | 'renamed' | 'icon' | 'deleted' | 'reordered') => void;
+};
+
+export default function CategoriesEditor({ onCategoriesChanged }: Props = {}) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [drafting, setDrafting] = useState(false);
   const [draftName, setDraftName] = useState('');
@@ -66,8 +70,10 @@ export default function CategoriesEditor() {
     next.splice(dstIdx, 0, moved);
     const previous = categories;
     setCategories(next);
-    try { await reorderCategories(next.map((c) => c.id)); }
-    catch (err) { setCategories(previous); setError(err instanceof Error ? err.message : String(err)); }
+    try {
+      await reorderCategories(next.map((c) => c.id));
+      onCategoriesChanged?.('reordered');
+    } catch (err) { setCategories(previous); setError(err instanceof Error ? err.message : String(err)); }
   }
 
   async function commitDraft() {
@@ -78,6 +84,7 @@ export default function CategoriesEditor() {
     try {
       const created = await addCategory(trimmed, '📁');
       setCategories((cs) => [...cs, created]);
+      onCategoriesChanged?.('added');
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     }
@@ -115,6 +122,7 @@ export default function CategoriesEditor() {
         await moveAndDeleteCategory(src.id, dstChoice);
       }
       setCategories((cs) => cs.filter((c) => c.id !== src.id));
+      onCategoriesChanged?.('deleted');
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     }
@@ -137,6 +145,7 @@ export default function CategoriesEditor() {
                 category={c}
                 onChange={replace}
                 onDelete={openDeleteFor}
+                onCategoryChanged={onCategoriesChanged}
                 dragHandleLabel={`Drag handle for ${c.name}`}
               />
             </div>
