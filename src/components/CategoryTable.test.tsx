@@ -11,6 +11,7 @@ const baseCategory: CategoryWithItems = {
   id: 1,
   name: 'Services',
   display_order: 1,
+  icon: '🛠',
   items: [],
 };
 

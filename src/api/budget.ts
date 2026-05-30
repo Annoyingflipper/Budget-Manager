@@ -20,7 +20,7 @@ export async function getBudget(periodMonth: string): Promise<Budget> {
 
   const { data: categories, error: catErr } = await supabase
     .from('categories')
-    .select('id, name, display_order')
+    .select('id, name, display_order, icon')
     .eq('user_id', userId)
     .order('display_order');
   if (catErr) throw catErr;
@@ -56,6 +56,7 @@ export async function getBudget(periodMonth: string): Promise<Budget> {
       id: c.id,
       name: c.name,
       display_order: c.display_order,
+      icon: c.icon,
       items: byCategory.get(c.id) ?? [],
     })),
   };

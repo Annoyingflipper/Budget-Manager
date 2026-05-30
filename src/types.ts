@@ -2,6 +2,7 @@ export type Category = {
   id: number;
   name: string;
   display_order: number;
+  icon: string;
 };
 
 export type LineItem = {

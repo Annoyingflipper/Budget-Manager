@@ -12,6 +12,7 @@ function category(
     id,
     name,
     display_order: id,
+    icon: '',
     items: items.map((i) => ({
       id: i.id,
       category_id: id,
