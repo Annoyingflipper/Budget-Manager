@@ -39,6 +39,23 @@ describe('Insights page', () => {
     expect(getBudget).not.toHaveBeenCalled();
   });
 
+  it('treats an income-only prior month (no line items) as no prior month', async () => {
+    listMonths.mockResolvedValue(['2026-06-01', '2026-05-01']);
+    getBudget.mockResolvedValue({
+      income: { projected: 4000, actual: 4000 },
+      categories: [
+        { id: 1, name: 'Food', display_order: 0, icon: '🍔', items: [] },
+      ],
+    });
+    render(<Insights selectedMonth="2026-06-01" budget={budget} onBack={() => {}} />);
+
+    await waitFor(() => expect(getBudget).toHaveBeenCalledWith('2026-05-01'));
+    await waitFor(() =>
+      expect(screen.getByText('No prior month to compare.')).toBeInTheDocument(),
+    );
+    expect(screen.queryByText('vs last month')).not.toBeInTheDocument();
+  });
+
   it('fetches the previous month and shows a delta when prior data exists', async () => {
     listMonths.mockResolvedValue(['2026-06-01', '2026-05-01']);
     getBudget.mockResolvedValue({

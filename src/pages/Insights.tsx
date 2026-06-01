@@ -25,7 +25,13 @@ export default function Insights({ selectedMonth, budget, onBack }: Props) {
           return;
         }
         const prevBudget = await getBudget(prev);
-        if (!cancelled) setDelta(buildMonthDelta(current, categoryTotals(prevBudget)));
+        if (cancelled) return;
+        const prevHasLineItems = prevBudget.categories.some((c) => c.items.length > 0);
+        setDelta(
+          prevHasLineItems
+            ? buildMonthDelta(current, categoryTotals(prevBudget))
+            : { hasPrior: false },
+        );
       })
       .catch(() => {
         if (!cancelled) setDelta({ hasPrior: false });
