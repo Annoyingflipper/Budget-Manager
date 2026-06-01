@@ -26,3 +26,32 @@ export type Budget = {
   income: Income;
   categories: CategoryWithItems[];
 };
+
+export type CategoryTotal = {
+  id: number;
+  name: string;
+  icon: string;
+  projected: number;
+  actual: number;
+};
+
+export type DeltaRow = {
+  id: number;
+  name: string;
+  icon: string;
+  currentActual: number;
+  prevActual: number;
+  delta: number; // currentActual - prevActual, rounded to cents
+};
+
+export type MonthDelta =
+  | { hasPrior: false }
+  | { hasPrior: true; rows: DeltaRow[] };
+
+export type ExportRow = {
+  month: string; // 'YYYY-MM-01'
+  category: string;
+  item: string;
+  projected: number;
+  actual: number;
+};
