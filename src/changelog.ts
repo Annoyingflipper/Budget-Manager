@@ -7,6 +7,17 @@ export type ChangelogEntry = {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '1.6',
+    date: '2026-06-01',
+    title: 'Insights',
+    highlights: [
+      'New 📊 Insights page (next to Settings) with a projected-vs-actual chart.',
+      'Over-budget categories show in red, on/under budget in green.',
+      'Automatic "vs last month" comparison of what you actually spent.',
+      'Export your budget to CSV — this month or all history.',
+    ],
+  },
+  {
     version: '1.5.1',
     date: '2026-05-30',
     title: 'Polish & changelog',
