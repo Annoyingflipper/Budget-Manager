@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase';
-import type { Budget, Income, LineItem } from '../types';
+import type { Budget, Income, LineItem, ExportRow } from '../types';
 
 async function currentUserId(): Promise<string> {
   const { data } = await supabase.auth.getUser();
@@ -148,4 +148,32 @@ export async function updateLineItem(
 export async function deleteLineItem(id: number): Promise<void> {
   const { error } = await supabase.from('line_items').delete().eq('id', id);
   if (error) throw error;
+}
+
+export async function getExportRows(): Promise<ExportRow[]> {
+  const userId = await currentUserId();
+
+  const { data: cats, error: catErr } = await supabase
+    .from('categories')
+    .select('id, name')
+    .eq('user_id', userId);
+  if (catErr) throw catErr;
+  const nameById = new Map<number, string>(
+    (cats ?? []).map((c) => [c.id as number, c.name as string]),
+  );
+
+  const { data: items, error: itemErr } = await supabase
+    .from('line_items')
+    .select('period_month, category_id, name, projected, actual')
+    .eq('user_id', userId)
+    .order('period_month');
+  if (itemErr) throw itemErr;
+
+  return (items ?? []).map((r) => ({
+    month: r.period_month as string,
+    category: nameById.get(r.category_id as number) ?? 'Uncategorized',
+    item: r.name as string,
+    projected: Number(r.projected),
+    actual: Number(r.actual),
+  }));
 }

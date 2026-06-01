@@ -30,7 +30,7 @@ vi.mock('../lib/supabase', () => ({
   },
 }));
 
-import { getBudget, listMonths, rolloverMonth } from './budget';
+import { getBudget, listMonths, rolloverMonth, getExportRows } from './budget';
 
 beforeEach(() => {
   calls.length = 0;
@@ -91,5 +91,41 @@ describe('api/budget', () => {
     });
     const months = await listMonths();
     expect(months).toEqual(['2026-06-01', '2026-05-01']);
+  });
+
+  it('getExportRows joins line items to category names across all months', async () => {
+    fromMock.mockImplementation((table: string) => {
+      if (table === 'categories') {
+        const b = builder();
+        (b as { eq: (...a: unknown[]) => unknown }).eq = () =>
+          Promise.resolve({
+            data: [
+              { id: 1, name: 'Food' },
+              { id: 2, name: 'Rent' },
+            ],
+            error: null,
+          });
+        return b;
+      }
+      if (table === 'line_items') {
+        const b = builder();
+        (b as { order: (...a: unknown[]) => unknown }).order = () =>
+          Promise.resolve({
+            data: [
+              { period_month: '2026-05-01', category_id: 1, name: 'Groceries', projected: 400, actual: 380 },
+              { period_month: '2026-06-01', category_id: 2, name: 'Apartment', projected: 1650, actual: 1650 },
+            ],
+            error: null,
+          });
+        return b;
+      }
+      return builder();
+    });
+
+    const rows = await getExportRows();
+    expect(rows).toEqual([
+      { month: '2026-05-01', category: 'Food', item: 'Groceries', projected: 400, actual: 380 },
+      { month: '2026-06-01', category: 'Rent', item: 'Apartment', projected: 1650, actual: 1650 },
+    ]);
   });
 });
