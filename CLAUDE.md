@@ -2,7 +2,7 @@
 
 A personal budgeting web app. Solo user is `annoyingflipper@gmail.com`. PRD already holds the user's real monthly data.
 
-Stack: React 18 + Vite 5 + TypeScript + Tailwind + Supabase. Tests: Vitest 2.1 + React Testing Library 16.
+Stack: React 19 + Vite 8 + TypeScript 6 + Tailwind 4 + Supabase. Tests: Vitest 4 + React Testing Library 16. All dependencies are pinned to latest as of 2026-06-01 (see **Tooling & CI**).
 
 ## Environments
 
@@ -13,6 +13,13 @@ Stack: React 18 + Vite 5 + TypeScript + Tailwind + Supabase. Tests: Vitest 2.1 +
 | Local dev | (any) | http://localhost:5173 | same as QA (via `.env.development.local`) |
 
 Vercel project env vars: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_APP_URL`. All three are required at build time — `src/lib/supabase.ts` and `src/auth/MFAEnroll.tsx` throw / fall back without them. Production scope and Preview scope have different values.
+
+## Tooling & CI
+
+- **GitHub Actions CI** (`.github/workflows/ci.yml`, added 2026-06-01): runs `typecheck → test → build` on every push and PR, Node 24, `actions/checkout@v6` + `actions/setup-node@v6`. Placeholder `VITE_SUPABASE_*` vars are injected at the job level — tests mock all Supabase calls, so the values only need to exist to satisfy the import-time guard in `src/lib/supabase.ts`. This is *in addition to* Vercel's build gate (`vercel.json` runs `npm test && npm run build`); CI gives a green check on commits/PRs independent of deploys.
+- **Full framework upgrade** (2026-06-01): everything bumped to latest and verified (97/97 tests, 0 vulns, CI + QA deploy green). React 18→19, Vite 5→8, Vitest 2→4, `@vitejs/plugin-react` 4→6, TypeScript 5→6, jsdom 25→29, Tailwind 3→4. Backup tag `pre-framework-upgrade-2026-06-01` marks the last pre-upgrade commit if a rollback is ever needed.
+- **Tailwind is now v4 — CSS-first config.** There is **no `tailwind.config.js`** anymore (deleted in the migration). The theme lives in a `@theme` block in `src/index.css` (custom colors still map to the runtime `--bg`/`--card`/… theme CSS vars, so light/dark + Peach/Sage/Lavender switching is preserved). PostCSS uses `@tailwindcss/postcss` (autoprefixer removed — v4 prefixes internally). `src/index.css` uses `@import 'tailwindcss'` instead of `@tailwind` directives, plus a border-color compatibility shim (v4's default border color is `currentColor`, not gray-200).
+- **`vite.config.ts` imports `defineConfig` from `vitest/config`** (not `vite`). Under Vitest 4 the old `/// <reference types="vitest" />` no longer augments Vite's config type with the `test` field. Note `tsc --noEmit` (the `typecheck` script) does **not** catch a regression here — only `tsc -b` (run by `npm run build`) does, because the config files live in the `tsconfig.node.json` project.
 
 ## How we work
 
@@ -65,3 +72,4 @@ Each gets its own brainstorm → spec → plan → execute cycle. Don't bundle.
 - MFA enroll: `src/auth/MFAEnroll.tsx` — reads `VITE_APP_URL` for the TOTP issuer.
 - Money formatting: `src/utils/money.ts` — `formatMoney` uses `Intl.NumberFormat('en-US', { currency: 'USD' })`.
 - Test setup: `src/test/setup.ts` — polyfills `matchMedia` (so `useIsMobile` returns false in jsdom).
+- Styling/theme: `src/index.css` — Tailwind v4 `@theme` block (no `tailwind.config.js`); custom color utilities map to the `--bg`/`--card`/… vars defined in `src/themes.css`. `postcss.config.js` uses `@tailwindcss/postcss`.
