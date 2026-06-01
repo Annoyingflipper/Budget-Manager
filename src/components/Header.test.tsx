@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Header from './Header';
 import { ThemeProvider } from '../theme/ThemeProvider';
@@ -16,6 +16,7 @@ function renderHeader(overrides: Partial<React.ComponentProps<typeof Header>> = 
     onNext: vi.fn(),
     onRollover: vi.fn(),
     onOpenSettings: vi.fn(),
+    onOpenInsights: vi.fn(),
     ...overrides,
   };
   render(
@@ -48,5 +49,24 @@ describe('Header', () => {
     await user.click(startButton);
     expect(props.onRollover).toHaveBeenCalledTimes(1);
     expect(props.onNext).not.toHaveBeenCalled();
+  });
+
+  it('calls onOpenInsights when the Insights button is clicked', () => {
+    const onOpenInsights = vi.fn();
+    render(
+      <ThemeProvider>
+        <Header
+          selectedMonth="2026-06-01"
+          latestMonth="2026-06-01"
+          onPrev={() => {}}
+          onNext={() => {}}
+          onRollover={() => {}}
+          onOpenSettings={() => {}}
+          onOpenInsights={onOpenInsights}
+        />
+      </ThemeProvider>,
+    );
+    fireEvent.click(screen.getByText('📊 Insights'));
+    expect(onOpenInsights).toHaveBeenCalledTimes(1);
   });
 });

@@ -11,13 +11,14 @@ import GrandTotals from './components/GrandTotals';
 import Toast from './components/Toast';
 import ChangelogModal from './components/ChangelogModal';
 import Settings from './pages/Settings';
+import Insights from './pages/Insights';
 import { getBudget, listMonths, rolloverMonth } from './api/budget';
 import { getLastSeenChangelogVersion, setLastSeenChangelogVersion } from './api/userPrefs';
 import { CHANGELOG, LATEST_VERSION } from './changelog';
 import { formatMonth, formatMonthLabel, nextMonth, prevMonth } from './utils/month';
 import type { Budget, CategoryWithItems, Income } from './types';
 
-type Page = 'budget' | 'settings';
+type Page = 'budget' | 'settings' | 'insights';
 type CategoryAction = 'added' | 'renamed' | 'icon' | 'deleted' | 'reordered';
 
 const TOAST_COPY: Record<CategoryAction, string> = {
@@ -140,6 +141,12 @@ function BudgetApp() {
           onCategoriesChanged={handleCategoriesChanged}
           onOpenChangelog={() => setChangelogOpen(true)}
         />
+      ) : page === 'insights' ? (
+        <Insights
+          selectedMonth={selectedMonth}
+          budget={budget}
+          onBack={() => setPage('budget')}
+        />
       ) : (
         <div className="mx-auto max-w-3xl p-6">
           <Header
@@ -149,6 +156,7 @@ function BudgetApp() {
             onNext={handleNext}
             onRollover={handleRollover}
             onOpenSettings={() => setPage('settings')}
+            onOpenInsights={() => setPage('insights')}
           />
           <BalanceHero income={budget.income} categories={budget.categories} />
           <IncomeSummary
