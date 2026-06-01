@@ -24,7 +24,7 @@ function setup(category: Category = baseCategory) {
 beforeEach(() => { vi.resetAllMocks(); });
 
 describe('CategoryRow', () => {
-  it('blur on name input with a new value calls renameCategory and onChange', async () => {
+  it('blur-sm on name input with a new value calls renameCategory and onChange', async () => {
     const user = userEvent.setup();
     vi.mocked(api.renameCategory).mockResolvedValue();
     const { onChange } = setup();
@@ -38,7 +38,7 @@ describe('CategoryRow', () => {
     });
   });
 
-  it('blur with empty input reverts to original and does not call renameCategory', async () => {
+  it('blur-sm with empty input reverts to original and does not call renameCategory', async () => {
     const user = userEvent.setup();
     vi.mocked(api.renameCategory).mockResolvedValue();
     setup();

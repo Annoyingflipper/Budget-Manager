@@ -39,7 +39,7 @@ function renderRow(props: Partial<React.ComponentProps<typeof LineItemRow>> = {}
 beforeEach(() => { vi.resetAllMocks(); });
 
 describe('LineItemRow', () => {
-  it('calls updateLineItem on projected blur with new value', async () => {
+  it('calls updateLineItem on projected blur-sm with new value', async () => {
     const user = userEvent.setup();
     vi.mocked(api.updateLineItem).mockResolvedValue();
     renderRow();

@@ -15,7 +15,7 @@ function setup(initial = { projected: 1500, actual: 1500 }, periodMonth = '2026-
 beforeEach(() => { vi.resetAllMocks(); });
 
 describe('IncomeSummary', () => {
-  it('calls updateIncome on Projected blur with the new value and period', async () => {
+  it('calls updateIncome on Projected blur-sm with the new value and period', async () => {
     const user = userEvent.setup();
     vi.mocked(api.updateIncome).mockResolvedValue();
     setup();
@@ -28,7 +28,7 @@ describe('IncomeSummary', () => {
     });
   });
 
-  it('does not call updateIncome when value is unchanged on blur', async () => {
+  it('does not call updateIncome when value is unchanged on blur-sm', async () => {
     const user = userEvent.setup();
     vi.mocked(api.updateIncome).mockResolvedValue();
     setup();

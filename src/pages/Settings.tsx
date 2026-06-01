@@ -49,7 +49,7 @@ export default function Settings({ onBack, onCategoriesChanged, onOpenChangelog 
               aria-checked={mode === 'light'}
               onClick={() => setMode('light')}
               className={`px-3 py-1 text-xs font-bold rounded-lg ${
-                mode === 'light' ? 'bg-card shadow-sm' : 'text-muted'
+                mode === 'light' ? 'bg-card shadow-xs' : 'text-muted'
               }`}
             >
               ☀️ Light
@@ -60,7 +60,7 @@ export default function Settings({ onBack, onCategoriesChanged, onOpenChangelog 
               aria-checked={mode === 'dark'}
               onClick={() => setMode('dark')}
               className={`px-3 py-1 text-xs font-bold rounded-lg ${
-                mode === 'dark' ? 'bg-card shadow-sm' : 'text-muted'
+                mode === 'dark' ? 'bg-card shadow-xs' : 'text-muted'
               }`}
             >
               🌙 Dark

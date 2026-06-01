@@ -51,7 +51,7 @@ export default function ThemeCard({ theme, selected, onSelect }: Props) {
         {meta.swatches.map((color) => (
           <div
             key={color}
-            className="w-5 h-5 rounded"
+            className="w-5 h-5 rounded-sm"
             style={{ backgroundColor: color, border: '1px solid rgba(0,0,0,0.08)' }}
           />
         ))}

@@ -123,7 +123,7 @@ export default function LineItemRow({
       <div className="flex flex-col gap-2 p-2 bg-bg rounded-lg">
         <div className="flex items-center gap-2">
           {nameInput}
-          <div className="flex-shrink-0">{deleteButton}</div>
+          <div className="shrink-0">{deleteButton}</div>
         </div>
         <div className="grid grid-cols-3 gap-2">
           <div>

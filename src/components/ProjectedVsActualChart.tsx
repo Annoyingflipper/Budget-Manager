@@ -24,11 +24,11 @@ export default function ProjectedVsActualChart({ totals }: Props) {
             </div>
             <div className="space-y-1" aria-hidden="true">
               <div
-                className="h-2 rounded bg-muted"
+                className="h-2 rounded-sm bg-muted"
                 style={{ width: `${(t.projected / max) * 100}%` }}
               />
               <div
-                className={`h-2 rounded ${over ? 'bg-negative' : 'bg-positive'}`}
+                className={`h-2 rounded-sm ${over ? 'bg-negative' : 'bg-positive'}`}
                 style={{ width: `${(t.actual / max) * 100}%` }}
               />
             </div>

@@ -40,7 +40,7 @@ export default function Header({
         >
           ←
         </button>
-        <span className="text-sm text-muted min-w-[7rem] text-center">
+        <span className="text-sm text-muted min-w-28 text-center">
           {formatMonthLabel(selectedMonth)}
         </span>
         {showRollover ? (

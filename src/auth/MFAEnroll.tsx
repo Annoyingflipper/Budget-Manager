@@ -78,7 +78,7 @@ export default function MFAEnroll() {
       {secret && (
         <p className="text-xs text-muted break-all">
           Or enter this secret manually:{' '}
-          <code className="bg-bg px-1 rounded">{secret}</code>
+          <code className="bg-bg px-1 rounded-sm">{secret}</code>
         </p>
       )}
       <form onSubmit={verify} className="space-y-2">

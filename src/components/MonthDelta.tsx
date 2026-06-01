@@ -23,7 +23,7 @@ export default function MonthDelta({ delta }: Props) {
             <li key={r.id} className="flex justify-between items-center text-sm gap-2">
               <span className="flex-1">{r.icon} {r.name}</span>
               <span className="text-muted">{formatMoney(r.currentActual)}</span>
-              <span className={`${cls} min-w-[5rem] text-right`}>{label}</span>
+              <span className={`${cls} min-w-20 text-right`}>{label}</span>
             </li>
           );
         })}
