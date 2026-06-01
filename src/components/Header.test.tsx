@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Header from './Header';
 import { ThemeProvider } from '../theme/ThemeProvider';
@@ -51,22 +51,10 @@ describe('Header', () => {
     expect(props.onNext).not.toHaveBeenCalled();
   });
 
-  it('calls onOpenInsights when the Insights button is clicked', () => {
-    const onOpenInsights = vi.fn();
-    render(
-      <ThemeProvider>
-        <Header
-          selectedMonth="2026-06-01"
-          latestMonth="2026-06-01"
-          onPrev={() => {}}
-          onNext={() => {}}
-          onRollover={() => {}}
-          onOpenSettings={() => {}}
-          onOpenInsights={onOpenInsights}
-        />
-      </ThemeProvider>,
-    );
-    fireEvent.click(screen.getByText('📊 Insights'));
-    expect(onOpenInsights).toHaveBeenCalledTimes(1);
+  it('calls onOpenInsights when the Insights button is clicked', async () => {
+    const user = userEvent.setup();
+    const props = renderHeader();
+    await user.click(screen.getByText('📊 Insights'));
+    expect(props.onOpenInsights).toHaveBeenCalledTimes(1);
   });
 });
