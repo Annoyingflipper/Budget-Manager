@@ -6,6 +6,11 @@ import { env } from '../support/env';
 test.use({ storageState: { cookies: [], origins: [] } });
 
 test.describe('auth gate @smoke', () => {
+  // Serial: both tests do a fresh sign-in + MFA verify on the shared test user.
+  // Running them concurrently pressures Supabase's MFA verify endpoint and can
+  // return 403 (rate/lock) instead of the expected 422, causing flakiness.
+  test.describe.configure({ mode: 'serial' });
+
   test('logs in and clears the TOTP challenge to reach the dashboard', async ({
     loginPage,
     mfaPage,
@@ -29,6 +34,10 @@ test.describe('auth gate @smoke', () => {
   });
 
   test('rejects a wrong TOTP code', async ({ loginPage, mfaPage }) => {
+    // Deliberately triggers MFA verify error responses (422, or 403 under
+    // rate-limit) — opt out of the console guard for this negative test.
+    test.info().annotations.push({ type: 'no-console-guard' });
+
     await loginPage.goto();
     await loginPage.signIn(env.E2E_USER_EMAIL, env.E2E_USER_PASSWORD);
 

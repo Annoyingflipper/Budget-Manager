@@ -102,9 +102,12 @@ export const test = base.extend<Fixtures>({
   insightsPage: async ({ page }, use) => { await use(new InsightsPage(page)); },
 
   consoleGuard: [
-    async ({ page }, use) => {
+    async ({ page }, use, testInfo) => {
       const errors = installConsoleGuard(page);
       await use();
+      // A test can opt out (e.g. negative auth tests that deliberately trigger
+      // 4xx verify responses) by pushing a 'no-console-guard' annotation.
+      if (testInfo.annotations.some((a) => a.type === 'no-console-guard')) return;
       expect(errors, `Unexpected console/page/network errors:\n${errors.join('\n')}`).toEqual([]);
     },
     { auto: true },
