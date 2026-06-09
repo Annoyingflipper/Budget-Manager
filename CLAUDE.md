@@ -32,7 +32,7 @@ Added 2026-06-09 (spec `docs/superpowers/specs/2026-06-07-playwright-e2e-design.
 - **CI:** second job `e2e` in `.github/workflows/ci.yml` (parallel to `test`), `concurrency` group serializes runs against the shared test user, uploads `playwright-report/` + traces.
 - **`otplib` is pinned to `^12`** (not latest) — v13 removed the `authenticator` singleton the suite uses. Test-only dep.
 - **Gotchas baked into the suite:** `MFAChallenge` loads its `factorId` async → specs retry the TOTP submit until the AAL2 dashboard renders; `DashboardPage.goto()` dismisses the changelog modal (auto-shows after a version bump, intercepts clicks); the reseed resets theme prefs to light/peach so the theme spec is deterministic; console-guard allowlist in `e2e/fixtures/console-guard.fixture.ts`.
-- **Known a11y finding (deferred):** the `+ Add category` button fails WCAG AA contrast (3.12:1) on Peach/light — axe `color-contrast` is disabled on the Settings a11y scan with a comment. Worth fixing (darken the muted token / that button's text).
+- **a11y:** the Settings axe scan runs the full `wcag2a`/`wcag2aa` ruleset (no exclusions). The light-theme `--muted` tokens were darkened (`src/themes.css`: peach `#86685b`, sage `#617550`, lavender `#7b6490`) so muted 12px text clears AA (≥4.5:1) on both `--bg` and `--card`; dark themes already passed.
 
 ## How we work
 

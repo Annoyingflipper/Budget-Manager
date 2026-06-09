@@ -37,7 +37,6 @@ Real-browser tests against the **QA Supabase** backend. Complements the mocked V
 - E2E hits the **real QA backend** — placeholder env values won't work (unlike the unit-test CI job).
 - The service-role key is **test infra only**; never import `support/supabaseAdmin.ts` from `src/`.
 - The dashboard `goto()` dismisses the changelog modal (auto-shown after a version bump).
-- Known a11y finding (deferred, axe `color-contrast` disabled on Settings): the
-  "+ Add category" button is below WCAG AA contrast on the Peach/light theme.
+- The Settings axe scan runs the full `wcag2a`/`wcag2aa` ruleset (no exclusions).
 - Reading traces: failures in CI upload `playwright-report/` + `test-results/` (traces/video).
   Locally, re-run with `--trace on` then `npm run e2e:report`.

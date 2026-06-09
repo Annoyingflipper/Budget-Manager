@@ -62,10 +62,6 @@ test.describe('theme switching @regression @a11y', () => {
 
     const results = await new AxeBuilder({ page: settingsPage.page })
       .withTags(['wcag2a', 'wcag2aa'])
-      // Known pre-existing issue: the "+ Add category" button uses text-muted on
-      // the Peach/light background (#a88373 on #fef3ec = 3.12:1, below 4.5:1
-      // required for 12px normal text). Deferred — not introduced by E2E work.
-      .disableRules(['color-contrast'])
       .analyze();
 
     const seriousOrCritical = results.violations.filter(
