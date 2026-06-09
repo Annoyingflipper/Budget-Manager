@@ -5,6 +5,8 @@ const ALLOWLIST: RegExp[] = [
   /Download the React DevTools/i,
   /\[vite\]/i,
   /favicon\.ico/i, // dev server has no favicon
+  /mfa\/verify/i, // expected 4xx in the wrong-code auth-gate test
+  /status of 422/i, // Supabase MFA verify rejects bad TOTP code (wrong-code auth-gate test)
 ];
 
 function allowed(text: string): boolean {
