@@ -39,6 +39,13 @@ export async function reseedTestUser(): Promise<CategoryIdMap> {
   await insertItems(uid, MONTH_CURRENT, ITEMS_CURRENT, byName);
   await insertItems(uid, MONTH_PRIOR, ITEMS_PRIOR, byName);
 
+  // 5. Reset theme prefs to defaults so the theme spec has a deterministic start
+  //    (theme/mode persist in the DB and would otherwise carry across runs).
+  const { error: prefErr } = await admin
+    .from('user_preferences')
+    .upsert({ user_id: uid, theme: 'peach', color_mode: 'light' }, { onConflict: 'user_id' });
+  if (prefErr) throw new Error(`Failed to reset preferences: ${prefErr.message}`);
+
   return byName;
 }
 
