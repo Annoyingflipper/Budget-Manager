@@ -149,6 +149,7 @@ export default function LineItemRow({
     <div
       className="grid items-center gap-1.5"
       style={{ gridTemplateColumns: '1.4fr 80px 80px 80px 24px' }}
+      data-testid={`line-item-${item.id}`}
     >
       {nameInput}
       {projectedInput}

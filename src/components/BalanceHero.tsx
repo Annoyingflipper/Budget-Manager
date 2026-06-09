@@ -20,11 +20,11 @@ export default function BalanceHero({ income, categories }: Props) {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-1">
         <div>
           <div className="text-xs text-muted">Projected balance</div>
-          <div className="text-2xl font-extrabold">{formatMoney(projectedBalance)}</div>
+          <div className="text-2xl font-extrabold" data-testid="projected-balance">{formatMoney(projectedBalance)}</div>
         </div>
         <div>
           <div className="text-xs text-muted">Actual balance</div>
-          <div className={`text-2xl font-extrabold ${balanceClass}`}>
+          <div className={`text-2xl font-extrabold ${balanceClass}`} data-testid="actual-balance">
             {formatMoney(actualBalance)}
           </div>
         </div>

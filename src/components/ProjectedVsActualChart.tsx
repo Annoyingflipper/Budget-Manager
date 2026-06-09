@@ -15,7 +15,7 @@ export default function ProjectedVsActualChart({ totals }: Props) {
       {visible.map((t) => {
         const over = t.actual > t.projected;
         return (
-          <div key={t.id}>
+          <div key={t.id} data-testid={`chart-row-${t.id}`}>
             <div className="flex justify-between text-sm font-bold mb-1">
               <span>{t.icon} {t.name}</span>
               <span className={over ? 'text-negative' : 'text-positive'}>

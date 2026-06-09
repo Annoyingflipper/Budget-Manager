@@ -111,7 +111,7 @@ export default function CategoryTable({ category, periodMonth, onCategoryChange 
         style={{ borderTop: '1px dashed var(--dashed)' }}
       >
         <span className="font-bold">Subtotal</span>
-        <span>
+        <span data-testid={`subtotal-${category.id}`}>
           <span className="text-muted">{formatMoney(subProjected)} / {formatMoney(subActual)}</span>{' '}
           ·{' '}
           <span className={`font-bold ${differenceClass('cost', subDiff)}`}>{formatMoney(subDiff)}</span>
