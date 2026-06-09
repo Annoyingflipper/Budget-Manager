@@ -12,3 +12,9 @@ dist-tsc-node
 supabase/.branches
 supabase/.temp
 .superpowers/
+
+# Playwright E2E
+e2e/.auth/
+playwright-report/
+test-results/
+.env.e2e.local
