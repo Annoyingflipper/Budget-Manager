@@ -14,7 +14,17 @@ export class DashboardPage {
   get projectedBalance(): Locator { return this.page.getByTestId('projected-balance'); }
   get actualBalance(): Locator { return this.page.getByTestId('actual-balance'); }
 
-  async goto(): Promise<void> { await this.page.goto('/'); }
+  async goto(): Promise<void> {
+    await this.page.goto('/');
+    // Dismiss the changelog modal if it appears (auto-shows on first visit after a
+    // version bump; it intercepts pointer events until closed).
+    const gotIt = this.page.getByRole('button', { name: 'Got it' });
+    try {
+      await gotIt.click({ timeout: 3000 });
+    } catch {
+      // Modal was not present — that's fine.
+    }
+  }
   categoryTable(categoryId: number): CategoryTableComponent {
     return new CategoryTableComponent(this.page, categoryId);
   }
