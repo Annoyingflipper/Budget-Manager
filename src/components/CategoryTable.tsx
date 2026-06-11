@@ -2,6 +2,7 @@ import { useState } from 'react';
 import LineItemRow from './LineItemRow';
 import DraftRow from './DraftRow';
 import EmptyCategoryCard from './EmptyCategoryCard';
+import CategoryBudgetBar from './CategoryBudgetBar';
 import { addLineItem } from '../api/budget';
 import { difference, differenceClass, formatMoney, sum } from '../utils/money';
 import type { CategoryWithItems, LineItem } from '../types';
@@ -62,6 +63,13 @@ export default function CategoryTable({ category, periodMonth, onCategoryChange 
           {subDiff === 0 ? 'on budget' : (subDiff > 0 ? `${formatMoney(subDiff)} over` : `${formatMoney(Math.abs(subDiff))} under`)}
         </span>
       </div>
+
+      <CategoryBudgetBar
+        categoryId={category.id}
+        categoryName={category.name}
+        projected={subProjected}
+        actual={subActual}
+      />
 
       <div
         className="hidden sm:grid gap-1.5 items-center mb-1"

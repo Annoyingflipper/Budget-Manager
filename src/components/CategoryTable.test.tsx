@@ -96,6 +96,20 @@ describe('CategoryTable', () => {
     expect(api.addLineItem).not.toHaveBeenCalled();
   });
 
+  it('renders a budget-health bar reflecting the category subtotal', () => {
+    setup({
+      ...baseCategory,
+      items: [
+        { id: 200, category_id: 1, name: 'Internet', projected: 80, actual: 85 },
+        { id: 201, category_id: 1, name: 'Phone', projected: 50, actual: 50 },
+      ],
+    });
+    const bar = screen.getByRole('progressbar');
+    // subtotal: projected 130, actual 135 -> over by 5
+    expect(bar).toHaveAttribute('data-state', 'over');
+    expect(bar).toHaveAttribute('aria-label', 'Services budget: over by $5.00');
+  });
+
   it('only one row at a time is in confirm state (click delete on row B clears row A)', async () => {
     const user = userEvent.setup();
     const itemA: LineItem = { id: 100, category_id: 1, name: 'A', projected: 1, actual: 1 };
