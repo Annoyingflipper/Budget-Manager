@@ -90,6 +90,11 @@ export async function rolloverMonth(fromMonth: string, toMonth: string): Promise
   if (error) throw error;
 }
 
+export async function deleteMonth(targetMonth: string): Promise<void> {
+  const { error } = await supabase.rpc('delete_month', { target_month: targetMonth });
+  if (error) throw error;
+}
+
 export async function updateIncome(
   periodMonth: string,
   patch: Partial<Income>,

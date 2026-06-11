@@ -30,7 +30,7 @@ vi.mock('../lib/supabase', () => ({
   },
 }));
 
-import { getBudget, listMonths, rolloverMonth, getExportRows } from './budget';
+import { getBudget, listMonths, rolloverMonth, getExportRows, deleteMonth } from './budget';
 
 beforeEach(() => {
   calls.length = 0;
@@ -91,6 +91,20 @@ describe('api/budget', () => {
     });
     const months = await listMonths();
     expect(months).toEqual(['2026-06-01', '2026-05-01']);
+  });
+
+  it('deleteMonth issues the delete_month RPC with the target month', async () => {
+    rpcMock.mockResolvedValue({ error: null });
+    await deleteMonth('2026-07-01');
+    expect(calls).toContainEqual({
+      kind: 'rpc',
+      args: ['delete_month', { target_month: '2026-07-01' }],
+    });
+  });
+
+  it('deleteMonth throws when the RPC returns an error', async () => {
+    rpcMock.mockResolvedValue({ error: new Error('cannot delete current or past months') });
+    await expect(deleteMonth('2026-06-01')).rejects.toThrow('cannot delete current or past months');
   });
 
   it('getExportRows joins line items to category names across all months', async () => {
