@@ -8,6 +8,7 @@ export class HeaderComponent {
   get prevMonth(): Locator { return this.root.getByRole('button', { name: 'Previous month' }); }
   get nextMonth(): Locator { return this.root.getByRole('button', { name: 'Next month' }); }
   get startNextMonth(): Locator { return this.root.getByRole('button', { name: /^Start / }); }
+  get deleteMonthButton(): Locator { return this.root.getByRole('button', { name: 'Delete this month' }); }
   get monthLabel(): Locator { return this.root.getByText(/^[A-Z][a-z]+ \d{4}$/); }
   get modeToggle(): Locator { return this.root.getByRole('button', { name: 'Toggle color mode' }); }
   get insightsButton(): Locator { return this.root.getByRole('button', { name: /Insights/ }); }

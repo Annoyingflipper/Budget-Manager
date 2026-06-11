@@ -10,6 +10,7 @@ export class CategoryTableComponent {
   }
   get subtotal(): Locator { return this.page.getByTestId(`subtotal-${this.categoryId}`); }
   get addItemButton(): Locator { return this.root.getByRole('button', { name: '+ Add item' }); }
+  get budgetBar(): Locator { return this.root.getByRole('progressbar'); }
 
   get draftName(): Locator { return this.root.getByPlaceholder('Item name'); }
   get draftProjected(): Locator { return this.root.getByLabel('Projected'); }
