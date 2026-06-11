@@ -13,8 +13,10 @@ export class CategoryTableComponent {
   get budgetBar(): Locator { return this.root.getByRole('progressbar'); }
 
   get draftName(): Locator { return this.root.getByPlaceholder('Item name'); }
-  get draftProjected(): Locator { return this.root.getByLabel('Projected'); }
-  get draftActual(): Locator { return this.root.getByLabel('Actual'); }
+  // exact: true so these don't also match the budget bar's progressbar aria-label
+  // ("…% of projected spent"), whose accessible name contains "projected".
+  get draftProjected(): Locator { return this.root.getByLabel('Projected', { exact: true }); }
+  get draftActual(): Locator { return this.root.getByLabel('Actual', { exact: true }); }
 
   async addItem(name: string, projected: number, actual: number): Promise<void> {
     await this.addItemButton.click();
