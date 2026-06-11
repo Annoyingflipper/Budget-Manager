@@ -8,6 +8,8 @@ type Props = {
   onPrev: () => void;
   onNext: () => void;
   onRollover: () => void;
+  canDelete: boolean;
+  onDelete: () => void;
   onOpenSettings: () => void;
   onOpenInsights: () => void;
 };
@@ -18,6 +20,8 @@ export default function Header({
   onPrev,
   onNext,
   onRollover,
+  canDelete,
+  onDelete,
   onOpenSettings,
   onOpenInsights,
 }: Props) {
@@ -59,6 +63,16 @@ export default function Header({
             className="bg-card border-0 rounded-lg px-2 py-1 text-sm font-bold"
           >
             →
+          </button>
+        )}
+        {canDelete && (
+          <button
+            type="button"
+            onClick={onDelete}
+            aria-label="Delete this month"
+            className="bg-card border-0 rounded-lg px-2.5 py-1 text-xs font-bold text-negative"
+          >
+            🗑 Delete this month
           </button>
         )}
       </div>

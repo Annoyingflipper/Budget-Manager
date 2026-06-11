@@ -17,6 +17,8 @@ function renderHeader(overrides: Partial<React.ComponentProps<typeof Header>> = 
     onRollover: vi.fn(),
     onOpenSettings: vi.fn(),
     onOpenInsights: vi.fn(),
+    canDelete: false,
+    onDelete: vi.fn(),
     ...overrides,
   };
   render(
@@ -56,5 +58,18 @@ describe('Header', () => {
     const props = renderHeader();
     await user.click(screen.getByText('📊 Insights'));
     expect(props.onOpenInsights).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not show the delete-month button when canDelete is false', () => {
+    renderHeader({ canDelete: false });
+    expect(screen.queryByRole('button', { name: /delete this month/i })).not.toBeInTheDocument();
+  });
+
+  it('shows the delete-month button when canDelete is true and clicking calls onDelete', async () => {
+    const user = userEvent.setup();
+    const props = renderHeader({ canDelete: true });
+    const del = screen.getByRole('button', { name: /delete this month/i });
+    await user.click(del);
+    expect(props.onDelete).toHaveBeenCalledTimes(1);
   });
 });
