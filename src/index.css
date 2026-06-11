@@ -12,6 +12,7 @@ layer(base);
   --color-muted: var(--muted);
   --color-positive: var(--positive);
   --color-negative: var(--negative);
+  --color-warning: var(--warning);
   --color-dashed: var(--dashed);
   --color-hero-bg: var(--hero-bg);
   --color-hero-text: var(--hero-text);
