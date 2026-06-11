@@ -7,6 +7,16 @@ export type ChangelogEntry = {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '1.7',
+    date: '2026-06-11',
+    title: 'Budget health & cleanup',
+    highlights: [
+      'Each category now shows a budget bar — green under budget, amber near the limit, red when over.',
+      'Made a month by accident? Delete any future month from the header (🗑 Delete this month).',
+      'Current and past months are protected — only months after this one can be deleted.',
+    ],
+  },
+  {
     version: '1.6',
     date: '2026-06-01',
     title: 'Insights',
