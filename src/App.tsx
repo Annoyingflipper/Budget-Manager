@@ -12,7 +12,7 @@ import Toast from './components/Toast';
 import ChangelogModal from './components/ChangelogModal';
 import Settings from './pages/Settings';
 import Insights from './pages/Insights';
-import { getBudget, listMonths, rolloverMonth } from './api/budget';
+import { getBudget, listMonths, rolloverMonth, deleteMonth } from './api/budget';
 import { getLastSeenChangelogVersion, setLastSeenChangelogVersion } from './api/userPrefs';
 import { CHANGELOG, LATEST_VERSION } from './changelog';
 import { formatMonth, formatMonthLabel, nextMonth, prevMonth } from './utils/month';
@@ -119,6 +119,21 @@ function BudgetApp() {
     }
   }, [selectedMonth]);
 
+  const handleDelete = useCallback(async () => {
+    const label = formatMonthLabel(selectedMonth);
+    const confirmed = window.confirm(
+      `Delete ${label}? This permanently removes all income and line items for that month.`,
+    );
+    if (!confirmed) return;
+    try {
+      await deleteMonth(selectedMonth);
+      setSelectedMonth(prevMonth(selectedMonth));
+      setRefreshCounter((n) => n + 1);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    }
+  }, [selectedMonth]);
+
   const handleCategoriesChanged = useCallback((action: CategoryAction) => {
     setRefreshCounter((n) => n + 1);
     setToast({ message: TOAST_COPY[action], type: 'success' });
@@ -155,6 +170,8 @@ function BudgetApp() {
             onPrev={handlePrev}
             onNext={handleNext}
             onRollover={handleRollover}
+            canDelete={selectedMonth > formatMonth(new Date())}
+            onDelete={handleDelete}
             onOpenSettings={() => setPage('settings')}
             onOpenInsights={() => setPage('insights')}
           />
