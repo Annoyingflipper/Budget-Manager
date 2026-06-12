@@ -75,7 +75,7 @@ Notion hub page ID: `36bb6bed-f453-81cb-8f5a-c62e801b5cfd`. All shipped versions
 
 ## Next likely brainstorms
 
-- **v1.7** — Spending-breakdown donut + trend-over-time chart + pick-any-two-month comparison (the "patterns over time" theme deferred from v1.6), or budget sharing with another user (read-only or co-edit). Pick one per cycle.
+- **v1.8+** — Patterns over time: spending-breakdown donut + trend-over-time chart + pick-any-two-month comparison (deferred from v1.6 and still unbuilt as of v1.7), or budget sharing with another user (read-only or co-edit). Pick one per cycle.
 
 Each gets its own brainstorm → spec → plan → execute cycle. Don't bundle.
 
