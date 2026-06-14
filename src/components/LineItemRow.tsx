@@ -131,7 +131,15 @@ export default function LineItemRow({
 
   const paidControl = item.paidOn ? (
     <div className="flex items-center gap-1 min-w-0">
-      <span className="text-positive text-sm shrink-0" aria-hidden="true">✓</span>
+      <button
+        type="button"
+        onClick={() => savePaidOn(null)}
+        aria-label="Mark unpaid"
+        title="Mark unpaid"
+        className="shrink-0 text-positive hover:text-negative text-sm"
+      >
+        ✓
+      </button>
       <input
         type="date"
         aria-label="Paid date"
@@ -140,14 +148,6 @@ export default function LineItemRow({
         onBlur={() => savePaidOn(paidDateDraft || null)}
         className="w-full min-w-0 px-1 py-1 border border-highlight rounded-md bg-card text-xs"
       />
-      <button
-        type="button"
-        onClick={() => savePaidOn(null)}
-        aria-label="Clear paid date"
-        className="shrink-0 text-muted hover:text-negative text-sm"
-      >
-        ✕
-      </button>
     </div>
   ) : (
     <button
@@ -194,7 +194,7 @@ export default function LineItemRow({
   return (
     <div
       className="grid items-center gap-1.5"
-      style={{ gridTemplateColumns: '1.4fr 80px 80px 80px 110px 24px' }}
+      style={{ gridTemplateColumns: '1.4fr 80px 80px 80px 150px 24px' }}
       data-testid={`line-item-${item.id}`}
     >
       {nameInput}

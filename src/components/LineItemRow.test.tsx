@@ -122,11 +122,11 @@ describe('LineItemRow', () => {
     });
   });
 
-  it('clearing the date un-pays the item (paidOn: null)', async () => {
+  it('clicking the paid check un-pays the item (paidOn: null)', async () => {
     const user = userEvent.setup();
     vi.mocked(api.updateLineItem).mockResolvedValue();
     const { onChange } = renderRow({ item: paidItem });
-    await user.click(screen.getByRole('button', { name: 'Clear paid date' }));
+    await user.click(screen.getByRole('button', { name: 'Mark unpaid' }));
     await waitFor(() => {
       expect(api.updateLineItem).toHaveBeenCalledWith(42, { paidOn: null });
     });

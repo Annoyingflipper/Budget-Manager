@@ -12,7 +12,7 @@ export class LineItemRowComponent {
   get confirmDeleteButton(): Locator { return this.root.getByRole('button', { name: 'Confirm delete' }); }
   get markPaidButton(): Locator { return this.root.getByRole('button', { name: 'Mark paid' }); }
   get paidDateInput(): Locator { return this.root.locator('input[type="date"][aria-label="Paid date"]'); }
-  get clearPaidButton(): Locator { return this.root.getByRole('button', { name: 'Clear paid date' }); }
+  get markUnpaidButton(): Locator { return this.root.getByRole('button', { name: 'Mark unpaid' }); }
 
   async setActual(value: number): Promise<void> {
     await this.actualInput.fill(String(value));
@@ -30,6 +30,6 @@ export class LineItemRowComponent {
     await this.markPaidButton.click();
   }
   async clearPaid(): Promise<void> {
-    await this.clearPaidButton.click();
+    await this.markUnpaidButton.click();
   }
 }
