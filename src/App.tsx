@@ -6,6 +6,7 @@ import { ThemeProvider } from './theme/ThemeProvider';
 import Header from './components/Header';
 import BalanceHero from './components/BalanceHero';
 import IncomeSummary from './components/IncomeSummary';
+import StillToPay from './components/StillToPay';
 import CategoryTable from './components/CategoryTable';
 import GrandTotals from './components/GrandTotals';
 import Toast from './components/Toast';
@@ -181,6 +182,7 @@ function BudgetApp() {
             periodMonth={selectedMonth}
             onChange={updateIncomeLocal}
           />
+          <StillToPay categories={budget.categories} />
           {budget.categories.map((c) => (
             <CategoryTable
               key={c.id}
