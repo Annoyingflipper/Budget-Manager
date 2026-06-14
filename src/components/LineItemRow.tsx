@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { deleteLineItem, updateLineItem } from '../api/budget';
 import { difference, differenceClass, formatMoney } from '../utils/money';
 import { useIsMobile } from '../hooks/useIsMobile';
+import { todayISO } from '../utils/date';
 import type { LineItem } from '../types';
 
 type Props = {
@@ -23,10 +24,12 @@ export default function LineItemRow({
   const [name, setName] = useState(item.name);
   const [projected, setProjected] = useState(String(item.projected));
   const [actual, setActual] = useState(String(item.actual));
+  const [paidDateDraft, setPaidDateDraft] = useState(item.paidOn ?? '');
 
   useEffect(() => setName(item.name), [item.name]);
   useEffect(() => setProjected(String(item.projected)), [item.projected]);
   useEffect(() => setActual(String(item.actual)), [item.actual]);
+  useEffect(() => setPaidDateDraft(item.paidOn ?? ''), [item.paidOn]);
 
   const diff = difference(Number(actual) || 0, Number(projected) || 0);
   const diffClass = differenceClass('cost', diff);
@@ -56,6 +59,14 @@ export default function LineItemRow({
     const previous = item;
     onChange({ ...item, actual: value });
     try { await updateLineItem(item.id, { actual: value }); }
+    catch { onChange(previous); }
+  }
+
+  async function savePaidOn(next: string | null) {
+    if (next === item.paidOn) return;
+    const previous = item;
+    onChange({ ...item, paidOn: next });
+    try { await updateLineItem(item.id, { paidOn: next }); }
     catch { onChange(previous); }
   }
 
@@ -118,6 +129,37 @@ export default function LineItemRow({
     />
   );
 
+  const paidControl = item.paidOn ? (
+    <div className="flex items-center gap-1 min-w-0">
+      <span className="text-positive text-sm shrink-0" aria-hidden="true">✓</span>
+      <input
+        type="date"
+        aria-label="Paid date"
+        value={paidDateDraft}
+        onChange={(e) => setPaidDateDraft(e.target.value)}
+        onBlur={() => savePaidOn(paidDateDraft || null)}
+        className="w-full min-w-0 px-1 py-1 border border-highlight rounded-md bg-card text-xs"
+      />
+      <button
+        type="button"
+        onClick={() => savePaidOn(null)}
+        aria-label="Clear paid date"
+        className="shrink-0 text-muted hover:text-negative text-sm"
+      >
+        ✕
+      </button>
+    </div>
+  ) : (
+    <button
+      type="button"
+      onClick={() => savePaidOn(todayISO())}
+      aria-label="Mark paid"
+      className="w-full px-2 py-1 border border-highlight rounded-md bg-bg text-muted text-xs hover:text-positive"
+    >
+      Mark paid
+    </button>
+  );
+
   if (isMobile) {
     return (
       <div className="flex flex-col gap-2 p-2 bg-bg rounded-lg">
@@ -141,6 +183,10 @@ export default function LineItemRow({
             </div>
           </div>
         </div>
+        <div>
+          <div className="text-[9px] uppercase tracking-wider text-muted mb-0.5">Paid</div>
+          {paidControl}
+        </div>
       </div>
     );
   }
@@ -148,7 +194,7 @@ export default function LineItemRow({
   return (
     <div
       className="grid items-center gap-1.5"
-      style={{ gridTemplateColumns: '1.4fr 80px 80px 80px 24px' }}
+      style={{ gridTemplateColumns: '1.4fr 80px 80px 80px 110px 24px' }}
       data-testid={`line-item-${item.id}`}
     >
       {nameInput}
@@ -157,6 +203,7 @@ export default function LineItemRow({
       <div className={`text-right pr-1 text-sm font-bold ${diffClass}`}>
         {formatMoney(diff)}
       </div>
+      {paidControl}
       <div className="text-center">{deleteButton}</div>
     </div>
   );

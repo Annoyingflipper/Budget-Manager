@@ -95,4 +95,54 @@ describe('LineItemRow', () => {
       expect(api.deleteLineItem).toHaveBeenCalledWith(42);
     });
   });
+
+  const paidItem: LineItem = { ...baseItem, paidOn: '2026-06-10' };
+
+  it('Mark paid stamps today and calls updateLineItem with paidOn', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    vi.setSystemTime(new Date(2026, 5, 13, 9, 0)); // local June 13 2026
+    const user = userEvent.setup();
+    vi.mocked(api.updateLineItem).mockResolvedValue();
+    const { onChange } = renderRow();
+    await user.click(screen.getByRole('button', { name: 'Mark paid' }));
+    await waitFor(() => {
+      expect(api.updateLineItem).toHaveBeenCalledWith(42, { paidOn: '2026-06-13' });
+    });
+    expect(onChange).toHaveBeenCalledWith({ ...baseItem, paidOn: '2026-06-13' });
+    vi.useRealTimers();
+  });
+
+  it('reverts paid state when the mark-paid update fails', async () => {
+    const user = userEvent.setup();
+    vi.mocked(api.updateLineItem).mockRejectedValue(new Error('network'));
+    const { onChange } = renderRow();
+    await user.click(screen.getByRole('button', { name: 'Mark paid' }));
+    await waitFor(() => {
+      expect(onChange).toHaveBeenLastCalledWith(baseItem);
+    });
+  });
+
+  it('clearing the date un-pays the item (paidOn: null)', async () => {
+    const user = userEvent.setup();
+    vi.mocked(api.updateLineItem).mockResolvedValue();
+    const { onChange } = renderRow({ item: paidItem });
+    await user.click(screen.getByRole('button', { name: 'Clear paid date' }));
+    await waitFor(() => {
+      expect(api.updateLineItem).toHaveBeenCalledWith(42, { paidOn: null });
+    });
+    expect(onChange).toHaveBeenCalledWith({ ...paidItem, paidOn: null });
+  });
+
+  it('editing the date saves the new paidOn', async () => {
+    const user = userEvent.setup();
+    vi.mocked(api.updateLineItem).mockResolvedValue();
+    renderRow({ item: paidItem });
+    const dateInput = screen.getByLabelText('Paid date');
+    await user.clear(dateInput);
+    await user.type(dateInput, '2026-06-20');
+    await user.tab();
+    await waitFor(() => {
+      expect(api.updateLineItem).toHaveBeenCalledWith(42, { paidOn: '2026-06-20' });
+    });
+  });
 });
