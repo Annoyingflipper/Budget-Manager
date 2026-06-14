@@ -73,12 +73,13 @@ export default function CategoryTable({ category, periodMonth, onCategoryChange 
 
       <div
         className="hidden sm:grid gap-1.5 items-center mb-1"
-        style={{ gridTemplateColumns: '1.4fr 80px 80px 80px 24px' }}
+        style={{ gridTemplateColumns: '1.4fr 80px 80px 80px 110px 24px' }}
       >
         <div className="text-muted text-xs uppercase tracking-wider">Name</div>
         <div className="text-muted text-xs uppercase tracking-wider text-right">Proj</div>
         <div className="text-muted text-xs uppercase tracking-wider text-right">Actual</div>
         <div className="text-muted text-xs uppercase tracking-wider text-right">Diff</div>
+        <div className="text-muted text-xs uppercase tracking-wider">Paid</div>
         <div />
       </div>
 
