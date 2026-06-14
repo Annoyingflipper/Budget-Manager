@@ -7,6 +7,16 @@ export type ChangelogEntry = {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '1.8',
+    date: '2026-06-13',
+    title: 'Paid dates',
+    highlights: [
+      'Hit "Mark paid" on any line item to stamp today\'s date — it\'s editable and clearable if you change your mind.',
+      'Paid vs. unpaid is visible at a glance on every row.',
+      'New "Still to pay" summary shows how many bills and how much remain unpaid this month.',
+    ],
+  },
+  {
     version: '1.7',
     date: '2026-06-11',
     title: 'Budget health & cleanup',
