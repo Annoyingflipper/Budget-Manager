@@ -27,7 +27,7 @@ export async function getBudget(periodMonth: string): Promise<Budget> {
 
   const { data: items, error: itemsErr } = await supabase
     .from('line_items')
-    .select('id, category_id, name, projected, actual')
+    .select('id, category_id, name, projected, actual, paid_on')
     .eq('user_id', userId)
     .eq('period_month', periodMonth)
     .order('created_at');
@@ -41,6 +41,7 @@ export async function getBudget(periodMonth: string): Promise<Budget> {
       name: raw.name,
       projected: Number(raw.projected),
       actual: Number(raw.actual),
+      paidOn: raw.paid_on ?? null,
     };
     const list = byCategory.get(normalized.category_id) ?? [];
     list.push(normalized);
@@ -130,7 +131,7 @@ export async function addLineItem(
       actual: item.actual,
       period_month: periodMonth,
     })
-    .select('id, category_id, name, projected, actual')
+    .select('id, category_id, name, projected, actual, paid_on')
     .single();
   if (error) throw error;
   return {
@@ -139,14 +140,18 @@ export async function addLineItem(
     name: data.name,
     projected: Number(data.projected),
     actual: Number(data.actual),
+    paidOn: data.paid_on ?? null,
   };
 }
 
 export async function updateLineItem(
   id: number,
-  patch: Partial<{ name: string; projected: number; actual: number }>,
+  patch: Partial<{ name: string; projected: number; actual: number; paidOn: string | null }>,
 ): Promise<void> {
-  const { error } = await supabase.from('line_items').update(patch).eq('id', id);
+  const { paidOn, ...rest } = patch;
+  const dbPatch: Record<string, unknown> = { ...rest };
+  if ('paidOn' in patch) dbPatch.paid_on = paidOn;
+  const { error } = await supabase.from('line_items').update(dbPatch).eq('id', id);
   if (error) throw error;
 }
 

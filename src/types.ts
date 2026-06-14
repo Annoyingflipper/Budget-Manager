@@ -11,6 +11,7 @@ export type LineItem = {
   name: string;
   projected: number;
   actual: number;
+  paidOn: string | null; // ISO 'YYYY-MM-DD', or null when unpaid
 };
 
 export type Income = {

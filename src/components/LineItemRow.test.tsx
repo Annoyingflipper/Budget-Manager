@@ -13,6 +13,7 @@ const baseItem: LineItem = {
   name: 'Netflix',
   projected: 15,
   actual: 17,
+  paidOn: null,
 };
 
 function renderRow(props: Partial<React.ComponentProps<typeof LineItemRow>> = {}) {

@@ -21,6 +21,7 @@ const claudeItem: LineItem = {
   name: 'Claude',
   projected: 20,
   actual: 20,
+  paidOn: null,
 };
 
 function setup(category: CategoryWithItems = baseCategory, periodMonth = '2026-06-01') {
@@ -66,6 +67,7 @@ describe('CategoryTable', () => {
       name: 'Netflix',
       projected: 15,
       actual: 17,
+      paidOn: null,
     });
     const { onCategoryChange } = setup({ ...baseCategory, items: [claudeItem] });
     await user.click(screen.getByRole('button', { name: /add item/i }));
@@ -100,8 +102,8 @@ describe('CategoryTable', () => {
     setup({
       ...baseCategory,
       items: [
-        { id: 200, category_id: 1, name: 'Internet', projected: 80, actual: 85 },
-        { id: 201, category_id: 1, name: 'Phone', projected: 50, actual: 50 },
+        { id: 200, category_id: 1, name: 'Internet', projected: 80, actual: 85, paidOn: null },
+        { id: 201, category_id: 1, name: 'Phone', projected: 50, actual: 50, paidOn: null },
       ],
     });
     const bar = screen.getByRole('progressbar');
@@ -112,8 +114,8 @@ describe('CategoryTable', () => {
 
   it('only one row at a time is in confirm state (click delete on row B clears row A)', async () => {
     const user = userEvent.setup();
-    const itemA: LineItem = { id: 100, category_id: 1, name: 'A', projected: 1, actual: 1 };
-    const itemB: LineItem = { id: 101, category_id: 1, name: 'B', projected: 2, actual: 2 };
+    const itemA: LineItem = { id: 100, category_id: 1, name: 'A', projected: 1, actual: 1, paidOn: null };
+    const itemB: LineItem = { id: 101, category_id: 1, name: 'B', projected: 2, actual: 2, paidOn: null };
     setup({ ...baseCategory, items: [itemA, itemB] });
     // Two delete buttons visible initially.
     const deleteButtons = screen.getAllByLabelText('Delete row');

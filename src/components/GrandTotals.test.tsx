@@ -19,6 +19,7 @@ function category(
       name: `Item${i.id}`,
       projected: i.projected,
       actual: i.actual,
+      paidOn: null,
     })),
   };
 }

@@ -9,13 +9,13 @@ function budget(): Budget {
       {
         id: 1, name: 'Food', display_order: 0, icon: '🍔',
         items: [
-          { id: 11, category_id: 1, name: 'Groceries', projected: 400, actual: 450 },
-          { id: 12, category_id: 1, name: 'Dining', projected: 200, actual: 180 },
+          { id: 11, category_id: 1, name: 'Groceries', projected: 400, actual: 450, paidOn: null },
+          { id: 12, category_id: 1, name: 'Dining', projected: 200, actual: 180, paidOn: null },
         ],
       },
       {
         id: 2, name: 'Rent', display_order: 1, icon: '🏠',
-        items: [{ id: 21, category_id: 2, name: 'Apartment', projected: 1650, actual: 1650 }],
+        items: [{ id: 21, category_id: 2, name: 'Apartment', projected: 1650, actual: 1650, paidOn: null }],
       },
     ],
   };

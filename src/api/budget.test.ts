@@ -6,7 +6,7 @@ const calls: Call[] = [];
 function builder(terminalData: unknown = []) {
   const chain: Record<string, unknown> = {};
   const proxy: Record<string, unknown> = chain;
-  const methods = ['select', 'eq', 'order', 'single', 'maybeSingle'];
+  const methods = ['select', 'eq', 'order', 'single', 'maybeSingle', 'update'];
   for (const m of methods) {
     chain[m] = (...args: unknown[]) => {
       calls.push({ kind: m, args });
@@ -30,7 +30,7 @@ vi.mock('../lib/supabase', () => ({
   },
 }));
 
-import { getBudget, listMonths, rolloverMonth, getExportRows, deleteMonth } from './budget';
+import { getBudget, listMonths, rolloverMonth, getExportRows, deleteMonth, updateLineItem } from './budget';
 
 beforeEach(() => {
   calls.length = 0;
@@ -105,6 +105,32 @@ describe('api/budget', () => {
   it('deleteMonth throws when the RPC returns an error', async () => {
     rpcMock.mockResolvedValue({ error: new Error('cannot delete current or past months') });
     await expect(deleteMonth('2026-06-01')).rejects.toThrow('cannot delete current or past months');
+  });
+
+  it('getBudget selects paid_on for line_items', async () => {
+    fromMock.mockImplementation((table: string) => {
+      if (table === 'line_items') return builder([]);
+      return builder(null);
+    });
+    await getBudget('2026-06-01');
+    const lineItemSelect = calls.find(
+      (c) => c.kind === 'select' && String(c.args[0]).includes('category_id'),
+    );
+    expect(String(lineItemSelect?.args[0])).toContain('paid_on');
+  });
+
+  it('updateLineItem maps paidOn to paid_on and passes other fields through', async () => {
+    fromMock.mockReturnValue(builder(null));
+    await updateLineItem(42, { paidOn: '2026-06-13', projected: 20 });
+    const update = calls.find((c) => c.kind === 'update');
+    expect(update?.args[0]).toEqual({ paid_on: '2026-06-13', projected: 20 });
+  });
+
+  it('updateLineItem maps a null paidOn (un-pay) to paid_on: null', async () => {
+    fromMock.mockReturnValue(builder(null));
+    await updateLineItem(7, { paidOn: null });
+    const update = calls.find((c) => c.kind === 'update');
+    expect(update?.args[0]).toEqual({ paid_on: null });
   });
 
   it('getExportRows joins line items to category names across all months', async () => {
