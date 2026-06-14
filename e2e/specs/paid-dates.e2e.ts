@@ -20,6 +20,11 @@ async function firstServicesItemId(): Promise<number> {
 }
 
 test.describe('paid dates @regression', () => {
+  test.afterEach(async () => {
+    const itemId = await firstServicesItemId();
+    await admin.from('line_items').update({ paid_on: null }).eq('id', itemId);
+  });
+
   test('mark a bill paid then un-pay it, summary updates', async ({ dashboardPage }) => {
     const itemId = await firstServicesItemId();
     await dashboardPage.goto();
@@ -30,6 +35,7 @@ test.describe('paid dates @regression', () => {
     // Baseline: item is unpaid → "Mark paid" visible, summary shows outstanding bills.
     await expect(row.markPaidButton).toBeVisible();
     await expect(dashboardPage.stillToPay).toContainText('bills left');
+    const beforeText = await dashboardPage.stillToPay.textContent();
 
     // Mark paid → date input appears, "Mark paid" gone.
     await row.markPaid();
@@ -50,6 +56,9 @@ test.describe('paid dates @regression', () => {
     // Re-navigate (via goto, which also dismisses the changelog modal) → paid state persisted.
     await dashboardPage.goto();
     await expect(dashboardPage.lineItem(itemId).paidDateInput).toBeVisible();
+
+    // Assert summary updated to reflect the paid item (count decremented or all-paid).
+    await expect(dashboardPage.stillToPay).not.toHaveText(beforeText ?? '');
 
     // Un-pay → "Mark paid" returns.
     await dashboardPage.lineItem(itemId).clearPaid();

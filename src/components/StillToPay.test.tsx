@@ -33,4 +33,15 @@ describe('StillToPay', () => {
     render(<StillToPay categories={[cat([{ projected: 100, paidOn: '2026-06-02' }])]} />);
     expect(screen.getByTestId('still-to-pay')).toHaveTextContent('All paid this month');
   });
+
+  it('renders nothing when there are no line items at all', () => {
+    const { container } = render(<StillToPay categories={[cat([])]} />);
+    expect(screen.queryByTestId('still-to-pay')).toBeNull();
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  it('renders nothing when there are no categories', () => {
+    render(<StillToPay categories={[]} />);
+    expect(screen.queryByTestId('still-to-pay')).toBeNull();
+  });
 });

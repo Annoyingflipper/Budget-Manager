@@ -7,6 +7,9 @@ type Props = { categories: CategoryWithItems[] };
 export default function StillToPay({ categories }: Props) {
   const { count, amount } = stillToPay(categories);
 
+  const totalItems = categories.reduce((n, c) => n + c.items.length, 0);
+  if (totalItems === 0) return null;
+
   if (count === 0) {
     return (
       <section

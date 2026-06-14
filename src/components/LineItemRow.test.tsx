@@ -136,7 +136,7 @@ describe('LineItemRow', () => {
   it('editing the date saves the new paidOn', async () => {
     const user = userEvent.setup();
     vi.mocked(api.updateLineItem).mockResolvedValue();
-    renderRow({ item: paidItem });
+    const { onChange } = renderRow({ item: paidItem });
     const dateInput = screen.getByLabelText('Paid date');
     await user.clear(dateInput);
     await user.type(dateInput, '2026-06-20');
@@ -144,5 +144,6 @@ describe('LineItemRow', () => {
     await waitFor(() => {
       expect(api.updateLineItem).toHaveBeenCalledWith(42, { paidOn: '2026-06-20' });
     });
+    expect(onChange).toHaveBeenCalledWith({ ...paidItem, paidOn: '2026-06-20' });
   });
 });
