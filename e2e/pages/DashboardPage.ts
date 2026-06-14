@@ -13,6 +13,7 @@ export class DashboardPage {
   }
   get projectedBalance(): Locator { return this.page.getByTestId('projected-balance'); }
   get actualBalance(): Locator { return this.page.getByTestId('actual-balance'); }
+  get stillToPay(): Locator { return this.page.getByTestId('still-to-pay'); }
 
   async goto(): Promise<void> {
     await this.page.goto('/');
