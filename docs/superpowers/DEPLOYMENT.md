@@ -74,6 +74,26 @@ Two options, in priority order:
 **QA and PRD schemas drifted.**
 Run `list_migrations` against both project refs and diff. Apply the missing migration to the lagging side.
 
+## Project pausing, backups & rebuilding from scratch
+
+Free-tier Supabase projects pause after ~7 days of inactivity. **A paused project can't be exported** — every recovery path (MCP, CLI, `pg_dump`) needs the database running. So the defense is two-layered: don't let it pause, and keep a dump from when it was up.
+
+**Keepalive.** `.github/workflows/keepalive.yml` runs a PostgREST select against QA + PRD every 3 days (also `workflow_dispatch`). Uses the existing QA secrets plus `PRD_SUPABASE_URL` / `PRD_SUPABASE_SERVICE_ROLE_KEY`. A step fails loudly if its secrets are missing — a silently-skipped ping means that project pauses.
+
+> ⚠️ **GitHub disables scheduled workflows after 60 days without a commit.** If the repo goes quiet that long the cron stops and both projects will pause. Re-enable from the Actions tab, or push any commit.
+
+**Backups.** `npm run backup [prd|qa|all]` (default `all`) → `backups/<target>/<timestamp>/`. Reads `.env.backup.local` (git-ignored) for `{PRD,QA}_SUPABASE_URL` + `_SERVICE_ROLE_KEY`; a target with no creds is skipped. Dumps all four public tables plus an `auth_users.json` roster and a `manifest.json`. Service-role bypasses RLS, so it captures every user's rows, not just the signed-in one.
+
+`backups/` and `.env.backup.local` are git-ignored — **real financial data and service-role keys, never commit them.**
+
+**Rebuilding into a new project.** The schema is not in the dump; `supabase/migrations/` in git is the source of truth.
+
+1. Create the project → `supabase db push` (or apply `0001`…`NNNN` in order).
+2. Sign up in the app with the same email and re-enroll TOTP. Auth can't be migrated — password hashes and TOTP secrets aren't exported by any supported API. **This mints a new `user_id`.**
+3. Remap `user_id` in the dumped rows: old→new, using `auth_users.json` for the old id. `categories.id` is a serial the app doesn't reference externally, but `line_items.category_id` points at it — either preserve ids on insert or remap both.
+4. Insert in `manifest.json`'s `restoreOrder` (categories → income → line_items → user_preferences); `line_items` has FKs to both `categories` and the user.
+5. Update `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY` in Vercel (Production and Preview scopes are separate), and locally in `.env.development.local` / `.env.e2e.local`.
+
 ## Common failure modes
 
 - **Vercel build fails on push:** check the Vercel build log. Usually tests, sometimes env var typos.

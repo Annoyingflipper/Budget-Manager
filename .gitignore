@@ -18,3 +18,7 @@ e2e/.auth/
 playwright-report/
 test-results/
 .env.e2e.local
+
+# Supabase backups — real financial data + service-role creds. Never commit.
+backups/
+.env.backup.local

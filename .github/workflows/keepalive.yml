@@ -1,0 +1,55 @@
+name: Supabase Keepalive
+
+# Free-tier Supabase projects pause after ~7 days without activity, and a paused
+# project can't be exported — every recovery path needs the database running.
+# This runs a real query against each project every 3 days to keep the
+# inactivity timer from ever reaching the threshold.
+#
+# ⚠️ GitHub disables scheduled workflows on repos with no commits for 60 days.
+# If this repo goes quiet that long, the cron stops and the projects will pause.
+# Re-enable it from the Actions tab, or push any commit, to restart the schedule.
+
+on:
+  schedule:
+    - cron: '0 6 */3 * *' # every 3 days at 06:00 UTC
+  workflow_dispatch: # run manually from the Actions tab
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+
+    steps:
+      # A PostgREST select is a genuine database query, not just an HTTP hit on
+      # the API gateway — that's what makes it count as activity.
+      - name: Ping QA
+        env:
+          URL: ${{ secrets.VITE_SUPABASE_URL }}
+          KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          if [ -z "$URL" ] || [ -z "$KEY" ]; then
+            echo "::error::Missing VITE_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY (QA)."
+            exit 1
+          fi
+          code=$(curl -sS -o /dev/null -w '%{http_code}' \
+            "$URL/rest/v1/categories?select=id&limit=1" \
+            -H "apikey: $KEY" -H "Authorization: Bearer $KEY")
+          echo "QA responded $code"
+          [ "$code" = "200" ] || { echo "::error::QA ping failed ($code)"; exit 1; }
+
+      # Runs even if QA failed — one paused project shouldn't take out the other.
+      - name: Ping PRD
+        if: always()
+        env:
+          URL: ${{ secrets.PRD_SUPABASE_URL }}
+          KEY: ${{ secrets.PRD_SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          if [ -z "$URL" ] || [ -z "$KEY" ]; then
+            echo "::error::Missing PRD_SUPABASE_URL or PRD_SUPABASE_SERVICE_ROLE_KEY."
+            echo "Add both under Settings → Secrets and variables → Actions."
+            exit 1
+          fi
+          code=$(curl -sS -o /dev/null -w '%{http_code}' \
+            "$URL/rest/v1/categories?select=id&limit=1" \
+            -H "apikey: $KEY" -H "Authorization: Bearer $KEY")
+          echo "PRD responded $code"
+          [ "$code" = "200" ] || { echo "::error::PRD ping failed ($code)"; exit 1; }
