@@ -1,3 +1,5 @@
+import { formatCurrency } from './currency';
+
 export type DifferenceRole = 'income' | 'cost';
 
 export function difference(actual: number, projected: number): number {
@@ -12,11 +14,9 @@ export function differenceClass(role: DifferenceRole, value: number): string {
   return value > 0 ? 'text-negative' : 'text-positive';
 }
 
+/** USD-only shorthand. Single formatting implementation lives in currency.ts. */
 export function formatMoney(value: number): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-  }).format(value);
+  return formatCurrency(value, 'USD');
 }
 
 export function sum(values: number[]): number {
