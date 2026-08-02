@@ -15,6 +15,9 @@ function setup(overrides: Partial<React.ComponentProps<typeof ExchangeRatesPanel
     onSaveRate: vi.fn(),
     onRefresh: vi.fn(),
     refreshing: false,
+    onBackfillEur: vi.fn(),
+    backfilling: false,
+    backfillResult: null as number | null,
     ...overrides,
   };
   render(<ExchangeRatesPanel {...props} />);
@@ -78,5 +81,26 @@ describe('ExchangeRatesPanel', () => {
     fireEvent.change(screen.getByLabelText('Manual rate value'), { target: { value: '540' } });
     fireEvent.click(screen.getByRole('button', { name: /save rate/i }));
     expect(props.onSaveRate).not.toHaveBeenCalled();
+  });
+
+  it('offers a EUR history backfill', () => {
+    const props = setup();
+    fireEvent.click(screen.getByRole('button', { name: /backfill euro history/i }));
+    expect(props.onBackfillEur).toHaveBeenCalled();
+  });
+
+  it('disables the backfill while it runs', () => {
+    setup({ backfilling: true });
+    expect(screen.getByRole('button', { name: /backfill euro history/i })).toBeDisabled();
+  });
+
+  it('reports how many days were imported', () => {
+    setup({ backfillResult: 42 });
+    expect(screen.getByTestId('backfill-result')).toHaveTextContent('42');
+  });
+
+  it('says so when the backfill found nothing new', () => {
+    setup({ backfillResult: 0 });
+    expect(screen.getByTestId('backfill-result')).toHaveTextContent(/up to date|no new/i);
   });
 });

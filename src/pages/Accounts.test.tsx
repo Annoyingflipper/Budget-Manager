@@ -8,6 +8,8 @@ const deleteAccount = vi.fn();
 const listRates = vi.fn();
 const upsertRate = vi.fn();
 const ensureTodayRates = vi.fn();
+const fetchEcbRange = vi.fn();
+const listMonths = vi.fn();
 
 vi.mock('../api/accounts', () => ({
   listAccounts: (...a: unknown[]) => listAccounts(...a),
@@ -19,6 +21,10 @@ vi.mock('../api/rates', () => ({
   listRates: (...a: unknown[]) => listRates(...a),
   upsertRate: (...a: unknown[]) => upsertRate(...a),
   ensureTodayRates: (...a: unknown[]) => ensureTodayRates(...a),
+  fetchEcbRange: (...a: unknown[]) => fetchEcbRange(...a),
+}));
+vi.mock('../api/budget', () => ({
+  listMonths: (...a: unknown[]) => listMonths(...a),
 }));
 
 import Accounts from './Accounts';
@@ -36,6 +42,8 @@ beforeEach(() => {
   updateAccount.mockResolvedValue(undefined);
   deleteAccount.mockResolvedValue(undefined);
   upsertRate.mockResolvedValue(undefined);
+  listMonths.mockResolvedValue(['2026-08-01', '2026-05-01']);
+  fetchEcbRange.mockResolvedValue([]);
 });
 
 describe('Accounts page', () => {
@@ -130,5 +138,35 @@ describe('Accounts page', () => {
     listAccounts.mockRejectedValue(new Error('load failed'));
     render(<Accounts onBack={vi.fn()} base="USD" />);
     expect(await screen.findByText(/load failed/i)).toBeInTheDocument();
+  });
+
+  it('backfills only the euro days it does not already have', async () => {
+    listRates.mockResolvedValue([
+      { currency: 'EUR', rateDate: '2026-05-04', unitsPerUsd: 0.85, source: 'ecb' },
+    ]);
+    ensureTodayRates.mockImplementation((existing: unknown) => Promise.resolve(existing));
+    fetchEcbRange.mockResolvedValue([
+      { date: '2026-05-04', unitsPerUsd: 0.85 },   // already known — must be skipped
+      { date: '2026-05-05', unitsPerUsd: 0.86 },
+      { date: '2026-05-06', unitsPerUsd: 0.87 },
+    ]);
+
+    render(<Accounts onBack={vi.fn()} base="USD" />);
+    await screen.findByDisplayValue('Chase');
+    fireEvent.click(screen.getByRole('button', { name: /backfill euro history/i }));
+
+    await waitFor(() => expect(screen.getByTestId('backfill-result')).toHaveTextContent('2'));
+    expect(upsertRate).toHaveBeenCalledTimes(2);
+    // spans the oldest month with data through today
+    expect(fetchEcbRange).toHaveBeenCalledWith('2026-05-01', expect.any(String));
+  });
+
+  it('reports when the euro backfill finds nothing new', async () => {
+    fetchEcbRange.mockResolvedValue([]);
+    render(<Accounts onBack={vi.fn()} base="USD" />);
+    await screen.findByDisplayValue('Chase');
+    fireEvent.click(screen.getByRole('button', { name: /backfill euro history/i }));
+    await waitFor(() => expect(screen.getByTestId('backfill-result')).toHaveTextContent(/up to date/i));
+    expect(upsertRate).not.toHaveBeenCalled();
   });
 });

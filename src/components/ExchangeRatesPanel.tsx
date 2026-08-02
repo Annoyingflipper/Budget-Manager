@@ -17,6 +17,11 @@ type Props = {
   onSaveRate: (currency: Foreign, date: string, unitsPerUsd: number) => void;
   onRefresh: () => void;
   refreshing: boolean;
+  /** Pulls the full ECB series for EUR — the one currency with real history available. */
+  onBackfillEur: () => void;
+  backfilling: boolean;
+  /** Days imported by the last backfill, or null if none has run this session. */
+  backfillResult: number | null;
 };
 
 /**
@@ -30,7 +35,7 @@ function effectiveRow(rates: RateRow[], currency: Foreign, date: string): RateRo
 }
 
 export default function ExchangeRatesPanel({
-  rates, date, onSaveRate, onRefresh, refreshing,
+  rates, date, onSaveRate, onRefresh, refreshing, onBackfillEur, backfilling, backfillResult,
 }: Props) {
   const [currency, setCurrency] = useState<Foreign>('EUR');
   const [manualDate, setManualDate] = useState('');
@@ -77,7 +82,32 @@ export default function ExchangeRatesPanel({
       })}
 
       <div className="border-t border-highlight mt-3 pt-3">
-        <div className="text-muted text-xs mb-1">Add or correct a rate for a past date</div>
+        <div className="flex items-center justify-between gap-2 mb-2">
+          <div className="text-muted text-xs">
+            Import the full euro history from the ECB
+          </div>
+          <button
+            type="button"
+            onClick={onBackfillEur}
+            disabled={backfilling}
+            // Stable accessible name: the visible label changes while running,
+            // and the control should not lose its identity mid-action.
+            aria-label="Backfill euro history"
+            className="shrink-0 text-xs bg-bg rounded-md px-2 py-1 disabled:opacity-50"
+          >
+            {backfilling ? 'Importing…' : 'Backfill euro history'}
+          </button>
+        </div>
+        {backfillResult !== null && (
+          <div data-testid="backfill-result" className="text-muted text-xs mb-2">
+            {backfillResult === 0
+              ? 'Already up to date — no new days to import.'
+              : `Imported ${backfillResult} days of euro rates.`}
+          </div>
+        )}
+        <div className="text-muted text-xs mb-1">
+          Add or correct a rate for a past date (bolívar history has to be entered by hand)
+        </div>
         <div className="flex gap-2">
           <select
             value={currency}

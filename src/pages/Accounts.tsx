@@ -3,7 +3,8 @@ import AccountRow from '../components/AccountRow';
 import TotalAvailable from '../components/TotalAvailable';
 import ExchangeRatesPanel from '../components/ExchangeRatesPanel';
 import { listAccounts, addAccount, updateAccount, deleteAccount } from '../api/accounts';
-import { listRates, upsertRate, ensureTodayRates } from '../api/rates';
+import { listMonths } from '../api/budget';
+import { listRates, upsertRate, ensureTodayRates, fetchEcbRange } from '../api/rates';
 import { todayISO } from '../utils/date';
 import type { Currency } from '../utils/currency';
 import type { RateRow } from '../utils/rates';
@@ -18,6 +19,8 @@ export default function Accounts({ onBack, base }: Props) {
   const [draftName, setDraftName] = useState('');
   const [confirmingId, setConfirmingId] = useState<number | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [backfilling, setBackfilling] = useState(false);
+  const [backfillResult, setBackfillResult] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const today = todayISO();
 
@@ -91,6 +94,35 @@ export default function Accounts({ onBack, base }: Props) {
       setRates(await ensureTodayRates(withoutToday));
     } catch (e) { fail(e); }
     finally { setRefreshing(false); }
+  }
+
+  /**
+   * EUR is the one currency with real history available — the ECB publishes a
+   * full series. Bolivar history has no free source and stays manual.
+   */
+  async function handleBackfillEur() {
+    setBackfilling(true);
+    setBackfillResult(null);
+    try {
+      const months = await listMonths();
+      const earliest = months.length > 0 ? months[months.length - 1] : today;
+      const days = await fetchEcbRange(earliest, today);
+      const known = new Set(
+        rates.filter((r) => r.currency === 'EUR').map((r) => r.rateDate),
+      );
+      const missing = days.filter((d) => !known.has(d.date));
+      for (const day of missing) {
+        await upsertRate({
+          currency: 'EUR', rateDate: day.date, unitsPerUsd: day.unitsPerUsd, source: 'ecb',
+        });
+      }
+      if (missing.length > 0) setRates(await listRates());
+      setBackfillResult(missing.length);
+    } catch (e) {
+      fail(e);
+    } finally {
+      setBackfilling(false);
+    }
   }
 
   async function handleSaveRate(currency: 'EUR' | 'VES', date: string, unitsPerUsd: number) {
@@ -168,6 +200,9 @@ export default function Accounts({ onBack, base }: Props) {
         onSaveRate={handleSaveRate}
         onRefresh={handleRefresh}
         refreshing={refreshing}
+        onBackfillEur={handleBackfillEur}
+        backfilling={backfilling}
+        backfillResult={backfillResult}
       />
     </div>
   );
