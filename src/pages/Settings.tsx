@@ -1,6 +1,9 @@
+import { useEffect, useState } from 'react';
 import ThemeCard from '../components/ThemeCard';
 import CategoriesEditor from '../components/CategoriesEditor';
 import { useTheme } from '../theme/ThemeProvider';
+import { getBaseCurrency, setBaseCurrency } from '../api/userPrefs';
+import { CURRENCIES, CURRENCY_CODES, type Currency } from '../utils/currency';
 import type { Theme } from '../theme/types';
 
 type Props = {
@@ -13,6 +16,25 @@ const THEMES: Theme[] = ['peach', 'sage', 'lavender'];
 
 export default function Settings({ onBack, onCategoriesChanged, onOpenChangelog }: Props) {
   const { theme, mode, setTheme, setMode } = useTheme();
+  const [baseCurrency, setBase] = useState<Currency>('USD');
+
+  useEffect(() => {
+    let cancelled = false;
+    getBaseCurrency()
+      .then((c) => { if (!cancelled) setBase(c); })
+      .catch(() => { /* non-fatal: the USD default stands */ });
+    return () => { cancelled = true; };
+  }, []);
+
+  async function handleBaseCurrency(next: Currency) {
+    const previous = baseCurrency;
+    setBase(next);
+    try {
+      await setBaseCurrency(next);
+    } catch {
+      setBase(previous); // don't leave the UI claiming a preference that didn't save
+    }
+  }
 
   return (
     <div className="mx-auto max-w-2xl p-6 space-y-5">
@@ -86,6 +108,23 @@ export default function Settings({ onBack, onCategoriesChanged, onOpenChangelog 
         <h2 className="text-2xl font-extrabold">Categories</h2>
         <p className="text-muted text-sm">Make the budget match what you actually spend on.</p>
       </div>
+      <section className="bg-card rounded-xl p-4">
+        <div className="font-extrabold text-sm">Base currency</div>
+        <div className="text-muted text-xs mb-2">
+          The currency your total available is shown in.
+        </div>
+        <select
+          value={baseCurrency}
+          onChange={(e) => handleBaseCurrency(e.target.value as Currency)}
+          aria-label="Base currency"
+          className="px-2 py-1 border border-highlight rounded-md bg-bg text-sm"
+        >
+          {CURRENCY_CODES.map((code) => (
+            <option key={code} value={code}>{CURRENCIES[code].label} ({code})</option>
+          ))}
+        </select>
+      </section>
+
       <CategoriesEditor onCategoriesChanged={onCategoriesChanged} />
 
       <div className="pt-4">
