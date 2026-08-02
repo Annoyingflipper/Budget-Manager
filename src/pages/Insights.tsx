@@ -5,11 +5,12 @@ import ExportButtons from '../components/ExportButtons';
 import { getBudget, listMonths } from '../api/budget';
 import { categoryTotals, buildMonthDelta } from '../utils/insights';
 import { formatMonthLabel, prevMonth } from '../utils/month';
+import type { Currency } from '../utils/currency';
 import type { Budget, MonthDelta as MonthDeltaT } from '../types';
 
-type Props = { selectedMonth: string; budget: Budget; onBack: () => void };
+type Props = { selectedMonth: string; budget: Budget; onBack: () => void; base?: Currency };
 
-export default function Insights({ selectedMonth, budget, onBack }: Props) {
+export default function Insights({ selectedMonth, budget, onBack, base = 'USD' }: Props) {
   const [delta, setDelta] = useState<MonthDeltaT | null>(null);
   const totals = categoryTotals(budget);
 
@@ -60,7 +61,7 @@ export default function Insights({ selectedMonth, budget, onBack }: Props) {
 
       <ProjectedVsActualChart totals={totals} />
       {delta && <MonthDelta delta={delta} />}
-      <ExportButtons month={selectedMonth} budget={budget} />
+      <ExportButtons month={selectedMonth} budget={budget} base={base} />
     </div>
   );
 }

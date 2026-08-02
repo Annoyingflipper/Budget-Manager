@@ -174,6 +174,19 @@ describe('LineItemRow', () => {
         expect(api.updateLineItem).toHaveBeenCalledWith(42, { currency: null }));
     });
 
+    // A USD expense under a USD base has nothing to convert and nothing to
+    // override, so the whole strip is noise on every row.
+    it('shows no rate override when the currency matches the base currency', () => {
+      renderRow({ item: { ...baseItem, currency: 'USD' }, base: 'USD' });
+      expect(screen.queryByLabelText('Rate override')).toBeNull();
+      expect(screen.queryByTestId('converted-42')).toBeNull();
+    });
+
+    it('still shows the override when the currency differs from the base', () => {
+      renderRow({ item: { ...baseItem, currency: 'USD' }, base: 'EUR' });
+      expect(screen.getByLabelText('Rate override')).toBeInTheDocument();
+    });
+
     it('shows the converted amount for a foreign-currency expense', () => {
       renderRow({ item: {
         ...baseItem, currency: 'VES', projected: 30000, actual: 30000,

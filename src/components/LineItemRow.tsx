@@ -203,7 +203,10 @@ export default function LineItemRow({
     </select>
   );
 
-  const currencyStrip = item.currency === null ? null : (
+  // Only worth showing when there is actually a conversion to make: an expense
+  // in the base currency has nothing to convert and no rate to override, so the
+  // strip would be dead weight on every row.
+  const currencyStrip = !showConverted ? null : (
     <div className="flex items-center gap-2 flex-wrap text-xs text-muted pl-1 pb-1">
       {showConverted && (
         <span data-testid={`converted-${item.id}`}>

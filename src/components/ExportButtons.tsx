@@ -2,11 +2,19 @@ import { useState } from 'react';
 import { getExportRows } from '../api/budget';
 import { budgetToExportRows } from '../utils/insights';
 import { toCsv, downloadCsv } from '../utils/csv';
+import type { Currency } from '../utils/currency';
 import type { Budget, ExportRow } from '../types';
 
-const HEADERS = [
-  'Month', 'Category', 'Item', 'Currency', 'Projected', 'Actual', 'Projected (base)', 'Actual (base)',
-];
+/**
+  * The last two columns name the actual base currency rather than saying "base",
+  * so the file explains itself when opened in a spreadsheet months later.
+  */
+function headers(base: Currency): string[] {
+  return [
+    'Month', 'Category', 'Item', 'Currency',
+    'Projected', 'Actual', `Projected (${base})`, `Actual (${base})`,
+  ];
+}
 
 function toMatrix(rows: ExportRow[]): (string | number)[][] {
   return rows.map((r) => [
@@ -16,21 +24,21 @@ function toMatrix(rows: ExportRow[]): (string | number)[][] {
   ]);
 }
 
-type Props = { month: string; budget: Budget };
+type Props = { month: string; budget: Budget; base?: Currency };
 
-export default function ExportButtons({ month, budget }: Props) {
+export default function ExportButtons({ month, budget, base = 'USD' }: Props) {
   const [busy, setBusy] = useState(false);
 
   const exportThisMonth = () => {
     const rows = budgetToExportRows(month, budget);
-    downloadCsv(`budget-${month.slice(0, 7)}.csv`, toCsv(HEADERS, toMatrix(rows)));
+    downloadCsv(`budget-${month.slice(0, 7)}.csv`, toCsv(headers(base), toMatrix(rows)));
   };
 
   const exportAll = async () => {
     setBusy(true);
     try {
       const rows = await getExportRows();
-      downloadCsv('budget-all-history.csv', toCsv(HEADERS, toMatrix(rows)));
+      downloadCsv('budget-all-history.csv', toCsv(headers(base), toMatrix(rows)));
     } finally {
       setBusy(false);
     }

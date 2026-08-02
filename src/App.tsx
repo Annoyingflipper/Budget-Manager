@@ -196,6 +196,7 @@ function BudgetApp() {
           selectedMonth={selectedMonth}
           budget={budget}
           onBack={() => setPage('budget')}
+          base={baseCurrency}
         />
       ) : (
         <div className="mx-auto max-w-3xl p-6">

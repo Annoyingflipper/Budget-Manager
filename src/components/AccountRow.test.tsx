@@ -1,7 +1,14 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
+
+// Controllable per test so both layouts are covered.
+const viewport = { isMobile: false };
+vi.mock('../hooks/useIsMobile', () => ({ useIsMobile: () => viewport.isMobile }));
+
 import AccountRow from './AccountRow';
 import type { Account } from '../types';
+
+beforeEach(() => { viewport.isMobile = false; });
 
 const ACCOUNT: Account = {
   id: 1, name: 'Chase Checking', icon: '🏦', currency: 'USD',
@@ -91,5 +98,50 @@ describe('AccountRow', () => {
   it('renders a negative balance in the negative colour', () => {
     setup({ account: { ...ACCOUNT, balance: -450 } });
     expect(screen.getByTestId('account-balance-1').className).toContain('text-negative');
+  });
+
+  describe('mobile layout', () => {
+    // The fixed-width desktop grid squeezed the name field to a single character
+    // on a phone, which made the page unusable.
+    it('gives the name its own full-width row', () => {
+      viewport.isMobile = true;
+      setup();
+      expect(screen.getByTestId('account-row-mobile-1')).toBeInTheDocument();
+      expect(screen.getByDisplayValue('Chase Checking')).toBeInTheDocument();
+    });
+
+    it('does not use the mobile layout on desktop', () => {
+      setup();
+      expect(screen.queryByTestId('account-row-mobile-1')).toBeNull();
+    });
+
+    it('still edits the name on mobile', () => {
+      viewport.isMobile = true;
+      const props = setup();
+      const input = screen.getByDisplayValue('Chase Checking');
+      fireEvent.change(input, { target: { value: 'Chase Main' } });
+      fireEvent.blur(input);
+      expect(props.onChange).toHaveBeenCalledWith(1, { name: 'Chase Main' });
+    });
+
+    it('still edits the balance and currency on mobile', () => {
+      viewport.isMobile = true;
+      const props = setup();
+      fireEvent.change(screen.getByLabelText('Currency for Chase Checking'),
+        { target: { value: 'VES' } });
+      expect(props.onChange).toHaveBeenCalledWith(1, { currency: 'VES' });
+
+      const balance = screen.getByLabelText('Balance for Chase Checking');
+      fireEvent.change(balance, { target: { value: '250' } });
+      fireEvent.blur(balance);
+      expect(props.onChange).toHaveBeenCalledWith(1, { balance: 250 });
+    });
+
+    it('still deletes on mobile', () => {
+      viewport.isMobile = true;
+      const props = setup({ confirmingDelete: true });
+      fireEvent.click(screen.getByLabelText('Confirm delete Chase Checking'));
+      expect(props.onDelete).toHaveBeenCalledWith(1);
+    });
   });
 });

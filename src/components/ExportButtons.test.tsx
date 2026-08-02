@@ -37,7 +37,7 @@ describe('ExportButtons', () => {
     expect(downloadCsv).toHaveBeenCalledTimes(1);
     const [filename, csv] = downloadCsv.mock.calls[0];
     expect(filename).toBe('budget-2026-06.csv');
-    expect(csv).toContain('Month,Category,Item,Currency,Projected,Actual,Projected (base),Actual (base)');
+    expect(csv).toContain('Month,Category,Item,Currency,Projected,Actual,Projected (USD),Actual (USD)');
     expect(csv).toContain('2026-06-01,Food,Groceries,,400.00,450.00,400.00,450.00');
   });
 

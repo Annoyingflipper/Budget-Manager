@@ -59,7 +59,7 @@ test.describe('insights + export @regression', () => {
     // v1.9 chunk 2 added the currency columns: the native amount the user typed
     // plus the value converted into their base currency.
     expect(firstLine).toBe(
-      'Month,Category,Item,Currency,Projected,Actual,Projected (base),Actual (base)',
+      'Month,Category,Item,Currency,Projected,Actual,Projected (USD),Actual (USD)',
     );
     expect(text).toContain('Services,Internet');
   });
