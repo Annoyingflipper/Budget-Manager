@@ -43,8 +43,25 @@ beforeEach(() => {
 describe('AttachmentStrip', () => {
   it('offers an add control when there are none', () => {
     setup();
-    expect(screen.getByLabelText('Attach a receipt')).toBeInTheDocument();
+    expect(screen.getByLabelText('Add a receipt')).toBeInTheDocument();
     expect(screen.queryByTestId('attachment-count-1')).toBeNull();
+  });
+
+  // The native file input renders "Choose File / No file chosen", which
+  // ellipsised to "N...en" on every row. It must not be visible.
+  it('hides the native file input behind a compact button', () => {
+    setup();
+    const input = screen.getByLabelText('Attach a receipt');
+    expect(input).toHaveClass('sr-only');
+    expect(screen.getByLabelText('Add a receipt').tagName).toBe('BUTTON');
+  });
+
+  it('opens the file picker when the button is clicked', () => {
+    setup();
+    const input = screen.getByLabelText('Attach a receipt') as HTMLInputElement;
+    const click = vi.spyOn(input, 'click');
+    fireEvent.click(screen.getByLabelText('Add a receipt'));
+    expect(click).toHaveBeenCalled();
   });
 
   it('shows a thumbnail for a single image', async () => {
@@ -95,12 +112,12 @@ describe('AttachmentStrip', () => {
 
   it('disables adding while an upload is in flight', () => {
     setup({ uploading: true });
-    expect(screen.getByLabelText('Attach a receipt')).toBeDisabled();
+    expect(screen.getByLabelText('Add a receipt')).toBeDisabled();
   });
 
   it('disables adding at the attachment limit', () => {
     setup({ attachments: Array.from({ length: 8 }, (_, i) => att(i + 1)) });
-    expect(screen.getByLabelText('Attach a receipt')).toBeDisabled();
+    expect(screen.getByLabelText('Add a receipt')).toBeDisabled();
   });
 
   it('surfaces a rejection reason', () => {

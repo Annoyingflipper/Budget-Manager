@@ -76,22 +76,41 @@ export default function AttachmentStrip({
         </span>
       )}
 
+      {/*
+        The native control renders "Choose File / No file chosen", which is far
+        too wide for a table row and ellipsised to "N...en". It is hidden (but
+        still in the accessibility tree and reachable by tests) and driven by the
+        compact button below.
+      */}
       <input
         ref={inputRef}
         type="file"
         accept="image/*,application/pdf"
         aria-label="Attach a receipt"
         disabled={uploading || atLimit}
-        title={atLimit ? `Up to ${MAX_PER_ITEM} attachments per expense` : 'Attach a receipt'}
         onChange={(e) => {
           const file = e.target.files?.[0];
           if (file) onUpload(file);
           if (inputRef.current) inputRef.current.value = '';
         }}
-        className="block w-24 text-[10px] text-muted file:mr-1 file:rounded file:border-0
-                   file:bg-bg file:px-1.5 file:py-0.5 file:text-[10px] file:text-muted
-                   disabled:opacity-50"
+        className="sr-only"
       />
+
+      <button
+        type="button"
+        onClick={() => inputRef.current?.click()}
+        disabled={uploading || atLimit}
+        aria-label="Add a receipt"
+        title={
+          atLimit
+            ? `Up to ${MAX_PER_ITEM} attachments per expense`
+            : 'Attach a receipt or payment screenshot'
+        }
+        className="shrink-0 text-xs text-muted hover:text-text rounded px-1.5 py-0.5
+                   bg-bg disabled:opacity-40"
+      >
+        📎{attachments.length === 0 ? '' : '+'}
+      </button>
 
       {uploading && <span className="text-xs text-muted">Uploading…</span>}
 
