@@ -24,10 +24,10 @@ jobs:
       - name: Ping QA
         env:
           URL: ${{ secrets.VITE_SUPABASE_URL }}
-          KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          KEY: ${{ secrets.QA_SUPABASE_SERVICE_ROLE_KEY }}
         run: |
           if [ -z "$URL" ] || [ -z "$KEY" ]; then
-            echo "::error::Missing VITE_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY (QA)."
+            echo "::error::Missing VITE_SUPABASE_URL or QA_SUPABASE_SERVICE_ROLE_KEY (QA)."
             exit 1
           fi
           code=$(curl -sS -o /dev/null -w '%{http_code}' \

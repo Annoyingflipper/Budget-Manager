@@ -22,11 +22,17 @@ Real-browser tests against the **QA Supabase** backend. Complements the mocked V
 - The **`setup` project** (`support/auth.setup.ts`) reseeds the baseline (service role),
   signs in through the real UI, clears the TOTP/AAL2 challenge with `otplib`, and saves
   `e2e/.auth/user.json`. All specs reuse that authenticated state.
-- **Baseline** (`data/baseline.ts`) is the canonical seeded dataset (May + June 2026).
-  Read-only specs (insights, theme) assert against it. The reseed also resets theme
-  preferences to light/peach for a deterministic theme spec.
+- **Baseline** (`data/baseline.ts`) is the canonical seeded dataset: the current
+  calendar month plus the one before it, derived at runtime via `support/months.ts`.
+  Never hard-code a month — the suite was pinned to June 2026 originally and broke the
+  moment the calendar passed it. Read-only specs (insights, theme) assert against it.
+  The reseed also resets theme preferences to light/peach for a deterministic theme spec.
 - **Mutating specs** (dashboard, categories) use the `scopedData` fixture to create
   uniquely-named, self-owned entities and clean them up — safe under `fullyParallel`.
+- **`delete-month`** runs in its own `chromium-month-mutating` project that depends on
+  `chromium`, so it starts only after every other spec finishes. Its rollover changes
+  which month is "latest" for the shared test user, which the app opens on — running it
+  in parallel silently moved the month other specs were asserting against.
 - The **console guard** fails any test on an unexpected `console.error` / `pageerror` /
   failed request (allowlist in `fixtures/console-guard.fixture.ts`).
 - **MFA timing:** `MFAChallenge` loads its factor id asynchronously; specs that drive the

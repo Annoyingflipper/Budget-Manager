@@ -36,7 +36,20 @@ export default defineConfig({
     { name: 'setup', testMatch: /auth\.setup\.ts/ },
     {
       name: 'chromium',
+      // delete-month runs separately — see below.
+      testIgnore: /delete-month\.e2e\.ts/,
       dependencies: ['setup'],
+      use: { ...devices['Desktop Chrome'], storageState: 'e2e/.auth/user.json' },
+    },
+    {
+      // All specs share one QA test user, and the app opens on the latest month
+      // that has data. delete-month rolls over to a *new* latest month mid-run,
+      // so under fullyParallel it silently changed the month other specs were
+      // asserting against (it's what made the CSV export spec flaky). Depending
+      // on 'chromium' makes it run only after every other spec has finished.
+      name: 'chromium-month-mutating',
+      testMatch: /delete-month\.e2e\.ts/,
+      dependencies: ['chromium'],
       use: { ...devices['Desktop Chrome'], storageState: 'e2e/.auth/user.json' },
     },
   ],

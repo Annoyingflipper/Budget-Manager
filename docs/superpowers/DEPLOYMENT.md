@@ -78,7 +78,9 @@ Run `list_migrations` against both project refs and diff. Apply the missing migr
 
 Free-tier Supabase projects pause after ~7 days of inactivity. **A paused project can't be exported** — every recovery path (MCP, CLI, `pg_dump`) needs the database running. So the defense is two-layered: don't let it pause, and keep a dump from when it was up.
 
-**Keepalive.** `.github/workflows/keepalive.yml` runs a PostgREST select against QA + PRD every 3 days (also `workflow_dispatch`). Uses the existing QA secrets plus `PRD_SUPABASE_URL` / `PRD_SUPABASE_SERVICE_ROLE_KEY`. A step fails loudly if its secrets are missing — a silently-skipped ping means that project pauses.
+**Keepalive.** `.github/workflows/keepalive.yml` runs a PostgREST select against QA + PRD every 3 days (also `workflow_dispatch`). Uses `VITE_SUPABASE_URL` / `QA_SUPABASE_SERVICE_ROLE_KEY` and `PRD_SUPABASE_URL` / `PRD_SUPABASE_SERVICE_ROLE_KEY`. A step fails loudly if its secrets are missing — a silently-skipped ping means that project pauses.
+
+> Service-role secrets are environment-prefixed on purpose. The unprefixed `SUPABASE_SERVICE_ROLE_KEY` was renamed to `QA_SUPABASE_SERVICE_ROLE_KEY` on 2026-08-01 after the PRD key got pasted over it. It failed safe that time (PRD key + QA URL = 401), but `auth.setup.ts` reseeds by wiping the user's rows — if a PRD key ever lined up with a PRD URL there, it would delete real data.
 
 > ⚠️ **GitHub disables scheduled workflows after 60 days without a commit.** If the repo goes quiet that long the cron stops and both projects will pause. Re-enable from the Actions tab, or push any commit.
 

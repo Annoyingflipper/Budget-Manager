@@ -10,7 +10,7 @@ type Required =
   | 'E2E_USER_EMAIL'
   | 'E2E_USER_PASSWORD'
   | 'E2E_TOTP_SECRET'
-  | 'SUPABASE_SERVICE_ROLE_KEY';
+  | 'QA_SUPABASE_SERVICE_ROLE_KEY';
 
 const REQUIRED: Required[] = [
   'VITE_SUPABASE_URL',
@@ -18,7 +18,7 @@ const REQUIRED: Required[] = [
   'E2E_USER_EMAIL',
   'E2E_USER_PASSWORD',
   'E2E_TOTP_SECRET',
-  'SUPABASE_SERVICE_ROLE_KEY',
+  'QA_SUPABASE_SERVICE_ROLE_KEY',
 ];
 
 function read(): Record<Required, string> {

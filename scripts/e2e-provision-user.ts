@@ -1,7 +1,7 @@
 // One-time, idempotent E2E test-user provisioning. Run with:
 //   npm run e2e:provision
 // Requires .env.e2e.local with VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY,
-// E2E_USER_EMAIL, E2E_USER_PASSWORD, SUPABASE_SERVICE_ROLE_KEY.
+// E2E_USER_EMAIL, E2E_USER_PASSWORD, QA_SUPABASE_SERVICE_ROLE_KEY.
 // Prints E2E_TOTP_SECRET — copy it into .env.e2e.local and the GitHub secret.
 import { config as loadDotenv } from 'dotenv';
 import { createClient } from '@supabase/supabase-js';
@@ -11,7 +11,7 @@ loadDotenv({ path: '.env.e2e.local' });
 
 const url = req('VITE_SUPABASE_URL');
 const anon = req('VITE_SUPABASE_ANON_KEY');
-const serviceRole = req('SUPABASE_SERVICE_ROLE_KEY');
+const serviceRole = req('QA_SUPABASE_SERVICE_ROLE_KEY');
 const email = req('E2E_USER_EMAIL');
 const password = req('E2E_USER_PASSWORD');
 

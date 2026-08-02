@@ -2,10 +2,12 @@ import type { Readable } from 'node:stream';
 import { test, expect } from '../fixtures/test';
 import { categoryIdByName } from '../support/seed';
 import {
-  JUNE_SERVICES_ACTUAL,
-  JUNE_SERVICES_PROJECTED,
-  JUNE_ENTERTAINMENT_ACTUAL,
+  CURRENT_SERVICES_ACTUAL,
+  CURRENT_SERVICES_PROJECTED,
+  CURRENT_ENTERTAINMENT_ACTUAL,
+  MONTH_CURRENT,
 } from '../data/baseline';
+import { monthKey } from '../support/months';
 
 async function streamToString(stream: Readable | null): Promise<string> {
   if (!stream) return '';
@@ -29,13 +31,13 @@ test.describe('insights + export @regression', () => {
     // Services is over budget -> amount text is red (text-negative).
     const services = insightsPage.chartRowAmount(servicesId);
     await expect(services).toHaveClass(/text-negative/);
-    await expect(services).toContainText(`$${JUNE_SERVICES_ACTUAL.toFixed(2)}`);
-    await expect(services).toContainText(`$${JUNE_SERVICES_PROJECTED.toFixed(2)}`);
+    await expect(services).toContainText(`$${CURRENT_SERVICES_ACTUAL.toFixed(2)}`);
+    await expect(services).toContainText(`$${CURRENT_SERVICES_PROJECTED.toFixed(2)}`);
 
     // Entertainment is under budget -> green (text-positive).
     const entertainment = insightsPage.chartRowAmount(entertainmentId);
     await expect(entertainment).toHaveClass(/text-positive/);
-    await expect(entertainment).toContainText(`$${JUNE_ENTERTAINMENT_ACTUAL.toFixed(2)}`);
+    await expect(entertainment).toContainText(`$${CURRENT_ENTERTAINMENT_ACTUAL.toFixed(2)}`);
   });
 
   test('exports this month as a CSV with the expected filename + header', async ({
@@ -50,7 +52,7 @@ test.describe('insights + export @regression', () => {
     await insightsPage.exportThisMonth.click();
     const download = await downloadPromise;
 
-    expect(download.suggestedFilename()).toBe('budget-2026-06.csv');
+    expect(download.suggestedFilename()).toBe(`budget-${monthKey(MONTH_CURRENT)}.csv`);
 
     const text = await streamToString(await download.createReadStream());
     const firstLine = text.split('\r\n')[0];

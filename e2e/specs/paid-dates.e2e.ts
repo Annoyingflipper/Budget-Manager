@@ -1,6 +1,8 @@
 import { test, expect } from '../fixtures/test';
 import { admin, getTestUserId } from '../support/supabaseAdmin';
 import { env } from '../support/env';
+import { MONTH_CURRENT } from '../data/baseline';
+import { monthLabel } from '../support/months';
 
 async function firstServicesItemId(): Promise<number> {
   const uid = await getTestUserId(env.E2E_USER_EMAIL);
@@ -11,7 +13,7 @@ async function firstServicesItemId(): Promise<number> {
     .select('id')
     .eq('user_id', uid)
     .eq('category_id', cat!.id)
-    .eq('period_month', '2026-06-01')
+    .eq('period_month', MONTH_CURRENT)
     .order('created_at')
     .limit(1)
     .single();
@@ -28,7 +30,7 @@ test.describe('paid dates @regression', () => {
   test('mark a bill paid then un-pay it, summary updates', async ({ dashboardPage }) => {
     const itemId = await firstServicesItemId();
     await dashboardPage.goto();
-    await expect(dashboardPage.header.monthLabel).toHaveText('June 2026');
+    await expect(dashboardPage.header.monthLabel).toHaveText(monthLabel(MONTH_CURRENT));
 
     const row = dashboardPage.lineItem(itemId);
 

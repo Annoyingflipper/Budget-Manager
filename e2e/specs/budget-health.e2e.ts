@@ -1,6 +1,8 @@
 import { test, expect } from '../fixtures/test';
 import { admin, getTestUserId } from '../support/supabaseAdmin';
 import { env } from '../support/env';
+import { MONTH_CURRENT } from '../data/baseline';
+import { monthLabel } from '../support/months';
 
 async function categoryIdByName(name: string): Promise<number> {
   const uid = await getTestUserId(env.E2E_USER_EMAIL);
@@ -22,7 +24,7 @@ test.describe('budget-health bars @regression', () => {
     const entertainmentId = await categoryIdByName('Entertainment');
 
     await dashboardPage.goto();
-    await expect(dashboardPage.header.monthLabel).toHaveText('June 2026');
+    await expect(dashboardPage.header.monthLabel).toHaveText(monthLabel(MONTH_CURRENT));
 
     const servicesBar = dashboardPage.categoryTable(servicesId).budgetBar;
     await expect(servicesBar).toHaveAttribute('data-state', 'over');
