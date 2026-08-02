@@ -73,6 +73,25 @@ export class ScopedData {
     return { categoryId, categoryName };
   }
 
+
+  /**
+   * Removes Storage objects for the given categories' line items BEFORE the rows
+   * go. Deleting line_items cascades the attachment rows away, and once those
+   * rows are gone nothing records which files existed — they become orphans that
+   * accumulate in the bucket forever. Same ordering rule the app itself follows.
+   */
+  private async removeAttachmentObjects(categoryIds: number[]): Promise<void> {
+    if (categoryIds.length === 0) return;
+    const { data: items } = await admin
+      .from('line_items').select('id').in('category_id', categoryIds);
+    const itemIds = (items ?? []).map((i) => i.id as number);
+    if (itemIds.length === 0) return;
+    const { data: rows } = await admin
+      .from('line_item_attachments').select('storage_path').in('line_item_id', itemIds);
+    const paths = (rows ?? []).map((r) => r.storage_path as string);
+    if (paths.length > 0) await admin.storage.from('receipts').remove(paths);
+  }
+
   /** Register + remove a category created through the UI, by its name. */
   async cleanupByCategoryName(name: string): Promise<void> {
     const { data } = await admin
@@ -82,12 +101,14 @@ export class ScopedData {
       .eq('name', name);
     const ids = (data ?? []).map((c) => c.id as number);
     if (ids.length === 0) return;
+    await this.removeAttachmentObjects(ids);
     await admin.from('line_items').delete().in('category_id', ids);
     await admin.from('categories').delete().in('id', ids);
   }
 
   async cleanup(): Promise<void> {
     if (this.categoryIds.length === 0) return;
+    await this.removeAttachmentObjects(this.categoryIds);
     await admin.from('line_items').delete().in('category_id', this.categoryIds);
     await admin.from('categories').delete().in('id', this.categoryIds);
     this.categoryIds = [];

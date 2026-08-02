@@ -105,14 +105,28 @@ export async function categoryIdByName(name: string): Promise<number> {
   return data.id as number;
 }
 
-/** Empties the test user's folder in the private `receipts` bucket. */
+/**
+ * Empties the test user's folder in the private `receipts` bucket.
+ *
+ * Lists Storage directly rather than reading line_item_attachments: an object
+ * whose row has already been cascaded away has nothing pointing at it, and those
+ * orphans are exactly what needs sweeping. Reading the rows would miss them.
+ */
 async function clearReceipts(uid: string): Promise<void> {
-  const { data: items } = await admin
-    .from('line_item_attachments')
-    .select('storage_path')
-    .eq('user_id', uid);
-  const paths = (items ?? []).map((r) => r.storage_path as string);
+  const { data: itemFolders, error: listErr } = await admin.storage.from('receipts').list(uid);
+  if (listErr) throw new Error(`Failed to list receipts: ${listErr.message}`);
+
+  // In parallel: one round trip per item folder, and a backlog of orphans can be
+  // dozens of folders — sequentially that alone outran the setup project's timeout.
+  const perFolder = await Promise.all(
+    (itemFolders ?? []).map(async (folder) => {
+      const { data: files } = await admin.storage.from('receipts').list(`${uid}/${folder.name}`);
+      return (files ?? []).map((file) => `${uid}/${folder.name}/${file.name}`);
+    }),
+  );
+  const paths = perFolder.flat();
   if (paths.length === 0) return;
+
   const { error } = await admin.storage.from('receipts').remove(paths);
   if (error) throw new Error(`Failed to clear receipts: ${error.message}`);
 }
