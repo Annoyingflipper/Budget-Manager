@@ -4,7 +4,9 @@ import type { Attachment } from '../types';
 
 const BUCKET = 'receipts';
 const COLUMNS = 'id, line_item_id, storage_path, mime_type, byte_size, original_name';
-const SIGNED_URL_TTL_SECONDS = 60;
+// Long enough that a viewer left open on screen does not go stale, short
+// enough that a leaked URL is worthless almost immediately.
+const SIGNED_URL_TTL_SECONDS = 300;
 
 export const MAX_BYTES = 10 * 1024 * 1024;
 export const MAX_PER_ITEM = 8;

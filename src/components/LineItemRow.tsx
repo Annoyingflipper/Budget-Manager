@@ -5,6 +5,10 @@ import { useIsMobile } from '../hooks/useIsMobile';
 import { todayISO } from '../utils/date';
 import { CURRENCY_CODES, formatCurrency, type Currency } from '../utils/currency';
 import { convertAmount } from '../utils/itemMoney';
+import AttachmentStrip from './AttachmentStrip';
+import AttachmentViewer from './AttachmentViewer';
+import { uploadAttachment, deleteAttachment } from '../api/attachments';
+import type { Attachment } from '../types';
 import type { RateRow } from '../utils/rates';
 import type { LineItem } from '../types';
 
@@ -18,6 +22,8 @@ type Props = {
   base?: Currency;
   /** Needed to recompute the converted amount locally after an edit. */
   rates?: RateRow[];
+  attachments?: Attachment[];
+  onAttachmentsChange?: () => void;
 };
 
 export default function LineItemRow({
@@ -28,7 +34,12 @@ export default function LineItemRow({
   onDelete,
   base = 'USD',
   rates = [],
+  attachments = [],
+  onAttachmentsChange,
 }: Props) {
+  const [viewerIndex, setViewerIndex] = useState<number | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [attachError, setAttachError] = useState<string | null>(null);
   const isMobile = useIsMobile();
   const [name, setName] = useState(item.name);
   const [projected, setProjected] = useState(String(item.projected));
@@ -130,6 +141,53 @@ export default function LineItemRow({
     try { await updateLineItem(item.id, { rateUnitsPerUsd: next }); }
     catch { onChange(previous); }
   }
+
+  async function handleUpload(file: File) {
+    setUploading(true);
+    setAttachError(null);
+    try {
+      await uploadAttachment(item.id, file);
+      onAttachmentsChange?.();
+    } catch (e) {
+      setAttachError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  async function handleDeleteAttachment(attachment: Attachment) {
+    try {
+      await deleteAttachment(attachment);
+      if (attachments.length <= 1) setViewerIndex(null);
+      onAttachmentsChange?.();
+    } catch (e) {
+      setAttachError(e instanceof Error ? e.message : String(e));
+      setViewerIndex(null);
+    }
+  }
+
+  const attachmentUi = (
+    <>
+      <AttachmentStrip
+        lineItemId={item.id}
+        attachments={attachments}
+        onUpload={handleUpload}
+        onOpen={setViewerIndex}
+        uploading={uploading}
+        error={attachError}
+      />
+      {viewerIndex !== null && (
+        <AttachmentViewer
+          attachments={attachments}
+          startIndex={viewerIndex}
+          title={item.name}
+          subtitle={`${formatCurrency(item.projected, nativeCurrency)}${item.paidOn ? ` · ${item.paidOn}` : ''}`}
+          onClose={() => setViewerIndex(null)}
+          onDelete={handleDeleteAttachment}
+        />
+      )}
+    </>
+  );
 
   async function handleDelete() {
     onDelete();
@@ -312,6 +370,7 @@ export default function LineItemRow({
           </div>
         </div>
         {currencyStrip}
+        {attachmentUi}
       </div>
     );
   }
@@ -333,6 +392,7 @@ export default function LineItemRow({
         <div className="text-center">{deleteButton}</div>
       </div>
       {currencyStrip}
+      <div className="pl-1 pb-1">{attachmentUi}</div>
     </div>
   );
 }

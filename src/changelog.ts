@@ -20,6 +20,9 @@ export const CHANGELOG: ChangelogEntry[] = [
       'Exchange rates update themselves: the ECB reference rate for euros, the official BCV rate for bolívares.',
       'Rates are stored per day, so figures use the rate that applied at the time — and you can enter or correct any past date yourself.',
       'CSV export now includes each expense’s currency and its converted amounts.',
+      'Attach receipts and payment screenshots to any expense — several per expense, images or PDFs.',
+      'Tap a receipt to view it full-screen, with arrow keys to move between them.',
+      'Photos are shrunk in your browser before uploading, so they stay quick and take little space.',
     ],
   },
   {

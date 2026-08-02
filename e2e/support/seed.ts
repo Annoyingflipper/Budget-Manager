@@ -17,6 +17,10 @@ export async function reseedTestUser(): Promise<CategoryIdMap> {
   const uid = await getTestUserId(env.E2E_USER_EMAIL);
 
   // 1. Wipe (line_items first — FK ON DELETE RESTRICT from categories).
+  // v1.9 chunk 3: attachment rows first (FK to line_items), and their Storage
+  // objects, or uploads accumulate across CI runs and fill the 1 GB quota.
+  await clearReceipts(uid);
+  await del('line_item_attachments', uid);
   await del('line_items', uid);
   await del('income', uid);
   await del('categories', uid);
@@ -58,7 +62,8 @@ export async function reseedTestUser(): Promise<CategoryIdMap> {
 }
 
 async function del(
-  table: 'line_items' | 'income' | 'categories' | 'accounts' | 'exchange_rates',
+  table: 'line_items' | 'income' | 'categories' | 'accounts' | 'exchange_rates'
+    | 'line_item_attachments',
   uid: string,
 ): Promise<void> {
   const { error } = await admin.from(table).delete().eq('user_id', uid);
@@ -98,4 +103,16 @@ export async function categoryIdByName(name: string): Promise<number> {
     .single();
   if (error) throw error;
   return data.id as number;
+}
+
+/** Empties the test user's folder in the private `receipts` bucket. */
+async function clearReceipts(uid: string): Promise<void> {
+  const { data: items } = await admin
+    .from('line_item_attachments')
+    .select('storage_path')
+    .eq('user_id', uid);
+  const paths = (items ?? []).map((r) => r.storage_path as string);
+  if (paths.length === 0) return;
+  const { error } = await admin.storage.from('receipts').remove(paths);
+  if (error) throw new Error(`Failed to clear receipts: ${error.message}`);
 }

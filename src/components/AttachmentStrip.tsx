@@ -51,6 +51,9 @@ export default function AttachmentStrip({
               src={thumbUrl}
               alt=""
               loading="lazy"
+              // If the object is gone or the URL has expired, fall back to the
+              // document icon rather than showing a broken image.
+              onError={() => setThumbUrl(null)}
               className="h-7 w-7 object-cover rounded border border-highlight"
             />
           </button>

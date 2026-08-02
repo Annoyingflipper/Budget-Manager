@@ -20,12 +20,13 @@ import { getBudget, listMonths, rolloverMonth, deleteMonth } from './api/budget'
 import { getLastSeenChangelogVersion, setLastSeenChangelogVersion, getBaseCurrency } from './api/userPrefs';
 import { listAccounts } from './api/accounts';
 import { listRates, ensureTodayRates } from './api/rates';
+import { listAttachments } from './api/attachments';
 import { todayISO } from './utils/date';
 import { CHANGELOG, LATEST_VERSION } from './changelog';
 import { formatMonth, formatMonthLabel, nextMonth, prevMonth } from './utils/month';
 import type { Currency } from './utils/currency';
 import type { RateRow } from './utils/rates';
-import type { Account, Budget, CategoryWithItems, Income } from './types';
+import type { Account, Attachment, Budget, CategoryWithItems, Income } from './types';
 
 type Page = 'budget' | 'settings' | 'insights' | 'accounts';
 type CategoryAction = 'added' | 'renamed' | 'icon' | 'deleted' | 'reordered';
@@ -50,6 +51,7 @@ function BudgetApp() {
   const [changelogOpen, setChangelogOpen] = useState(false);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [rates, setRates] = useState<RateRow[]>([]);
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [baseCurrency, setBaseCurrency] = useState<Currency>('USD');
 
   useEffect(() => {
@@ -109,6 +111,16 @@ function BudgetApp() {
       .catch(() => { /* non-fatal */ });
     return () => { cancelled = true; };
   }, [refreshCounter]);
+
+  const reloadAttachments = useCallback(() => {
+    if (!budget) return;
+    const ids = budget.categories.flatMap((c) => c.items).map((i) => i.id);
+    listAttachments(ids)
+      .then(setAttachments)
+      .catch(() => { /* non-fatal: rows simply show no receipts */ });
+  }, [budget]);
+
+  useEffect(() => { reloadAttachments(); }, [reloadAttachments]);
 
   const updateIncomeLocal = useCallback((patch: Partial<Income>) => {
     setBudget((b) => (b ? { ...b, income: { ...b.income, ...patch } } : b));
@@ -239,6 +251,8 @@ function BudgetApp() {
               onCategoryChange={(next) => updateCategoryLocal(c.id, next)}
               base={baseCurrency}
               rates={rates}
+              attachments={attachments}
+              onAttachmentsChange={reloadAttachments}
             />
           ))}
           <GrandTotals categories={budget.categories} />

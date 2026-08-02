@@ -7,6 +7,7 @@ import { addLineItem } from '../api/budget';
 import { difference, differenceClass, formatMoney, sum } from '../utils/money';
 import type { Currency } from '../utils/currency';
 import type { RateRow } from '../utils/rates';
+import type { Attachment } from '../types';
 import type { CategoryWithItems, LineItem } from '../types';
 
 type Props = {
@@ -17,10 +18,13 @@ type Props = {
   base?: Currency;
   /** Passed down so a row can recompute its converted amount after an edit. */
   rates?: RateRow[];
+  attachments?: Attachment[];
+  onAttachmentsChange?: () => void;
 };
 
 export default function CategoryTable({
   category, periodMonth, onCategoryChange, base = 'USD', rates = [],
+  attachments = [], onAttachmentsChange,
 }: Props) {
   const [drafting, setDrafting] = useState(false);
   const [confirmingItemId, setConfirmingItemId] = useState<number | null>(null);
@@ -106,6 +110,8 @@ export default function CategoryTable({
             }}
             base={base}
             rates={rates}
+            attachments={attachments.filter((a) => a.lineItemId === item.id)}
+            onAttachmentsChange={onAttachmentsChange}
           />
         ))}
         {drafting && (
