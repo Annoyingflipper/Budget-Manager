@@ -7,6 +7,7 @@ import Header from './components/Header';
 import BalanceHero from './components/BalanceHero';
 import IncomeSummary from './components/IncomeSummary';
 import StillToPay from './components/StillToPay';
+import UnresolvedRatesNotice from './components/UnresolvedRatesNotice';
 import CategoryTable from './components/CategoryTable';
 import GrandTotals from './components/GrandTotals';
 import Toast from './components/Toast';
@@ -225,6 +226,10 @@ function BudgetApp() {
             onChange={updateIncomeLocal}
           />
           <StillToPay categories={budget.categories} />
+          <UnresolvedRatesNotice
+            categories={budget.categories}
+            onOpenRates={() => setPage('accounts')}
+          />
           {budget.categories.map((c) => (
             <CategoryTable
               key={c.id}
