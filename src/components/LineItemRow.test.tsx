@@ -14,6 +14,11 @@ const baseItem: LineItem = {
   projected: 15,
   actual: 17,
   paidOn: null,
+  currency: null,
+  rateUnitsPerUsd: null,
+  baseProjected: 15,
+  baseActual: 17,
+  rateResolved: true,
 };
 
 function renderRow(props: Partial<React.ComponentProps<typeof LineItemRow>> = {}) {

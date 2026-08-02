@@ -1,10 +1,49 @@
 import { supabase } from '../lib/supabase';
+import { getBaseCurrency } from './userPrefs';
+import { listRates } from './rates';
+import { convertAmount } from '../utils/itemMoney';
+import { todayISO } from '../utils/date';
+import type { Currency } from '../utils/currency';
 import type { Budget, Income, LineItem, ExportRow } from '../types';
 
 async function currentUserId(): Promise<string> {
   const { data } = await supabase.auth.getUser();
   if (!data.user) throw new Error('Not authenticated');
   return data.user.id;
+}
+
+function normalizeItem(
+  raw: Record<string, unknown>,
+  base: Currency,
+  rates: Awaited<ReturnType<typeof listRates>>,
+  today: string,
+): LineItem {
+  const item = {
+    id: raw.id as number,
+    category_id: raw.category_id as number,
+    name: raw.name as string,
+    projected: Number(raw.projected),
+    actual: Number(raw.actual),
+    paidOn: (raw.paid_on as string | null) ?? null,
+    currency: (raw.currency as Currency | null) ?? null,
+    rateUnitsPerUsd:
+      raw.rate_units_per_usd === null || raw.rate_units_per_usd === undefined
+        ? null
+        : Number(raw.rate_units_per_usd),
+  };
+
+  const baseProjected = convertAmount(item.projected, item, base, rates, today);
+  const baseActual = convertAmount(item.actual, item, base, rates, today);
+  const rateResolved = baseProjected !== null && baseActual !== null;
+
+  return {
+    ...item,
+    // Falling back to the native amount keeps the app usable; rateResolved is
+    // what makes the shortfall visible rather than silently wrong.
+    baseProjected: baseProjected ?? item.projected,
+    baseActual: baseActual ?? item.actual,
+    rateResolved,
+  };
 }
 
 export async function getBudget(periodMonth: string): Promise<Budget> {
@@ -27,22 +66,21 @@ export async function getBudget(periodMonth: string): Promise<Budget> {
 
   const { data: items, error: itemsErr } = await supabase
     .from('line_items')
-    .select('id, category_id, name, projected, actual, paid_on')
+    .select('id, category_id, name, projected, actual, paid_on, currency, rate_units_per_usd')
     .eq('user_id', userId)
     .eq('period_month', periodMonth)
     .order('created_at');
   if (itemsErr) throw itemsErr;
 
+  // Conversion happens once, here at the data boundary, so that every total in
+  // the app can keep summing plain numbers instead of learning about currencies.
+  const base = await getBaseCurrency();
+  const rates = await listRates();
+  const today = todayISO();
+
   const byCategory = new Map<number, LineItem[]>();
   for (const raw of items ?? []) {
-    const normalized: LineItem = {
-      id: raw.id,
-      category_id: raw.category_id,
-      name: raw.name,
-      projected: Number(raw.projected),
-      actual: Number(raw.actual),
-      paidOn: raw.paid_on ?? null,
-    };
+    const normalized = normalizeItem(raw as Record<string, unknown>, base, rates, today);
     const list = byCategory.get(normalized.category_id) ?? [];
     list.push(normalized);
     byCategory.set(normalized.category_id, list);
@@ -131,26 +169,32 @@ export async function addLineItem(
       actual: item.actual,
       period_month: periodMonth,
     })
-    .select('id, category_id, name, projected, actual, paid_on')
+    .select('id, category_id, name, projected, actual, paid_on, currency, rate_units_per_usd')
     .single();
   if (error) throw error;
-  return {
-    id: data.id,
-    category_id: data.category_id,
-    name: data.name,
-    projected: Number(data.projected),
-    actual: Number(data.actual),
-    paidOn: data.paid_on ?? null,
-  };
+  const base = await getBaseCurrency();
+  const rates = await listRates();
+  return normalizeItem(data as Record<string, unknown>, base, rates, todayISO());
 }
 
 export async function updateLineItem(
   id: number,
-  patch: Partial<{ name: string; projected: number; actual: number; paidOn: string | null }>,
+  patch: Partial<{
+    name: string;
+    projected: number;
+    actual: number;
+    paidOn: string | null;
+    currency: Currency | null;
+    rateUnitsPerUsd: number | null;
+  }>,
 ): Promise<void> {
-  const { paidOn, ...rest } = patch;
+  const { paidOn, currency, rateUnitsPerUsd, ...rest } = patch;
   const dbPatch: Record<string, unknown> = { ...rest };
+  // Presence-checked, so an explicit null clears the column instead of being
+  // dropped as undefined.
   if ('paidOn' in patch) dbPatch.paid_on = paidOn;
+  if ('currency' in patch) dbPatch.currency = currency;
+  if ('rateUnitsPerUsd' in patch) dbPatch.rate_units_per_usd = rateUnitsPerUsd;
   const { error } = await supabase.from('line_items').update(dbPatch).eq('id', id);
   if (error) throw error;
 }

@@ -9,6 +9,8 @@ function cat(items: Array<{ projected: number; paidOn: string | null }>): Catego
     items: items.map((i, idx) => ({
       id: idx, category_id: 1, name: `Item${idx}`,
       projected: i.projected, actual: 0, paidOn: i.paidOn,
+      currency: null, rateUnitsPerUsd: null,
+      baseProjected: i.projected, baseActual: 0, rateResolved: true,
     })),
   };
 }

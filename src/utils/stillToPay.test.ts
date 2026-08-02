@@ -18,6 +18,11 @@ function cat(
       projected: i.projected,
       actual: 0,
       paidOn: i.paidOn,
+      currency: null,
+      rateUnitsPerUsd: null,
+      baseProjected: i.projected,
+      baseActual: 0,
+      rateResolved: true,
     })),
   };
 }

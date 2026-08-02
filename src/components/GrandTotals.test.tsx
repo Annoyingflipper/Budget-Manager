@@ -20,6 +20,11 @@ function category(
       projected: i.projected,
       actual: i.actual,
       paidOn: null,
+      currency: null,
+      rateUnitsPerUsd: null,
+      baseProjected: i.projected,
+      baseActual: i.actual,
+      rateResolved: true,
     })),
   };
 }

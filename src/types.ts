@@ -20,9 +20,23 @@ export type LineItem = {
   id: number;
   category_id: number;
   name: string;
+  /** Native stored amount, in `currency` (or the base currency when that is null). */
   projected: number;
   actual: number;
   paidOn: string | null; // ISO 'YYYY-MM-DD', or null when unpaid
+  /** null = no currency set = the user's base currency. */
+  currency: Currency | null;
+  /** Per-expense rate override, units per USD. null = use the daily rate table. */
+  rateUnitsPerUsd: number | null;
+  /**
+   * `projected` converted into the base currency — computed in `getBudget`, never
+   * written back. Every money total in the app sums these, not the native fields.
+   * Falls back to the native amount when `rateResolved` is false.
+   */
+  baseProjected: number;
+  baseActual: number;
+  /** False when no rate could be resolved, so totals using this item are approximate. */
+  rateResolved: boolean;
 };
 
 export type Income = {

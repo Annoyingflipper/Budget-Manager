@@ -168,4 +168,53 @@ describe('api/budget', () => {
       { month: '2026-06-01', category: 'Rent', item: 'Apartment', projected: 1650, actual: 1650 },
     ]);
   });
+
+  it('getBudget selects the per-expense currency columns', async () => {
+    fromMock.mockImplementation((table: string) => {
+      const b = builder([]);
+      (b as { order: (...a: unknown[]) => unknown }).order = () =>
+        Promise.resolve({ data: [], error: null });
+      if (table === 'income') return builder({ projected: 0, actual: 0 });
+      return b;
+    });
+
+    await getBudget('2026-06-01');
+
+    const selects = calls.filter((c) => c.kind === 'select').map((c) => String(c.args[0]));
+    const itemSelect = selects.find((sel) => sel.includes('paid_on'));
+    expect(itemSelect).toContain('currency');
+    expect(itemSelect).toContain('rate_units_per_usd');
+  });
+
+  it('updateLineItem clears currency and override when passed explicit nulls', async () => {
+    fromMock.mockImplementation(() => {
+      const b = builder() as Record<string, unknown>;
+      b.eq = (...args: unknown[]) => { calls.push({ kind: 'eq', args }); return Promise.resolve({ error: null }); };
+      return b;
+    });
+
+    await updateLineItem(1, { currency: null, rateUnitsPerUsd: null });
+
+    const patch = calls.find((c) => c.kind === 'update')?.args[0] as Record<string, unknown>;
+    // Presence-checked: an explicit null must reach the DB, not be dropped.
+    expect('currency' in patch).toBe(true);
+    expect(patch.currency).toBeNull();
+    expect('rate_units_per_usd' in patch).toBe(true);
+    expect(patch.rate_units_per_usd).toBeNull();
+  });
+
+  it('updateLineItem maps a currency and override through to snake_case', async () => {
+    fromMock.mockImplementation(() => {
+      const b = builder() as Record<string, unknown>;
+      b.eq = (...args: unknown[]) => { calls.push({ kind: 'eq', args }); return Promise.resolve({ error: null }); };
+      return b;
+    });
+
+    await updateLineItem(1, { currency: 'VES', rateUnitsPerUsd: 800 });
+
+    const patch = calls.find((c) => c.kind === 'update')?.args[0] as Record<string, unknown>;
+    expect(patch.currency).toBe('VES');
+    expect(patch.rate_units_per_usd).toBe(800);
+    expect('rateUnitsPerUsd' in patch).toBe(false);
+  });
 });
