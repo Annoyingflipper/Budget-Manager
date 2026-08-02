@@ -34,3 +34,14 @@ export function monthLabel(period: string): string {
 export function monthKey(period: string): string {
   return period.slice(0, 7);
 }
+
+/**
+ * Today as `YYYY-MM-DD` in the LOCAL timezone, matching `src/utils/date.ts`.
+ * Deliberately not `toISOString()`, which is UTC and differs from what the app
+ * computes for several hours either side of midnight.
+ */
+export function todayISO(): string {
+  const d = new Date();
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}

@@ -20,6 +20,11 @@ export async function reseedTestUser(): Promise<CategoryIdMap> {
   await del('line_items', uid);
   await del('income', uid);
   await del('categories', uid);
+  // v1.9: neither is referenced by a foreign key, so order is irrelevant — but
+  // both must be wiped or accounts accumulate across runs against the shared
+  // test user and every subtotal assertion becomes non-deterministic.
+  await del('accounts', uid);
+  await del('exchange_rates', uid);
 
   // 2. Re-create the 8 default categories.
   const { data: cats, error: catErr } = await admin
@@ -43,13 +48,19 @@ export async function reseedTestUser(): Promise<CategoryIdMap> {
   //    (theme/mode persist in the DB and would otherwise carry across runs).
   const { error: prefErr } = await admin
     .from('user_preferences')
-    .upsert({ user_id: uid, theme: 'peach', color_mode: 'light' }, { onConflict: 'user_id' });
+    .upsert(
+      { user_id: uid, theme: 'peach', color_mode: 'light', base_currency: 'USD' },
+      { onConflict: 'user_id' },
+    );
   if (prefErr) throw new Error(`Failed to reset preferences: ${prefErr.message}`);
 
   return byName;
 }
 
-async function del(table: 'line_items' | 'income' | 'categories', uid: string): Promise<void> {
+async function del(
+  table: 'line_items' | 'income' | 'categories' | 'accounts' | 'exchange_rates',
+  uid: string,
+): Promise<void> {
   const { error } = await admin.from(table).delete().eq('user_id', uid);
   if (error) throw new Error(`Failed to clear ${table}: ${error.message}`);
 }
