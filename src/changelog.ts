@@ -7,6 +7,18 @@ export type ChangelogEntry = {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '1.9',
+    date: '2026-08-01',
+    title: 'Accounts',
+    highlights: [
+      'New 🏦 Accounts page — track what you hold across US dollars, euros and bolívares.',
+      'Balances are yours to keep up to date, and can go negative for a credit card.',
+      'See a subtotal per currency plus one "total available" converted into the currency you pick.',
+      'Exchange rates update themselves: the ECB reference rate for euros, the official BCV rate for bolívares.',
+      'Rates are stored per day, so figures use the rate that applied at the time — and you can enter or correct any past date yourself.',
+    ],
+  },
+  {
     version: '1.8',
     date: '2026-06-13',
     title: 'Paid dates',
