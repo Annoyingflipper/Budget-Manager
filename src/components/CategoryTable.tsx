@@ -6,6 +6,7 @@ import CategoryBudgetBar from './CategoryBudgetBar';
 import { addLineItem } from '../api/budget';
 import { difference, differenceClass, formatMoney, sum } from '../utils/money';
 import type { Currency } from '../utils/currency';
+import type { RateRow } from '../utils/rates';
 import type { CategoryWithItems, LineItem } from '../types';
 
 type Props = {
@@ -14,10 +15,12 @@ type Props = {
   onCategoryChange: (next: CategoryWithItems) => void;
   /** Currency untagged amounts are in, and that per-item conversions display in. */
   base?: Currency;
+  /** Passed down so a row can recompute its converted amount after an edit. */
+  rates?: RateRow[];
 };
 
 export default function CategoryTable({
-  category, periodMonth, onCategoryChange, base = 'USD',
+  category, periodMonth, onCategoryChange, base = 'USD', rates = [],
 }: Props) {
   const [drafting, setDrafting] = useState(false);
   const [confirmingItemId, setConfirmingItemId] = useState<number | null>(null);
@@ -102,6 +105,7 @@ export default function CategoryTable({
               removeItem(item.id);
             }}
             base={base}
+            rates={rates}
           />
         ))}
         {drafting && (

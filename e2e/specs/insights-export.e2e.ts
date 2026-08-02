@@ -56,7 +56,11 @@ test.describe('insights + export @regression', () => {
 
     const text = await streamToString(await download.createReadStream());
     const firstLine = text.split('\r\n')[0];
-    expect(firstLine).toBe('Month,Category,Item,Projected,Actual');
+    // v1.9 chunk 2 added the currency columns: the native amount the user typed
+    // plus the value converted into their base currency.
+    expect(firstLine).toBe(
+      'Month,Category,Item,Currency,Projected,Actual,Projected (base),Actual (base)',
+    );
     expect(text).toContain('Services,Internet');
   });
 

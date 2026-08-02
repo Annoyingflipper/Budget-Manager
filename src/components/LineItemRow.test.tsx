@@ -222,6 +222,53 @@ describe('LineItemRow', () => {
       expect(screen.getByTestId('rate-overridden-42')).toBeInTheDocument();
     });
 
+    // Regression: the converted fields are computed server-side in getBudget, so
+    // a local edit must recompute them or the row and every total stay stale.
+    it('recomputes the converted amount as soon as a currency is chosen', async () => {
+      const user = userEvent.setup();
+      const onChange = vi.fn();
+      render(
+        <table><tbody>
+          <LineItemRow
+            item={{ ...baseItem, projected: 30000, actual: 30000, baseProjected: 30000, baseActual: 30000 }}
+            isConfirming={false}
+            onConfirmRequest={vi.fn()}
+            onChange={onChange}
+            onDelete={vi.fn()}
+            base="USD"
+            rates={[{ currency: 'VES', rateDate: '2020-01-01', unitsPerUsd: 750, source: 'bcv' }]}
+          />
+        </tbody></table>,
+      );
+      await user.selectOptions(screen.getByLabelText('Currency'), 'VES');
+      // 30,000 Bs at 750 Bs/$ = $40
+      await waitFor(() => expect(onChange).toHaveBeenCalledWith(
+        expect.objectContaining({ currency: 'VES', baseProjected: 40, rateResolved: true }),
+      ));
+    });
+
+    it('marks the item unresolved when the chosen currency has no rate', async () => {
+      const user = userEvent.setup();
+      const onChange = vi.fn();
+      render(
+        <table><tbody>
+          <LineItemRow
+            item={baseItem}
+            isConfirming={false}
+            onConfirmRequest={vi.fn()}
+            onChange={onChange}
+            onDelete={vi.fn()}
+            base="USD"
+            rates={[]}
+          />
+        </tbody></table>,
+      );
+      await user.selectOptions(screen.getByLabelText('Currency'), 'VES');
+      await waitFor(() => expect(onChange).toHaveBeenCalledWith(
+        expect.objectContaining({ currency: 'VES', rateResolved: false }),
+      ));
+    });
+
     it('flags an item whose rate could not be resolved', () => {
       renderRow({ item: { ...baseItem, currency: 'VES', rateResolved: false } });
       expect(screen.getByTestId('rate-unresolved-42')).toBeInTheDocument();

@@ -8,14 +8,18 @@ export type ChangelogEntry = {
 export const CHANGELOG: ChangelogEntry[] = [
   {
     version: '1.9',
-    date: '2026-08-01',
-    title: 'Accounts',
+    date: '2026-08-02',
+    title: 'Accounts & currencies',
     highlights: [
       'New 🏦 Accounts page — track what you hold across US dollars, euros and bolívares.',
       'Balances are yours to keep up to date, and can go negative for a credit card.',
       'See a subtotal per currency plus one "total available" converted into the currency you pick.',
+      'Any expense can now be recorded in its own currency — log 30,000 Bs as 30,000 Bs.',
+      "A foreign expense converts at the rate from the day you paid it, not today's.",
+      'Changed money at a different rate than the official one? Type your own rate on that expense.',
       'Exchange rates update themselves: the ECB reference rate for euros, the official BCV rate for bolívares.',
       'Rates are stored per day, so figures use the rate that applied at the time — and you can enter or correct any past date yourself.',
+      'CSV export now includes each expense’s currency and its converted amounts.',
     ],
   },
   {

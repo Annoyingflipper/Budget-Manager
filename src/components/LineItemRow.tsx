@@ -4,6 +4,8 @@ import { difference, differenceClass } from '../utils/money';
 import { useIsMobile } from '../hooks/useIsMobile';
 import { todayISO } from '../utils/date';
 import { CURRENCY_CODES, formatCurrency, type Currency } from '../utils/currency';
+import { convertAmount } from '../utils/itemMoney';
+import type { RateRow } from '../utils/rates';
 import type { LineItem } from '../types';
 
 type Props = {
@@ -14,6 +16,8 @@ type Props = {
   onDelete: () => void;
   /** The currency untagged amounts are in, and that conversions are shown in. */
   base?: Currency;
+  /** Needed to recompute the converted amount locally after an edit. */
+  rates?: RateRow[];
 };
 
 export default function LineItemRow({
@@ -23,6 +27,7 @@ export default function LineItemRow({
   onChange,
   onDelete,
   base = 'USD',
+  rates = [],
 }: Props) {
   const isMobile = useIsMobile();
   const [name, setName] = useState(item.name);
@@ -49,6 +54,24 @@ export default function LineItemRow({
   const nativeCurrency: Currency = item.currency ?? base;
   const showConverted = item.currency !== null && item.currency !== base;
 
+  /**
+   * `baseProjected`/`baseActual`/`rateResolved` are computed server-side in
+   * getBudget. Any local edit that changes the amount, the currency or the rate
+   * has to recompute them too, or the row and every total would keep showing the
+   * pre-edit conversion until the next reload.
+   */
+  function withConversion(next: LineItem): LineItem {
+    const today = todayISO();
+    const bp = convertAmount(next.projected, next, base, rates, today);
+    const ba = convertAmount(next.actual, next, base, rates, today);
+    return {
+      ...next,
+      baseProjected: bp ?? next.projected,
+      baseActual: ba ?? next.actual,
+      rateResolved: bp !== null && ba !== null,
+    };
+  }
+
   async function saveName() {
     const next = name.trim();
     if (!next) { setName(item.name); return; }
@@ -63,7 +86,7 @@ export default function LineItemRow({
     const value = Number(projected) || 0;
     if (value === item.projected) return;
     const previous = item;
-    onChange({ ...item, projected: value });
+    onChange(withConversion({ ...item, projected: value }));
     try { await updateLineItem(item.id, { projected: value }); }
     catch { onChange(previous); }
   }
@@ -72,7 +95,7 @@ export default function LineItemRow({
     const value = Number(actual) || 0;
     if (value === item.actual) return;
     const previous = item;
-    onChange({ ...item, actual: value });
+    onChange(withConversion({ ...item, actual: value }));
     try { await updateLineItem(item.id, { actual: value }); }
     catch { onChange(previous); }
   }
@@ -80,7 +103,7 @@ export default function LineItemRow({
   async function savePaidOn(next: string | null) {
     if (next === item.paidOn) return;
     const previous = item;
-    onChange({ ...item, paidOn: next });
+    onChange(withConversion({ ...item, paidOn: next }));
     try { await updateLineItem(item.id, { paidOn: next }); }
     catch { onChange(previous); }
   }
@@ -88,7 +111,7 @@ export default function LineItemRow({
   async function saveCurrency(next: Currency | null) {
     if (next === item.currency) return;
     const previous = item;
-    onChange({ ...item, currency: next });
+    onChange(withConversion({ ...item, currency: next }));
     try { await updateLineItem(item.id, { currency: next }); }
     catch { onChange(previous); }
   }
@@ -103,7 +126,7 @@ export default function LineItemRow({
     }
     if (next === item.rateUnitsPerUsd) return;
     const previous = item;
-    onChange({ ...item, rateUnitsPerUsd: next });
+    onChange(withConversion({ ...item, rateUnitsPerUsd: next }));
     try { await updateLineItem(item.id, { rateUnitsPerUsd: next }); }
     catch { onChange(previous); }
   }

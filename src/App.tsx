@@ -237,6 +237,7 @@ function BudgetApp() {
               periodMonth={selectedMonth}
               onCategoryChange={(next) => updateCategoryLocal(c.id, next)}
               base={baseCurrency}
+              rates={rates}
             />
           ))}
           <GrandTotals categories={budget.categories} />
