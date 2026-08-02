@@ -22,6 +22,11 @@ function builder(terminalData: unknown = []) {
 const fromMock = vi.fn();
 const rpcMock = vi.fn();
 
+const removeAttachmentsForItems = vi.fn();
+vi.mock('./attachments', () => ({
+  removeAttachmentsForItems: (...a: unknown[]) => removeAttachmentsForItems(...a),
+}));
+
 vi.mock('../lib/supabase', () => ({
   supabase: {
     auth: { getUser: () => Promise.resolve({ data: { user: { id: 'user-1' } } }) },
@@ -30,13 +35,33 @@ vi.mock('../lib/supabase', () => ({
   },
 }));
 
-import { getBudget, listMonths, rolloverMonth, getExportRows, deleteMonth, updateLineItem } from './budget';
+import {
+  getBudget, listMonths, rolloverMonth, getExportRows, deleteMonth, updateLineItem, deleteLineItem,
+} from './budget';
 
 beforeEach(() => {
   calls.length = 0;
   fromMock.mockReset();
   rpcMock.mockReset();
+  removeAttachmentsForItems.mockReset();
+  removeAttachmentsForItems.mockResolvedValue(undefined);
 });
+
+/** deleteMonth now looks up the month's line-item ids before calling the RPC. */
+function mockMonthItems(ids: number[]) {
+  fromMock.mockImplementation(() => {
+    const chain: Record<string, unknown> = {};
+    chain.select = (...args: unknown[]) => { calls.push({ kind: 'select', args }); return chain; };
+    chain.eq = (...args: unknown[]) => {
+      calls.push({ kind: 'eq', args });
+      // second .eq resolves the query
+      return calls.filter((c) => c.kind === 'eq').length >= 2
+        ? Promise.resolve({ data: ids.map((id) => ({ id })), error: null })
+        : chain;
+    };
+    return chain;
+  });
+}
 
 describe('api/budget', () => {
   it('getBudget filters income and line_items by period_month', async () => {
@@ -94,6 +119,7 @@ describe('api/budget', () => {
   });
 
   it('deleteMonth issues the delete_month RPC with the target month', async () => {
+    mockMonthItems([]);
     rpcMock.mockResolvedValue({ error: null });
     await deleteMonth('2026-07-01');
     expect(calls).toContainEqual({
@@ -103,6 +129,7 @@ describe('api/budget', () => {
   });
 
   it('deleteMonth throws when the RPC returns an error', async () => {
+    mockMonthItems([]);
     rpcMock.mockResolvedValue({ error: new Error('cannot delete current or past months') });
     await expect(deleteMonth('2026-06-01')).rejects.toThrow('cannot delete current or past months');
   });
@@ -218,5 +245,43 @@ describe('api/budget', () => {
     expect(patch.currency).toBe('VES');
     expect(patch.rate_units_per_usd).toBe(800);
     expect('rateUnitsPerUsd' in patch).toBe(false);
+  });
+
+  describe('attachment cleanup on delete', () => {
+    it('deleteLineItem removes its attachments before deleting the item', async () => {
+      const order: string[] = [];
+      removeAttachmentsForItems.mockImplementation(async () => { order.push('attachments'); });
+      fromMock.mockImplementation(() => ({
+        delete: () => { order.push('item'); return { eq: () => Promise.resolve({ error: null }) }; },
+      }));
+
+      await deleteLineItem(42);
+
+      expect(removeAttachmentsForItems).toHaveBeenCalledWith([42]);
+      expect(order).toEqual(['attachments', 'item']);
+    });
+
+    // If cleanup fails we must not delete the item — its rows are the only
+    // record of which files exist.
+    it('does not delete the item when attachment cleanup fails', async () => {
+      removeAttachmentsForItems.mockRejectedValue(new Error('storage down'));
+      let deleted = false;
+      fromMock.mockImplementation(() => ({
+        delete: () => { deleted = true; return { eq: () => Promise.resolve({ error: null }) }; },
+      }));
+
+      await expect(deleteLineItem(42)).rejects.toThrow('storage down');
+      expect(deleted).toBe(false);
+    });
+
+    it('deleteMonth clears attachments for every item in the month before the RPC', async () => {
+      mockMonthItems([7, 8, 9]);
+      rpcMock.mockResolvedValue({ error: null });
+
+      await deleteMonth('2026-09-01');
+
+      expect(removeAttachmentsForItems).toHaveBeenCalledWith([7, 8, 9]);
+      expect(rpcMock).toHaveBeenCalled();
+    });
   });
 });

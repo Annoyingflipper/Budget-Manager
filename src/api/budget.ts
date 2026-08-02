@@ -2,6 +2,7 @@ import { supabase } from '../lib/supabase';
 import { getBaseCurrency } from './userPrefs';
 import { listRates } from './rates';
 import { convertAmount } from '../utils/itemMoney';
+import { removeAttachmentsForItems } from './attachments';
 import { todayISO } from '../utils/date';
 import type { Currency } from '../utils/currency';
 import type { Budget, Income, LineItem, ExportRow } from '../types';
@@ -130,6 +131,19 @@ export async function rolloverMonth(fromMonth: string, toMonth: string): Promise
 }
 
 export async function deleteMonth(targetMonth: string): Promise<void> {
+  // delete_month is a Postgres function and Postgres cannot reach Storage, so
+  // the objects for every expense in the month must be cleared from here first.
+  const userId = await currentUserId();
+  const { data: items, error: itemsErr } = await supabase
+    .from('line_items')
+    .select('id')
+    .eq('user_id', userId)
+    .eq('period_month', targetMonth);
+  if (itemsErr) throw itemsErr;
+  await removeAttachmentsForItems(
+    ((items ?? []) as Array<Record<string, unknown>>).map((r) => r.id as number),
+  );
+
   const { error } = await supabase.rpc('delete_month', { target_month: targetMonth });
   if (error) throw error;
 }
@@ -200,6 +214,9 @@ export async function updateLineItem(
 }
 
 export async function deleteLineItem(id: number): Promise<void> {
+  // Storage first: the FK cascade removes attachment rows but cannot reach
+  // Storage, so deleting the item first would strand its files invisibly.
+  await removeAttachmentsForItems([id]);
   const { error } = await supabase.from('line_items').delete().eq('id', id);
   if (error) throw error;
 }
