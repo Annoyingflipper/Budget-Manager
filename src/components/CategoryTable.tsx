@@ -18,8 +18,8 @@ export default function CategoryTable({ category, periodMonth, onCategoryChange 
   const [confirmingItemId, setConfirmingItemId] = useState<number | null>(null);
 
   const items = category.items;
-  const subProjected = sum(items.map((i) => i.projected));
-  const subActual = sum(items.map((i) => i.actual));
+  const subProjected = sum(items.map((i) => i.baseProjected));
+  const subActual = sum(items.map((i) => i.baseActual));
   const subDiff = difference(subActual, subProjected);
 
   async function commit(draft: { name: string; projected: number; actual: number }) {

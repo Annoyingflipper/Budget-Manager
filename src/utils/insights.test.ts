@@ -77,9 +77,12 @@ describe('buildMonthDelta', () => {
 describe('budgetToExportRows', () => {
   it('flattens to one row per line item with the given month', () => {
     expect(budgetToExportRows('2026-06-01', budget())).toEqual([
-      { month: '2026-06-01', category: 'Food', item: 'Groceries', projected: 400, actual: 450 },
-      { month: '2026-06-01', category: 'Food', item: 'Dining', projected: 200, actual: 180 },
-      { month: '2026-06-01', category: 'Rent', item: 'Apartment', projected: 1650, actual: 1650 },
+      { month: '2026-06-01', category: 'Food', item: 'Groceries', projected: 400, actual: 450,
+        currency: '', baseProjected: 400, baseActual: 450 },
+      { month: '2026-06-01', category: 'Food', item: 'Dining', projected: 200, actual: 180,
+        currency: '', baseProjected: 200, baseActual: 180 },
+      { month: '2026-06-01', category: 'Rent', item: 'Apartment', projected: 1650, actual: 1650,
+        currency: '', baseProjected: 1650, baseActual: 1650 },
     ]);
   });
 });

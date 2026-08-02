@@ -5,8 +5,10 @@ type Props = { categories: CategoryWithItems[] };
 
 export default function GrandTotals({ categories }: Props) {
   const allItems = categories.flatMap((c) => c.items);
-  const totalProjected = sum(allItems.map((i) => i.projected));
-  const totalActual = sum(allItems.map((i) => i.actual));
+  // base* rather than the native amounts: an expense recorded in bolivares must
+  // contribute its converted value, not its face number.
+  const totalProjected = sum(allItems.map((i) => i.baseProjected));
+  const totalActual = sum(allItems.map((i) => i.baseActual));
   const totalDiff = difference(totalActual, totalProjected);
   const diffColor = totalDiff === 0 ? 'opacity-70' : totalDiff > 0 ? 'text-negative' : 'text-positive';
 

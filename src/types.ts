@@ -78,6 +78,12 @@ export type ExportRow = {
   month: string; // 'YYYY-MM-01'
   category: string;
   item: string;
+  /** Native amounts, in `currency` — what was actually spent. */
   projected: number;
   actual: number;
+  /** '' when the expense carries no currency of its own. */
+  currency: string;
+  /** Converted into the base currency, so a mixed-currency export still totals. */
+  baseProjected: number;
+  baseActual: number;
 };

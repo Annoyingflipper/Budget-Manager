@@ -4,10 +4,16 @@ import { budgetToExportRows } from '../utils/insights';
 import { toCsv, downloadCsv } from '../utils/csv';
 import type { Budget, ExportRow } from '../types';
 
-const HEADERS = ['Month', 'Category', 'Item', 'Projected', 'Actual'];
+const HEADERS = [
+  'Month', 'Category', 'Item', 'Currency', 'Projected', 'Actual', 'Projected (base)', 'Actual (base)',
+];
 
 function toMatrix(rows: ExportRow[]): (string | number)[][] {
-  return rows.map((r) => [r.month, r.category, r.item, r.projected.toFixed(2), r.actual.toFixed(2)]);
+  return rows.map((r) => [
+    r.month, r.category, r.item, r.currency,
+    r.projected.toFixed(2), r.actual.toFixed(2),
+    r.baseProjected.toFixed(2), r.baseActual.toFixed(2),
+  ]);
 }
 
 type Props = { month: string; budget: Budget };

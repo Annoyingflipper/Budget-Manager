@@ -218,16 +218,36 @@ export async function getExportRows(): Promise<ExportRow[]> {
 
   const { data: items, error: itemErr } = await supabase
     .from('line_items')
-    .select('period_month, category_id, name, projected, actual')
+    .select('period_month, category_id, name, projected, actual, paid_on, currency, rate_units_per_usd')
     .eq('user_id', userId)
     .order('period_month');
   if (itemErr) throw itemErr;
 
-  return (items ?? []).map((r) => ({
-    month: r.period_month as string,
-    category: nameById.get(r.category_id as number) ?? 'Uncategorized',
-    item: r.name as string,
-    projected: Number(r.projected),
-    actual: Number(r.actual),
-  }));
+  const base = await getBaseCurrency();
+  const rates = await listRates();
+  const today = todayISO();
+
+  return (items ?? []).map((raw) => {
+    const r = raw as Record<string, unknown>;
+    const projected = Number(r.projected);
+    const actual = Number(r.actual);
+    const convertible = {
+      currency: (r.currency as Currency | null) ?? null,
+      paidOn: (r.paid_on as string | null) ?? null,
+      rateUnitsPerUsd:
+        r.rate_units_per_usd === null || r.rate_units_per_usd === undefined
+          ? null
+          : Number(r.rate_units_per_usd),
+    };
+    return {
+      month: r.period_month as string,
+      category: nameById.get(r.category_id as number) ?? 'Uncategorized',
+      item: r.name as string,
+      projected,
+      actual,
+      currency: convertible.currency ?? '',
+      baseProjected: convertAmount(projected, convertible, base, rates, today) ?? projected,
+      baseActual: convertAmount(actual, convertible, base, rates, today) ?? actual,
+    };
+  });
 }

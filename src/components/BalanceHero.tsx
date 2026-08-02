@@ -7,8 +7,8 @@ type Props = {
 };
 
 export default function BalanceHero({ income, categories }: Props) {
-  const costProjected = categories.flatMap((c) => c.items).reduce((s, i) => s + i.projected, 0);
-  const costActual = categories.flatMap((c) => c.items).reduce((s, i) => s + i.actual, 0);
+  const costProjected = categories.flatMap((c) => c.items).reduce((s, i) => s + i.baseProjected, 0);
+  const costActual = categories.flatMap((c) => c.items).reduce((s, i) => s + i.baseActual, 0);
   const projectedBalance = income.projected - costProjected;
   const actualBalance = income.actual - costActual;
   const balanceDelta = actualBalance - projectedBalance;

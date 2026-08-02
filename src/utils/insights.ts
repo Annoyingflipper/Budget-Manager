@@ -10,8 +10,8 @@ export function categoryTotals(b: Budget): CategoryTotal[] {
     id: c.id,
     name: c.name,
     icon: c.icon,
-    projected: sum(c.items.map((i) => i.projected)),
-    actual: sum(c.items.map((i) => i.actual)),
+    projected: sum(c.items.map((i) => i.baseProjected)),
+    actual: sum(c.items.map((i) => i.baseActual)),
   }));
 }
 
@@ -60,6 +60,9 @@ export function budgetToExportRows(month: string, b: Budget): ExportRow[] {
         item: i.name,
         projected: i.projected,
         actual: i.actual,
+        currency: i.currency ?? '',
+        baseProjected: i.baseProjected,
+        baseActual: i.baseActual,
       });
     }
   }

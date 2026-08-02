@@ -37,19 +37,21 @@ describe('ExportButtons', () => {
     expect(downloadCsv).toHaveBeenCalledTimes(1);
     const [filename, csv] = downloadCsv.mock.calls[0];
     expect(filename).toBe('budget-2026-06.csv');
-    expect(csv).toContain('Month,Category,Item,Projected,Actual');
-    expect(csv).toContain('2026-06-01,Food,Groceries,400.00,450.00');
+    expect(csv).toContain('Month,Category,Item,Currency,Projected,Actual,Projected (base),Actual (base)');
+    expect(csv).toContain('2026-06-01,Food,Groceries,,400.00,450.00,400.00,450.00');
   });
 
   it('exports all history via getExportRows', async () => {
     getExportRows.mockResolvedValue([
-      { month: '2026-05-01', category: 'Rent', item: 'Apt', projected: 1650, actual: 1650 },
+      { month: '2026-05-01', category: 'Rent', item: 'Apt', projected: 1650, actual: 1650,
+        currency: 'VES', baseProjected: 2.2, baseActual: 2.2 },
     ]);
     render(<ExportButtons month="2026-06-01" budget={budget} />);
     fireEvent.click(screen.getByText('⤓ Export all history'));
     await waitFor(() => expect(downloadCsv).toHaveBeenCalledTimes(1));
     const [filename, csv] = downloadCsv.mock.calls[0];
     expect(filename).toBe('budget-all-history.csv');
-    expect(csv).toContain('2026-05-01,Rent,Apt,1650.00,1650.00');
+    // native amount and its converted value both present
+    expect(csv).toContain('2026-05-01,Rent,Apt,VES,1650.00,1650.00,2.20,2.20');
   });
 });

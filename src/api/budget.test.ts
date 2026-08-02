@@ -164,8 +164,10 @@ describe('api/budget', () => {
 
     const rows = await getExportRows();
     expect(rows).toEqual([
-      { month: '2026-05-01', category: 'Food', item: 'Groceries', projected: 400, actual: 380 },
-      { month: '2026-06-01', category: 'Rent', item: 'Apartment', projected: 1650, actual: 1650 },
+      { month: '2026-05-01', category: 'Food', item: 'Groceries', projected: 400, actual: 380,
+        currency: '', baseProjected: 400, baseActual: 380 },
+      { month: '2026-06-01', category: 'Rent', item: 'Apartment', projected: 1650, actual: 1650,
+        currency: '', baseProjected: 1650, baseActual: 1650 },
     ]);
   });
 

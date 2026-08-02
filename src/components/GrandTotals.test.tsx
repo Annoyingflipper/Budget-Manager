@@ -6,7 +6,7 @@ import type { CategoryWithItems } from '../types';
 function category(
   id: number,
   name: string,
-  items: Array<{ id: number; projected: number; actual: number }>,
+  items: Array<{ id: number; projected: number; actual: number; baseProjected?: number; baseActual?: number }>,
 ): CategoryWithItems {
   return {
     id,
@@ -22,8 +22,8 @@ function category(
       paidOn: null,
       currency: null,
       rateUnitsPerUsd: null,
-      baseProjected: i.projected,
-      baseActual: i.actual,
+      baseProjected: i.baseProjected ?? i.projected,
+      baseActual: i.baseActual ?? i.actual,
       rateResolved: true,
     })),
   };
@@ -60,5 +60,18 @@ describe('GrandTotals', () => {
     render(<GrandTotals categories={categories} />);
     const diffCell = screen.getByText('$15.00');
     expect(diffCell).toHaveClass('text-negative');
+  });
+
+  // The whole point of chunk 2: an expense recorded in bolivares must contribute
+  // its converted value to the totals, never its face number.
+  it('totals the converted amounts, not the native ones', () => {
+    const categories: CategoryWithItems[] = [
+      category(1, 'Services', [
+        { id: 1, projected: 30000, actual: 30000, baseProjected: 50, baseActual: 50 },
+        { id: 2, projected: 10, actual: 10 },
+      ]),
+    ];
+    render(<GrandTotals categories={categories} />);
+    expect(screen.getAllByText('$60.00').length).toBeGreaterThan(0);
   });
 });
