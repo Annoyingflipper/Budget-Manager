@@ -106,10 +106,11 @@ export default function AttachmentStrip({
             ? `Up to ${MAX_PER_ITEM} attachments per expense`
             : 'Attach a receipt or payment screenshot'
         }
-        className="shrink-0 text-xs text-muted hover:text-text rounded px-1.5 py-0.5
-                   bg-bg disabled:opacity-40"
+        className="shrink-0 flex items-center gap-1 text-xs text-muted hover:text-text
+                   rounded px-2 py-0.5 bg-bg disabled:opacity-40"
       >
-        📎{attachments.length === 0 ? '' : '+'}
+        <span aria-hidden="true">📎</span>
+        <span>{attachments.length === 0 ? 'Choose a file' : 'Add another'}</span>
       </button>
 
       {uploading && <span className="text-xs text-muted">Uploading…</span>}

@@ -56,6 +56,16 @@ describe('AttachmentStrip', () => {
     expect(screen.getByLabelText('Add a receipt').tagName).toBe('BUTTON');
   });
 
+  it('labels the button so it is not just a bare icon', () => {
+    setup();
+    expect(screen.getByLabelText('Add a receipt')).toHaveTextContent('Choose a file');
+  });
+
+  it('reads "Add another" once the expense already has a receipt', () => {
+    setup({ attachments: [att(1)] });
+    expect(screen.getByLabelText('Add a receipt')).toHaveTextContent('Add another');
+  });
+
   it('opens the file picker when the button is clicked', () => {
     setup();
     const input = screen.getByLabelText('Attach a receipt') as HTMLInputElement;
