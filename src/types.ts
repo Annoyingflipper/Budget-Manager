@@ -87,3 +87,13 @@ export type ExportRow = {
   baseProjected: number;
   baseActual: number;
 };
+
+export type Attachment = {
+  id: number;
+  lineItemId: number;
+  /** `{user_id}/{line_item_id}/{uuid}.{ext}` in the private `receipts` bucket. */
+  storagePath: string;
+  mimeType: string;
+  byteSize: number;
+  originalName: string;
+};
