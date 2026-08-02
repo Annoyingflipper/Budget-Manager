@@ -17,6 +17,7 @@ function renderHeader(overrides: Partial<React.ComponentProps<typeof Header>> = 
     onRollover: vi.fn(),
     onOpenSettings: vi.fn(),
     onOpenInsights: vi.fn(),
+    onOpenAccounts: vi.fn(),
     canDelete: false,
     onDelete: vi.fn(),
     ...overrides,
@@ -51,6 +52,13 @@ describe('Header', () => {
     await user.click(startButton);
     expect(props.onRollover).toHaveBeenCalledTimes(1);
     expect(props.onNext).not.toHaveBeenCalled();
+  });
+
+  it('calls onOpenAccounts when the Accounts button is clicked', async () => {
+    const user = userEvent.setup();
+    const props = renderHeader();
+    await user.click(screen.getByText('🏦 Accounts'));
+    expect(props.onOpenAccounts).toHaveBeenCalledTimes(1);
   });
 
   it('calls onOpenInsights when the Insights button is clicked', async () => {

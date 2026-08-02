@@ -13,13 +13,20 @@ import Toast from './components/Toast';
 import ChangelogModal from './components/ChangelogModal';
 import Settings from './pages/Settings';
 import Insights from './pages/Insights';
+import Accounts from './pages/Accounts';
+import TotalAvailable from './components/TotalAvailable';
 import { getBudget, listMonths, rolloverMonth, deleteMonth } from './api/budget';
-import { getLastSeenChangelogVersion, setLastSeenChangelogVersion } from './api/userPrefs';
+import { getLastSeenChangelogVersion, setLastSeenChangelogVersion, getBaseCurrency } from './api/userPrefs';
+import { listAccounts } from './api/accounts';
+import { listRates, ensureTodayRates } from './api/rates';
+import { todayISO } from './utils/date';
 import { CHANGELOG, LATEST_VERSION } from './changelog';
 import { formatMonth, formatMonthLabel, nextMonth, prevMonth } from './utils/month';
-import type { Budget, CategoryWithItems, Income } from './types';
+import type { Currency } from './utils/currency';
+import type { RateRow } from './utils/rates';
+import type { Account, Budget, CategoryWithItems, Income } from './types';
 
-type Page = 'budget' | 'settings' | 'insights';
+type Page = 'budget' | 'settings' | 'insights' | 'accounts';
 type CategoryAction = 'added' | 'renamed' | 'icon' | 'deleted' | 'reordered';
 
 const TOAST_COPY: Record<CategoryAction, string> = {
@@ -40,6 +47,9 @@ function BudgetApp() {
   const [refreshCounter, setRefreshCounter] = useState(0);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [changelogOpen, setChangelogOpen] = useState(false);
+  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [rates, setRates] = useState<RateRow[]>([]);
+  const [baseCurrency, setBaseCurrency] = useState<Currency>('USD');
 
   useEffect(() => {
     let cancelled = false;
@@ -77,6 +87,27 @@ function BudgetApp() {
       .catch(() => { /* non-fatal */ });
     return () => { cancelled = true; };
   }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    // All three are non-fatal: an accounts or rates problem must never stop
+    // the budget itself from rendering.
+    listAccounts()
+      .then((a) => { if (!cancelled) setAccounts(a); })
+      .catch(() => { /* non-fatal */ });
+    getBaseCurrency()
+      .then((c) => { if (!cancelled) setBaseCurrency(c); })
+      .catch(() => { /* non-fatal */ });
+    listRates()
+      .then(async (r) => {
+        if (cancelled) return;
+        setRates(r);
+        const topped = await ensureTodayRates(r);
+        if (!cancelled) setRates(topped);
+      })
+      .catch(() => { /* non-fatal */ });
+    return () => { cancelled = true; };
+  }, [refreshCounter]);
 
   const updateIncomeLocal = useCallback((patch: Partial<Income>) => {
     setBudget((b) => (b ? { ...b, income: { ...b.income, ...patch } } : b));
@@ -157,6 +188,8 @@ function BudgetApp() {
           onCategoriesChanged={handleCategoriesChanged}
           onOpenChangelog={() => setChangelogOpen(true)}
         />
+      ) : page === 'accounts' ? (
+        <Accounts onBack={() => setPage('budget')} base={baseCurrency} />
       ) : page === 'insights' ? (
         <Insights
           selectedMonth={selectedMonth}
@@ -175,8 +208,17 @@ function BudgetApp() {
             onDelete={handleDelete}
             onOpenSettings={() => setPage('settings')}
             onOpenInsights={() => setPage('insights')}
+            onOpenAccounts={() => setPage('accounts')}
           />
           <BalanceHero income={budget.income} categories={budget.categories} />
+          <TotalAvailable
+            accounts={accounts}
+            rates={rates}
+            base={baseCurrency}
+            date={todayISO()}
+            compact
+            onOpen={() => setPage('accounts')}
+          />
           <IncomeSummary
             income={budget.income}
             periodMonth={selectedMonth}

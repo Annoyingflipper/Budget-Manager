@@ -12,6 +12,7 @@ type Props = {
   onDelete: () => void;
   onOpenSettings: () => void;
   onOpenInsights: () => void;
+  onOpenAccounts: () => void;
 };
 
 export default function Header({
@@ -24,6 +25,7 @@ export default function Header({
   onDelete,
   onOpenSettings,
   onOpenInsights,
+  onOpenAccounts,
 }: Props) {
   const { mode, setMode } = useTheme();
   const showRollover = latestMonth === null || selectedMonth >= latestMonth;
@@ -84,6 +86,13 @@ export default function Header({
           aria-label="Toggle color mode"
         >
           {mode === 'light' ? '🌙 Dark' : '☀️ Light'}
+        </button>
+        <button
+          type="button"
+          onClick={onOpenAccounts}
+          className="bg-card border-0 rounded-lg px-2.5 py-1.5 text-xs font-bold"
+        >
+          🏦 Accounts
         </button>
         <button
           type="button"
