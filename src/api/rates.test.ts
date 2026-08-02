@@ -101,7 +101,7 @@ describe('ensureTodayRates', () => {
   });
 
   it('does not re-fetch a currency that already has today', async () => {
-    const spy = vi.fn(() => Promise.resolve({
+    const spy = vi.fn((_url: string) => Promise.resolve({
       ok: true,
       json: () => Promise.resolve({ promedio: 750, fechaActualizacion: `${today}T00:00:00-04:00` }),
     }));
