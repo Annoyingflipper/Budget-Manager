@@ -105,7 +105,7 @@ export default function DraftRow({ onCommit, onDiscard }: Props) {
       ref={rowRef}
       onBlur={handleFocusOut}
       className="grid items-center gap-1.5"
-      style={{ gridTemplateColumns: '1.4fr 80px 80px 80px 24px' }}
+      style={{ gridTemplateColumns: '1.4fr 76px 76px 58px 76px 138px 24px' }}
     >
       {nameInput}
       {projectedInput}

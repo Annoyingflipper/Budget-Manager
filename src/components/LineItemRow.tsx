@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { deleteLineItem, updateLineItem } from '../api/budget';
-import { difference, differenceClass, formatMoney } from '../utils/money';
+import { difference, differenceClass } from '../utils/money';
 import { useIsMobile } from '../hooks/useIsMobile';
 import { todayISO } from '../utils/date';
+import { CURRENCY_CODES, formatCurrency, type Currency } from '../utils/currency';
 import type { LineItem } from '../types';
 
 type Props = {
@@ -11,6 +12,8 @@ type Props = {
   onConfirmRequest: () => void;
   onChange: (next: LineItem) => void;
   onDelete: () => void;
+  /** The currency untagged amounts are in, and that conversions are shown in. */
+  base?: Currency;
 };
 
 export default function LineItemRow({
@@ -19,20 +22,32 @@ export default function LineItemRow({
   onConfirmRequest,
   onChange,
   onDelete,
+  base = 'USD',
 }: Props) {
   const isMobile = useIsMobile();
   const [name, setName] = useState(item.name);
   const [projected, setProjected] = useState(String(item.projected));
   const [actual, setActual] = useState(String(item.actual));
   const [paidDateDraft, setPaidDateDraft] = useState(item.paidOn ?? '');
+  const [rateDraft, setRateDraft] = useState(
+    item.rateUnitsPerUsd === null ? '' : String(item.rateUnitsPerUsd),
+  );
 
   useEffect(() => setName(item.name), [item.name]);
   useEffect(() => setProjected(String(item.projected)), [item.projected]);
   useEffect(() => setActual(String(item.actual)), [item.actual]);
   useEffect(() => setPaidDateDraft(item.paidOn ?? ''), [item.paidOn]);
+  useEffect(
+    () => setRateDraft(item.rateUnitsPerUsd === null ? '' : String(item.rateUnitsPerUsd)),
+    [item.rateUnitsPerUsd],
+  );
 
   const diff = difference(Number(actual) || 0, Number(projected) || 0);
   const diffClass = differenceClass('cost', diff);
+  // The row shows the amount the user actually typed, in the currency they typed
+  // it in. The converted figure sits alongside it.
+  const nativeCurrency: Currency = item.currency ?? base;
+  const showConverted = item.currency !== null && item.currency !== base;
 
   async function saveName() {
     const next = name.trim();
@@ -67,6 +82,29 @@ export default function LineItemRow({
     const previous = item;
     onChange({ ...item, paidOn: next });
     try { await updateLineItem(item.id, { paidOn: next }); }
+    catch { onChange(previous); }
+  }
+
+  async function saveCurrency(next: Currency | null) {
+    if (next === item.currency) return;
+    const previous = item;
+    onChange({ ...item, currency: next });
+    try { await updateLineItem(item.id, { currency: next }); }
+    catch { onChange(previous); }
+  }
+
+  async function saveRateOverride() {
+    const trimmed = rateDraft.trim();
+    const next = trimmed === '' ? null : Number(trimmed);
+    // A zero or negative rate is not a rate; refuse it rather than storing nonsense.
+    if (next !== null && (Number.isNaN(next) || next <= 0)) {
+      setRateDraft(item.rateUnitsPerUsd === null ? '' : String(item.rateUnitsPerUsd));
+      return;
+    }
+    if (next === item.rateUnitsPerUsd) return;
+    const previous = item;
+    onChange({ ...item, rateUnitsPerUsd: next });
+    try { await updateLineItem(item.id, { rateUnitsPerUsd: next }); }
     catch { onChange(previous); }
   }
 
@@ -129,6 +167,60 @@ export default function LineItemRow({
     />
   );
 
+  const currencySelect = (
+    <select
+      value={item.currency ?? ''}
+      onChange={(e) => saveCurrency((e.target.value || null) as Currency | null)}
+      aria-label="Currency"
+      title="Currency for this expense"
+      className="w-full min-w-0 px-1 py-1 border border-highlight rounded-md bg-card text-xs"
+    >
+      <option value="">—</option>
+      {CURRENCY_CODES.map((code) => <option key={code} value={code}>{code}</option>)}
+    </select>
+  );
+
+  const currencyStrip = item.currency === null ? null : (
+    <div className="flex items-center gap-2 flex-wrap text-xs text-muted pl-1 pb-1">
+      {showConverted && (
+        <span data-testid={`converted-${item.id}`}>
+          ≈ <span className="font-bold text-text">{formatCurrency(item.baseProjected, base)}</span>
+          {item.baseActual !== item.baseProjected && (
+            <> · actual {formatCurrency(item.baseActual, base)}</>
+          )}
+        </span>
+      )}
+      <label className="flex items-center gap-1">
+        <span>rate</span>
+        <input
+          type="number"
+          step="0.000001"
+          value={rateDraft}
+          onChange={(e) => setRateDraft(e.target.value)}
+          onBlur={saveRateOverride}
+          placeholder="official"
+          aria-label="Rate override"
+          title={`${item.currency} per 1 USD — leave blank to use the official rate`}
+          className="w-24 px-1 py-0.5 border border-highlight rounded bg-card text-xs"
+        />
+      </label>
+      {item.rateUnitsPerUsd !== null && (
+        <span data-testid={`rate-overridden-${item.id}`} title="Using your own rate, not the official one">
+          ✎ custom rate
+        </span>
+      )}
+      {!item.rateResolved && (
+        <span
+          data-testid={`rate-unresolved-${item.id}`}
+          className="text-warning font-bold"
+          title="No rate is known for this date, so this expense is counted at face value"
+        >
+          ⚠ no rate for this date
+        </span>
+      )}
+    </div>
+  );
+
   const paidControl = item.paidOn ? (
     <div className="flex items-center gap-1 min-w-0">
       <button
@@ -179,32 +271,42 @@ export default function LineItemRow({
           <div>
             <div className="text-[9px] uppercase tracking-wider text-muted mb-0.5">Diff</div>
             <div className={`px-2 py-1 text-right text-sm font-bold ${diffClass}`}>
-              {formatMoney(diff)}
+              {formatCurrency(diff, nativeCurrency)}
             </div>
           </div>
         </div>
-        <div>
-          <div className="text-[9px] uppercase tracking-wider text-muted mb-0.5">Paid</div>
-          {paidControl}
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <div className="text-[9px] uppercase tracking-wider text-muted mb-0.5">Paid</div>
+            {paidControl}
+          </div>
+          <div>
+            <div className="text-[9px] uppercase tracking-wider text-muted mb-0.5">Currency</div>
+            {currencySelect}
+          </div>
         </div>
+        {currencyStrip}
       </div>
     );
   }
 
   return (
-    <div
-      className="grid items-center gap-1.5"
-      style={{ gridTemplateColumns: '1.4fr 80px 80px 80px 150px 24px' }}
-      data-testid={`line-item-${item.id}`}
-    >
-      {nameInput}
-      {projectedInput}
-      {actualInput}
-      <div className={`text-right pr-1 text-sm font-bold ${diffClass}`}>
-        {formatMoney(diff)}
+    <div data-testid={`line-item-${item.id}`}>
+      <div
+        className="grid items-center gap-1.5"
+        style={{ gridTemplateColumns: '1.4fr 76px 76px 58px 76px 138px 24px' }}
+      >
+        {nameInput}
+        {projectedInput}
+        {actualInput}
+        {currencySelect}
+        <div className={`text-right pr-1 text-sm font-bold ${diffClass}`}>
+          {formatCurrency(diff, nativeCurrency)}
+        </div>
+        {paidControl}
+        <div className="text-center">{deleteButton}</div>
       </div>
-      {paidControl}
-      <div className="text-center">{deleteButton}</div>
+      {currencyStrip}
     </div>
   );
 }

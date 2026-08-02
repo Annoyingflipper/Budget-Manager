@@ -5,15 +5,20 @@ import EmptyCategoryCard from './EmptyCategoryCard';
 import CategoryBudgetBar from './CategoryBudgetBar';
 import { addLineItem } from '../api/budget';
 import { difference, differenceClass, formatMoney, sum } from '../utils/money';
+import type { Currency } from '../utils/currency';
 import type { CategoryWithItems, LineItem } from '../types';
 
 type Props = {
   category: CategoryWithItems;
   periodMonth: string;
   onCategoryChange: (next: CategoryWithItems) => void;
+  /** Currency untagged amounts are in, and that per-item conversions display in. */
+  base?: Currency;
 };
 
-export default function CategoryTable({ category, periodMonth, onCategoryChange }: Props) {
+export default function CategoryTable({
+  category, periodMonth, onCategoryChange, base = 'USD',
+}: Props) {
   const [drafting, setDrafting] = useState(false);
   const [confirmingItemId, setConfirmingItemId] = useState<number | null>(null);
 
@@ -73,11 +78,12 @@ export default function CategoryTable({ category, periodMonth, onCategoryChange 
 
       <div
         className="hidden sm:grid gap-1.5 items-center mb-1"
-        style={{ gridTemplateColumns: '1.4fr 80px 80px 80px 150px 24px' }}
+        style={{ gridTemplateColumns: '1.4fr 76px 76px 58px 76px 138px 24px' }}
       >
         <div className="text-muted text-xs uppercase tracking-wider">Name</div>
         <div className="text-muted text-xs uppercase tracking-wider text-right">Proj</div>
         <div className="text-muted text-xs uppercase tracking-wider text-right">Actual</div>
+        <div className="text-muted text-xs uppercase tracking-wider">Cur</div>
         <div className="text-muted text-xs uppercase tracking-wider text-right">Diff</div>
         <div className="text-muted text-xs uppercase tracking-wider">Paid</div>
         <div />
@@ -95,6 +101,7 @@ export default function CategoryTable({ category, periodMonth, onCategoryChange 
               setConfirmingItemId(null);
               removeItem(item.id);
             }}
+            base={base}
           />
         ))}
         {drafting && (

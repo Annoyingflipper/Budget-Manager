@@ -151,4 +151,80 @@ describe('LineItemRow', () => {
     });
     expect(onChange).toHaveBeenCalledWith({ ...paidItem, paidOn: '2026-06-20' });
   });
+
+  describe('per-expense currency', () => {
+    it('has no currency set by default', () => {
+      renderRow();
+      expect(screen.getByLabelText('Currency')).toHaveValue('');
+    });
+
+    it('sets a currency on the item', async () => {
+      const user = userEvent.setup();
+      renderRow();
+      await user.selectOptions(screen.getByLabelText('Currency'), 'VES');
+      await waitFor(() =>
+        expect(api.updateLineItem).toHaveBeenCalledWith(42, { currency: 'VES' }));
+    });
+
+    it('clears the currency back to none', async () => {
+      const user = userEvent.setup();
+      renderRow({ item: { ...baseItem, currency: 'VES' } });
+      await user.selectOptions(screen.getByLabelText('Currency'), '');
+      await waitFor(() =>
+        expect(api.updateLineItem).toHaveBeenCalledWith(42, { currency: null }));
+    });
+
+    it('shows the converted amount for a foreign-currency expense', () => {
+      renderRow({ item: {
+        ...baseItem, currency: 'VES', projected: 30000, actual: 30000,
+        baseProjected: 50, baseActual: 50,
+      } });
+      expect(screen.getByTestId('converted-42')).toHaveTextContent('$50.00');
+    });
+
+    it('shows no converted figure when no currency is set', () => {
+      renderRow();
+      expect(screen.queryByTestId('converted-42')).toBeNull();
+    });
+
+    it('saves a rate override typed in the natural direction', async () => {
+      const user = userEvent.setup();
+      renderRow({ item: { ...baseItem, currency: 'VES' } });
+      const input = screen.getByLabelText('Rate override');
+      await user.type(input, '800');
+      await user.tab();
+      await waitFor(() =>
+        expect(api.updateLineItem).toHaveBeenCalledWith(42, { rateUnitsPerUsd: 800 }));
+    });
+
+    it('clearing the override falls back to the official rate', async () => {
+      const user = userEvent.setup();
+      renderRow({ item: { ...baseItem, currency: 'VES', rateUnitsPerUsd: 800 } });
+      const input = screen.getByLabelText('Rate override');
+      await user.clear(input);
+      await user.tab();
+      await waitFor(() =>
+        expect(api.updateLineItem).toHaveBeenCalledWith(42, { rateUnitsPerUsd: null }));
+    });
+
+    it('rejects a zero or negative override', async () => {
+      const user = userEvent.setup();
+      renderRow({ item: { ...baseItem, currency: 'VES' } });
+      const input = screen.getByLabelText('Rate override');
+      await user.type(input, '0');
+      await user.tab();
+      await waitFor(() => expect(screen.getByLabelText('Rate override')).toHaveValue(null));
+      expect(api.updateLineItem).not.toHaveBeenCalled();
+    });
+
+    it('marks an item that used an override', () => {
+      renderRow({ item: { ...baseItem, currency: 'VES', rateUnitsPerUsd: 800 } });
+      expect(screen.getByTestId('rate-overridden-42')).toBeInTheDocument();
+    });
+
+    it('flags an item whose rate could not be resolved', () => {
+      renderRow({ item: { ...baseItem, currency: 'VES', rateResolved: false } });
+      expect(screen.getByTestId('rate-unresolved-42')).toBeInTheDocument();
+    });
+  });
 });
