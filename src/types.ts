@@ -1,3 +1,14 @@
+import type { Currency } from './utils/currency';
+
+export type Account = {
+  id: number;
+  name: string;
+  icon: string;
+  currency: Currency;
+  balance: number;
+  display_order: number;
+};
+
 export type Category = {
   id: number;
   name: string;
