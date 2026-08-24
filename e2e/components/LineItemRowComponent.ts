@@ -13,6 +13,9 @@ export class LineItemRowComponent {
   get markPaidButton(): Locator { return this.root.getByRole('button', { name: 'Mark paid' }); }
   get paidDateInput(): Locator { return this.root.locator('input[type="date"][aria-label="Paid date"]'); }
   get markUnpaidButton(): Locator { return this.root.getByRole('button', { name: 'Mark unpaid' }); }
+  get setDueButton(): Locator { return this.root.getByRole('button', { name: 'Set due date' }); }
+  get dueDateInput(): Locator { return this.root.locator('input[type="date"][aria-label="Due date"]'); }
+  get clearDueButton(): Locator { return this.root.getByRole('button', { name: 'Clear due date' }); }
 
   async setActual(value: number): Promise<void> {
     await this.actualInput.fill(String(value));
@@ -31,5 +34,10 @@ export class LineItemRowComponent {
   }
   async clearPaid(): Promise<void> {
     await this.markUnpaidButton.click();
+  }
+  async setDue(iso: string): Promise<void> {
+    if (await this.setDueButton.isVisible()) await this.setDueButton.click();
+    await this.dueDateInput.fill(iso);
+    await this.dueDateInput.blur();
   }
 }

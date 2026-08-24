@@ -14,6 +14,10 @@ export class DashboardPage {
   get projectedBalance(): Locator { return this.page.getByTestId('projected-balance'); }
   get actualBalance(): Locator { return this.page.getByTestId('actual-balance'); }
   get stillToPay(): Locator { return this.page.getByTestId('still-to-pay'); }
+  get comingUp(): Locator { return this.page.getByTestId('coming-up'); }
+  get overdueBucket(): Locator { return this.page.getByTestId('bucket-overdue'); }
+  get dueSoonBucket(): Locator { return this.page.getByTestId('bucket-dueSoon'); }
+  get cashflowVerdict(): Locator { return this.page.getByTestId('cashflow-verdict'); }
 
   async goto(): Promise<void> {
     await this.page.goto('/');
