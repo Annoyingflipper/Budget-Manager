@@ -19,7 +19,7 @@ const budget: Budget = {
   categories: [
     {
       id: 1, name: 'Food', display_order: 0, icon: '🍔',
-      items: [{ id: 11, category_id: 1, name: 'Groceries', projected: 400, actual: 450, paidOn: null,
+      items: [{ id: 11, category_id: 1, name: 'Groceries', projected: 400, actual: 450, paidOn: null, dueOn: null,
         currency: null, rateUnitsPerUsd: null, baseProjected: 400, baseActual: 450, rateResolved: true }],
     },
   ],

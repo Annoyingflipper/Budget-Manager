@@ -8,7 +8,7 @@ function cat(flags: boolean[]): CategoryWithItems {
     id: 1, name: 'Cat', display_order: 1, icon: '',
     items: flags.map((resolved, idx) => ({
       id: idx, category_id: 1, name: `Item${idx}`,
-      projected: 10, actual: 10, paidOn: null,
+      projected: 10, actual: 10, paidOn: null, dueOn: null,
       currency: resolved ? null : ('VES' as const),
       rateUnitsPerUsd: null,
       baseProjected: 10, baseActual: 10,

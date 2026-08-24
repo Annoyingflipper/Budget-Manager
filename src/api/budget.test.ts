@@ -247,6 +247,39 @@ describe('api/budget', () => {
     expect('rateUnitsPerUsd' in patch).toBe(false);
   });
 
+  it('getBudget selects due_on', async () => {
+    fromMock.mockImplementation((table: string) => {
+      if (table === 'income') return builder({ projected: 0, actual: 0 });
+      return builder([]);
+    });
+    await getBudget('2026-08-01');
+    const lineItemSelect = calls.find(
+      (c) => c.kind === 'select' && String(c.args[0]).includes('category_id'),
+    );
+    expect(String(lineItemSelect?.args[0])).toContain('due_on');
+  });
+
+  it('updateLineItem maps dueOn to due_on', async () => {
+    fromMock.mockReturnValue(builder(null));
+    await updateLineItem(42, { dueOn: '2026-09-01' });
+    const update = calls.find((c) => c.kind === 'update');
+    expect(update?.args[0]).toEqual({ due_on: '2026-09-01' });
+  });
+
+  it('updateLineItem maps a null dueOn to due_on: null', async () => {
+    fromMock.mockReturnValue(builder(null));
+    await updateLineItem(7, { dueOn: null });
+    const update = calls.find((c) => c.kind === 'update');
+    expect(update?.args[0]).toEqual({ due_on: null });
+  });
+
+  it('updateLineItem omits due_on when the key is absent', async () => {
+    fromMock.mockReturnValue(builder(null));
+    await updateLineItem(7, { name: 'Rent' });
+    const update = calls.find((c) => c.kind === 'update');
+    expect(update?.args[0]).not.toHaveProperty('due_on');
+  });
+
   describe('attachment cleanup on delete', () => {
     it('deleteLineItem removes its attachments before deleting the item', async () => {
       const order: string[] = [];

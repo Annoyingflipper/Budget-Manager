@@ -18,6 +18,7 @@ function cat(
       projected: i.projected,
       actual: 0,
       paidOn: i.paidOn,
+      dueOn: null,
       currency: null,
       rateUnitsPerUsd: null,
       baseProjected: i.projected,

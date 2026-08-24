@@ -14,6 +14,7 @@ const baseItem: LineItem = {
   projected: 15,
   actual: 17,
   paidOn: null,
+  dueOn: null,
   currency: null,
   rateUnitsPerUsd: null,
   baseProjected: 15,

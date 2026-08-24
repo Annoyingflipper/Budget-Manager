@@ -26,6 +26,7 @@ function normalizeItem(
     projected: Number(raw.projected),
     actual: Number(raw.actual),
     paidOn: (raw.paid_on as string | null) ?? null,
+    dueOn: (raw.due_on as string | null) ?? null,
     currency: (raw.currency as Currency | null) ?? null,
     rateUnitsPerUsd:
       raw.rate_units_per_usd === null || raw.rate_units_per_usd === undefined
@@ -67,7 +68,7 @@ export async function getBudget(periodMonth: string): Promise<Budget> {
 
   const { data: items, error: itemsErr } = await supabase
     .from('line_items')
-    .select('id, category_id, name, projected, actual, paid_on, currency, rate_units_per_usd')
+    .select('id, category_id, name, projected, actual, paid_on, due_on, currency, rate_units_per_usd')
     .eq('user_id', userId)
     .eq('period_month', periodMonth)
     .order('created_at');
@@ -170,7 +171,7 @@ export async function updateIncome(
 export async function addLineItem(
   periodMonth: string,
   categoryId: number,
-  item: { name: string; projected: number; actual: number },
+  item: { name: string; projected: number; actual: number; dueOn?: string | null },
 ): Promise<LineItem> {
   const userId = await currentUserId();
   const { data, error } = await supabase
@@ -182,8 +183,9 @@ export async function addLineItem(
       projected: item.projected,
       actual: item.actual,
       period_month: periodMonth,
+      due_on: item.dueOn ?? null,
     })
-    .select('id, category_id, name, projected, actual, paid_on, currency, rate_units_per_usd')
+    .select('id, category_id, name, projected, actual, paid_on, due_on, currency, rate_units_per_usd')
     .single();
   if (error) throw error;
   const base = await getBaseCurrency();
@@ -198,15 +200,17 @@ export async function updateLineItem(
     projected: number;
     actual: number;
     paidOn: string | null;
+    dueOn: string | null;
     currency: Currency | null;
     rateUnitsPerUsd: number | null;
   }>,
 ): Promise<void> {
-  const { paidOn, currency, rateUnitsPerUsd, ...rest } = patch;
+  const { paidOn, dueOn, currency, rateUnitsPerUsd, ...rest } = patch;
   const dbPatch: Record<string, unknown> = { ...rest };
   // Presence-checked, so an explicit null clears the column instead of being
   // dropped as undefined.
   if ('paidOn' in patch) dbPatch.paid_on = paidOn;
+  if ('dueOn' in patch) dbPatch.due_on = dueOn;
   if ('currency' in patch) dbPatch.currency = currency;
   if ('rateUnitsPerUsd' in patch) dbPatch.rate_units_per_usd = rateUnitsPerUsd;
   const { error } = await supabase.from('line_items').update(dbPatch).eq('id', id);

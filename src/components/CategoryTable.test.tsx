@@ -22,6 +22,7 @@ const claudeItem: LineItem = {
   projected: 20,
   actual: 20,
   paidOn: null,
+  dueOn: null,
   currency: null,
   rateUnitsPerUsd: null,
   baseProjected: 20,
@@ -73,6 +74,7 @@ describe('CategoryTable', () => {
       projected: 15,
       actual: 17,
       paidOn: null,
+      dueOn: null,
       currency: null,
       rateUnitsPerUsd: null,
       baseProjected: 15,
@@ -112,9 +114,9 @@ describe('CategoryTable', () => {
     setup({
       ...baseCategory,
       items: [
-        { id: 200, category_id: 1, name: 'Internet', projected: 80, actual: 85, paidOn: null,
+        { id: 200, category_id: 1, name: 'Internet', projected: 80, actual: 85, paidOn: null, dueOn: null,
           currency: null, rateUnitsPerUsd: null, baseProjected: 80, baseActual: 85, rateResolved: true },
-        { id: 201, category_id: 1, name: 'Phone', projected: 50, actual: 50, paidOn: null,
+        { id: 201, category_id: 1, name: 'Phone', projected: 50, actual: 50, paidOn: null, dueOn: null,
           currency: null, rateUnitsPerUsd: null, baseProjected: 50, baseActual: 50, rateResolved: true },
       ],
     });
@@ -126,9 +128,9 @@ describe('CategoryTable', () => {
 
   it('only one row at a time is in confirm state (click delete on row B clears row A)', async () => {
     const user = userEvent.setup();
-    const itemA: LineItem = { id: 100, category_id: 1, name: 'A', projected: 1, actual: 1, paidOn: null,
+    const itemA: LineItem = { id: 100, category_id: 1, name: 'A', projected: 1, actual: 1, paidOn: null, dueOn: null,
       currency: null, rateUnitsPerUsd: null, baseProjected: 1, baseActual: 1, rateResolved: true };
-    const itemB: LineItem = { id: 101, category_id: 1, name: 'B', projected: 2, actual: 2, paidOn: null,
+    const itemB: LineItem = { id: 101, category_id: 1, name: 'B', projected: 2, actual: 2, paidOn: null, dueOn: null,
       currency: null, rateUnitsPerUsd: null, baseProjected: 2, baseActual: 2, rateResolved: true };
     setup({ ...baseCategory, items: [itemA, itemB] });
     // Two delete buttons visible initially.

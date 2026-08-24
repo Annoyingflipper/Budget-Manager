@@ -20,6 +20,7 @@ function category(
       projected: i.projected,
       actual: i.actual,
       paidOn: null,
+      dueOn: null,
       currency: null,
       rateUnitsPerUsd: null,
       baseProjected: i.baseProjected ?? i.projected,

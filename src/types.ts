@@ -24,6 +24,8 @@ export type LineItem = {
   projected: number;
   actual: number;
   paidOn: string | null; // ISO 'YYYY-MM-DD', or null when unpaid
+  /** ISO 'YYYY-MM-DD' the expense is due, or null when no date is set. */
+  dueOn: string | null;
   /** null = no currency set = the user's base currency. */
   currency: Currency | null;
   /** Per-expense rate override, units per USD. null = use the daily rate table. */

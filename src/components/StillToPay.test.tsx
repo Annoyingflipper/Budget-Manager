@@ -8,7 +8,7 @@ function cat(items: Array<{ projected: number; paidOn: string | null }>): Catego
     id: 1, name: 'Cat', display_order: 1, icon: '',
     items: items.map((i, idx) => ({
       id: idx, category_id: 1, name: `Item${idx}`,
-      projected: i.projected, actual: 0, paidOn: i.paidOn,
+      projected: i.projected, actual: 0, paidOn: i.paidOn, dueOn: null,
       currency: null, rateUnitsPerUsd: null,
       baseProjected: i.projected, baseActual: 0, rateResolved: true,
     })),
