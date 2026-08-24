@@ -10,6 +10,8 @@ vi.mock('./api/userPrefs', () => ({
   getLastSeenChangelogVersion: vi.fn().mockResolvedValue('1.5.1'),
   setLastSeenChangelogVersion: vi.fn().mockResolvedValue(undefined),
   getBaseCurrency: vi.fn().mockResolvedValue('USD'),
+  getPreferences: vi.fn().mockResolvedValue({ theme: 'peach', mode: 'light' }),
+  updatePreferences: vi.fn().mockResolvedValue(undefined),
 }));
 vi.mock('./api/accounts', () => ({
   listAccounts: vi.fn().mockResolvedValue([]),
@@ -41,6 +43,8 @@ beforeEach(() => {
   vi.mocked(userPrefs.setLastSeenChangelogVersion).mockResolvedValue(undefined);
   // resetAllMocks wipes the factory defaults above, so re-establish them here.
   vi.mocked(userPrefs.getBaseCurrency).mockResolvedValue('USD');
+  vi.mocked(userPrefs.getPreferences).mockResolvedValue({ theme: 'peach', mode: 'light' });
+  vi.mocked(userPrefs.updatePreferences).mockResolvedValue(undefined);
   vi.mocked(accountsApi.listAccounts).mockResolvedValue([]);
   vi.mocked(ratesApi.listRates).mockResolvedValue([]);
   vi.mocked(ratesApi.ensureTodayRates).mockResolvedValue([]);

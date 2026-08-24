@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
-import { getPreferences, updatePreferences } from '../api/preferences';
+import { getPreferences, updatePreferences } from '../api/userPrefs';
 import { DEFAULT_PREFERENCES } from './types';
 import type { Mode, Preferences, Theme } from './types';
 

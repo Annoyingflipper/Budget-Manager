@@ -2,9 +2,9 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ThemeProvider, useTheme } from './ThemeProvider';
-import * as prefsApi from '../api/preferences';
+import * as prefsApi from '../api/userPrefs';
 
-vi.mock('../api/preferences');
+vi.mock('../api/userPrefs');
 
 function Probe() {
   const { theme, mode, setTheme, setMode } = useTheme();
