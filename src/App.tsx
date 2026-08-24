@@ -7,6 +7,7 @@ import Header from './components/Header';
 import BalanceHero from './components/BalanceHero';
 import IncomeSummary from './components/IncomeSummary';
 import StillToPay from './components/StillToPay';
+import ComingUp from './components/ComingUp';
 import UnresolvedRatesNotice from './components/UnresolvedRatesNotice';
 import CategoryTable from './components/CategoryTable';
 import GrandTotals from './components/GrandTotals';
@@ -239,6 +240,12 @@ function BudgetApp() {
             onChange={updateIncomeLocal}
           />
           <StillToPay categories={budget.categories} />
+          <ComingUp
+            categories={budget.categories}
+            accounts={accounts}
+            rates={rates}
+            base={baseCurrency}
+          />
           <UnresolvedRatesNotice
             categories={budget.categories}
             onOpenRates={() => setPage('accounts')}
