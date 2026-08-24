@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { summariseDue, type DueBucket, type DueGroup } from '../utils/dueStatus';
+import { stillToPay } from '../utils/stillToPay';
 import { grandTotal } from '../utils/accountTotals';
 import { formatCurrency, type Currency } from '../utils/currency';
+import { formatMonthLabel } from '../utils/month';
 import { todayISO } from '../utils/date';
 import type { RateRow } from '../utils/rates';
 import type { Account, CategoryWithItems } from '../types';
@@ -11,6 +13,9 @@ type Props = {
   accounts: Account[];
   rates: RateRow[];
   base: Currency;
+  /** The selected period month ('YYYY-MM-01'), shown in the heading so the
+   * panel is never mistaken for "today" when a past month is on screen. */
+  month: string;
 };
 
 const BUCKET_LABEL: Record<DueBucket, string> = {
@@ -25,7 +30,7 @@ const BUCKET_TONE: Record<DueBucket, string> = {
   later: 'text-muted',
 };
 
-export default function ComingUp({ categories, accounts, rates, base }: Props) {
+export default function ComingUp({ categories, accounts, rates, base, month }: Props) {
   const today = todayISO();
   const summary = summariseDue(categories, today);
   const [expanded, setExpanded] = useState<DueBucket | null>(null);
@@ -33,6 +38,14 @@ export default function ComingUp({ categories, accounts, rates, base }: Props) {
   // Nothing unpaid and dated: stay out of the way entirely. No empty state —
   // the dashboard should look untouched until due dates are actually used.
   if (summary.isEmpty) return null;
+
+  // Unpaid items with no due date are excluded from every bucket above (by
+  // design — StillToPay already covers them) but must not be silently missing
+  // from the panel's solvency claim, or "Covered" reads as "everything is
+  // covered" when it only means "every DATED bill is covered".
+  const undatedCount =
+    stillToPay(categories).count -
+    (summary.overdue.count + summary.dueSoon.count + summary.later.count);
 
   const available = accounts.length > 0 ? grandTotal(accounts, base, rates, today) : undefined;
   const shortfall =
@@ -74,11 +87,19 @@ export default function ComingUp({ categories, accounts, rates, base }: Props) {
 
   return (
     <section data-testid="coming-up" className="bg-card rounded-xl px-4 py-3 mb-3">
-      <div className="text-xs uppercase tracking-wider text-muted mb-1">⏰ Coming up</div>
+      <div className="text-xs uppercase tracking-wider text-muted mb-1">
+        ⏰ Coming up — {formatMonthLabel(month)}
+      </div>
 
       {row('overdue', summary.overdue)}
       {row('dueSoon', summary.dueSoon)}
       {row('later', summary.later)}
+
+      {undatedCount > 0 && (
+        <div data-testid="undated-count" className="text-xs text-muted pt-1">
+          {undatedCount} more unpaid, no due date set
+        </div>
+      )}
 
       {available !== undefined && (
         <div
@@ -96,9 +117,12 @@ export default function ComingUp({ categories, accounts, rates, base }: Props) {
               {shortfall !== null && shortfall > 0 ? (
                 <div className="text-negative font-bold mt-0.5">
                   Short by {formatCurrency(shortfall, base)}
+                  {undatedCount > 0 ? ' — dated bills only' : ''}
                 </div>
               ) : (
-                <div className="text-positive font-bold mt-0.5">✓ Covered</div>
+                <div className="text-positive font-bold mt-0.5">
+                  ✓ Covered{undatedCount > 0 ? ' — dated bills only' : ''}
+                </div>
               )}
               <div className="text-muted mt-0.5">balances as you last set them</div>
             </>

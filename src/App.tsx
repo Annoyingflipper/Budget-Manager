@@ -245,6 +245,7 @@ function BudgetApp() {
             accounts={accounts}
             rates={rates}
             base={baseCurrency}
+            month={selectedMonth}
           />
           <UnresolvedRatesNotice
             categories={budget.categories}

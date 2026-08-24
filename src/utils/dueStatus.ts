@@ -39,7 +39,15 @@ export function bucketFor(
 }
 
 function group(items: LineItem[]): DueGroup {
-  const sorted = [...items].sort((a, b) => (a.dueOn ?? '').localeCompare(b.dueOn ?? ''));
+  // ISO `YYYY-MM-DD` strings compare correctly with `<`/`<=` — same convention
+  // used everywhere else in this file and in bucketFor above.
+  const sorted = [...items].sort((a, b) => {
+    const ad = a.dueOn ?? '';
+    const bd = b.dueOn ?? '';
+    if (ad < bd) return -1;
+    if (ad > bd) return 1;
+    return 0;
+  });
   return {
     items: sorted,
     count: sorted.length,

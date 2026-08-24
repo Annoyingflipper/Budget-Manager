@@ -54,7 +54,18 @@ export default function DateCell({ value, onSave, label, empty, clear, tone, tes
         aria-label={label}
         value={draft}
         onChange={(e) => setDraft(e.target.value)}
-        onBlur={() => { if (!draft) setEditing(false); onSave(draft || null); }}
+        onBlur={() => {
+          if (!draft) {
+            setEditing(false);
+            // Already null: opening the empty input and tabbing away without
+            // typing anything is a no-op, not a save.
+            if (value === null) return;
+            onSave(null);
+            return;
+          }
+          onSave(draft);
+        }}
+        title={tone === 'overdue' ? 'Overdue' : undefined}
         className={`w-full min-w-0 px-1 py-1 border rounded-md bg-card text-xs ${
           tone === 'overdue' ? 'border-negative ring-1 ring-negative' : 'border-highlight'
         }`}

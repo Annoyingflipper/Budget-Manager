@@ -72,4 +72,37 @@ describe('DateCell', () => {
     );
     expect(screen.getByLabelText('Due date').className).toContain('border-negative');
   });
+
+  it('titles the overdue input for people who cannot see the colour', () => {
+    render(
+      <DateCell value="2026-08-01" onSave={vi.fn()} label="Due date" tone="overdue"
+        empty={{ label: '＋ due', ariaLabel: 'Set due date' }} clear={CLEAR} />,
+    );
+    expect(screen.getByLabelText('Due date')).toHaveAttribute('title', 'Overdue');
+  });
+
+  it('does not add a title when the row is not overdue', () => {
+    render(
+      <DateCell value="2026-08-05" onSave={vi.fn()} label="Due date"
+        empty={{ label: '＋ due', ariaLabel: 'Set due date' }} clear={CLEAR} />,
+    );
+    expect(screen.getByLabelText('Due date')).not.toHaveAttribute('title');
+  });
+
+  it('does not call onSave when the empty input is opened and blurred untouched', async () => {
+    const onSave = vi.fn();
+    render(
+      <DateCell value={null} onSave={onSave} label="Due date"
+        empty={{ label: '＋ due', ariaLabel: 'Set due date' }} clear={CLEAR} />,
+    );
+    await userEvent.click(screen.getByRole('button', { name: 'Set due date' }));
+    // Focus the input itself before tabbing away, or the tab starts from
+    // document.body (focus was lost when the empty button unmounted) and
+    // never blurs the field this test is exercising.
+    await userEvent.click(screen.getByLabelText('Due date'));
+    await userEvent.tab();
+    expect(onSave).not.toHaveBeenCalled();
+    // Reverts to the empty button rather than staying open.
+    expect(screen.getByRole('button', { name: 'Set due date' })).toBeInTheDocument();
+  });
 });

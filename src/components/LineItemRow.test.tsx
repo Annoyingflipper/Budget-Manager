@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import LineItemRow from './LineItemRow';
@@ -291,6 +291,11 @@ describe('LineItemRow', () => {
 
   describe('due date', () => {
     const dueItem: LineItem = { ...baseItem, dueOn: '2026-09-01' };
+
+    // A failing assertion inside a fake-timers test would otherwise leave fake
+    // timers installed for every later test in the file, turning one red into
+    // a cascade that hides the real cause.
+    afterEach(() => { vi.useRealTimers(); });
 
     it('offers to set a due date when none is set', () => {
       renderRow();

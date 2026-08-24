@@ -259,6 +259,40 @@ describe('api/budget', () => {
     expect(String(lineItemSelect?.args[0])).toContain('due_on');
   });
 
+  // Guards the raw `due_on` column against a mis-wired mapper (e.g. reading
+  // `paid_on` into `dueOn`) that would pass typecheck and the select-string
+  // assertion above without this.
+  it('maps the raw due_on column onto LineItem.dueOn', async () => {
+    fromMock.mockImplementation((table: string) => {
+      if (table === 'income') return builder({ projected: 0, actual: 0 });
+      if (table === 'categories') {
+        const b = builder();
+        (b as { order: (...a: unknown[]) => unknown }).order = () =>
+          Promise.resolve({
+            data: [{ id: 1, name: 'Bills', display_order: 1, icon: '🧾' }],
+            error: null,
+          });
+        return b;
+      }
+      if (table === 'line_items') {
+        const b = builder();
+        (b as { order: (...a: unknown[]) => unknown }).order = () =>
+          Promise.resolve({
+            data: [{
+              id: 1, category_id: 1, name: 'Rent', projected: 100, actual: 0,
+              paid_on: null, due_on: '2026-09-03', currency: null, rate_units_per_usd: null,
+            }],
+            error: null,
+          });
+        return b;
+      }
+      return builder();
+    });
+
+    const budget = await getBudget('2026-08-01');
+    expect(budget.categories[0].items[0].dueOn).toBe('2026-09-03');
+  });
+
   it('updateLineItem maps dueOn to due_on', async () => {
     fromMock.mockReturnValue(builder(null));
     await updateLineItem(42, { dueOn: '2026-09-01' });

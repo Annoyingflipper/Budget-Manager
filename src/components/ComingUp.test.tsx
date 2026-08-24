@@ -21,6 +21,7 @@ const USD_ACCOUNT: Account = {
   id: 1, name: 'Checking', icon: '🏦', currency: 'USD', balance: 2410, display_order: 1,
 };
 const NO_RATES: RateRow[] = [];
+const MONTH = '2026-08-01';
 
 beforeEach(() => {
   // shouldAdvanceTime: true (matching the pattern already used in
@@ -36,9 +37,17 @@ afterEach(() => { vi.useRealTimers(); });
 describe('ComingUp', () => {
   it('renders nothing when no item is both unpaid and dated', () => {
     const { container } = render(
-      <ComingUp categories={cats([item()])} accounts={[USD_ACCOUNT]} rates={NO_RATES} base="USD" />,
+      <ComingUp categories={cats([item()])} accounts={[USD_ACCOUNT]} rates={NO_RATES} base="USD" month={MONTH} />,
     );
     expect(container).toBeEmptyDOMElement();
+  });
+
+  it('shows the selected month in the heading', () => {
+    render(
+      <ComingUp categories={cats([item({ dueOn: '2026-08-26', baseProjected: 845 })])}
+        accounts={[USD_ACCOUNT]} rates={NO_RATES} base="USD" month={MONTH} />,
+    );
+    expect(screen.getByTestId('coming-up')).toHaveTextContent('Coming up — August 2026');
   });
 
   it('shows counts and totals for the three buckets', () => {
@@ -49,7 +58,7 @@ describe('ComingUp', () => {
           item({ id: 2, dueOn: '2026-08-26', baseProjected: 845 }),
           item({ id: 3, dueOn: '2026-09-15', baseProjected: 90 }),
         ])}
-        accounts={[USD_ACCOUNT]} rates={NO_RATES} base="USD"
+        accounts={[USD_ACCOUNT]} rates={NO_RATES} base="USD" month={MONTH}
       />,
     );
     expect(screen.getByTestId('bucket-overdue')).toHaveTextContent('1 item');
@@ -61,7 +70,7 @@ describe('ComingUp', () => {
   it('omits a bucket that has no items', () => {
     render(
       <ComingUp categories={cats([item({ dueOn: '2026-08-26', baseProjected: 845 })])}
-        accounts={[USD_ACCOUNT]} rates={NO_RATES} base="USD" />,
+        accounts={[USD_ACCOUNT]} rates={NO_RATES} base="USD" month={MONTH} />,
     );
     expect(screen.queryByTestId('bucket-overdue')).not.toBeInTheDocument();
     expect(screen.getByTestId('bucket-dueSoon')).toBeInTheDocument();
@@ -71,7 +80,7 @@ describe('ComingUp', () => {
     const user = userEvent.setup();
     render(
       <ComingUp categories={cats([item({ name: 'Electric', dueOn: '2026-08-20', baseProjected: 310 })])}
-        accounts={[USD_ACCOUNT]} rates={NO_RATES} base="USD" />,
+        accounts={[USD_ACCOUNT]} rates={NO_RATES} base="USD" month={MONTH} />,
     );
     expect(screen.queryByText('Electric')).not.toBeInTheDocument();
     await user.click(screen.getByTestId('bucket-overdue'));
@@ -81,15 +90,16 @@ describe('ComingUp', () => {
   it('says covered when the accounts hold enough', () => {
     render(
       <ComingUp categories={cats([item({ dueOn: '2026-08-26', baseProjected: 845 })])}
-        accounts={[USD_ACCOUNT]} rates={NO_RATES} base="USD" />,
+        accounts={[USD_ACCOUNT]} rates={NO_RATES} base="USD" month={MONTH} />,
     );
-    expect(screen.getByTestId('cashflow-verdict')).toHaveTextContent('Covered');
+    expect(screen.getByTestId('cashflow-verdict')).toHaveTextContent('✓ Covered');
+    expect(screen.getByTestId('cashflow-verdict')).not.toHaveTextContent('dated bills only');
   });
 
   it('reports the shortfall when they do not', () => {
     render(
       <ComingUp categories={cats([item({ dueOn: '2026-08-26', baseProjected: 3000 })])}
-        accounts={[USD_ACCOUNT]} rates={NO_RATES} base="USD" />,
+        accounts={[USD_ACCOUNT]} rates={NO_RATES} base="USD" month={MONTH} />,
     );
     expect(screen.getByTestId('cashflow-verdict')).toHaveTextContent('Short by $590.00');
   });
@@ -102,7 +112,7 @@ describe('ComingUp', () => {
           item({ id: 1, dueOn: '2026-08-26', baseProjected: 845 }),
           item({ id: 2, dueOn: '2026-10-01', baseProjected: 3000 }),
         ])}
-        accounts={[USD_ACCOUNT]} rates={NO_RATES} base="USD"
+        accounts={[USD_ACCOUNT]} rates={NO_RATES} base="USD" month={MONTH}
       />,
     );
     expect(screen.getByTestId('cashflow-verdict')).toHaveTextContent('Covered');
@@ -114,7 +124,7 @@ describe('ComingUp', () => {
     };
     render(
       <ComingUp categories={cats([item({ dueOn: '2026-08-26', baseProjected: 845 })])}
-        accounts={[USD_ACCOUNT, ves]} rates={NO_RATES} base="USD" />,
+        accounts={[USD_ACCOUNT, ves]} rates={NO_RATES} base="USD" month={MONTH} />,
     );
     expect(screen.getByTestId('cashflow-verdict')).toHaveTextContent('Set an exchange rate');
   });
@@ -122,8 +132,45 @@ describe('ComingUp', () => {
   it('omits the verdict entirely when there are no accounts', () => {
     render(
       <ComingUp categories={cats([item({ dueOn: '2026-08-26', baseProjected: 845 })])}
-        accounts={[]} rates={NO_RATES} base="USD" />,
+        accounts={[]} rates={NO_RATES} base="USD" month={MONTH} />,
     );
     expect(screen.queryByTestId('cashflow-verdict')).not.toBeInTheDocument();
+  });
+
+  describe('undated unpaid items', () => {
+    it('shows how many unpaid items have no due date set', () => {
+      render(
+        <ComingUp
+          categories={cats([
+            item({ id: 1, dueOn: '2026-08-26', baseProjected: 845 }),
+            item({ id: 2, dueOn: null, baseProjected: 50 }),
+            item({ id: 3, dueOn: null, baseProjected: 60 }),
+          ])}
+          accounts={[USD_ACCOUNT]} rates={NO_RATES} base="USD" month={MONTH}
+        />,
+      );
+      expect(screen.getByTestId('undated-count')).toHaveTextContent('2 more unpaid, no due date set');
+    });
+
+    it('does not show the undated line when every unpaid item is dated', () => {
+      render(
+        <ComingUp categories={cats([item({ dueOn: '2026-08-26', baseProjected: 845 })])}
+          accounts={[USD_ACCOUNT]} rates={NO_RATES} base="USD" month={MONTH} />,
+      );
+      expect(screen.queryByTestId('undated-count')).not.toBeInTheDocument();
+    });
+
+    it('qualifies the "Covered" verdict only when undated bills exist', () => {
+      render(
+        <ComingUp
+          categories={cats([
+            item({ id: 1, dueOn: '2026-08-26', baseProjected: 845 }),
+            item({ id: 2, dueOn: null, baseProjected: 50 }),
+          ])}
+          accounts={[USD_ACCOUNT]} rates={NO_RATES} base="USD" month={MONTH}
+        />,
+      );
+      expect(screen.getByTestId('cashflow-verdict')).toHaveTextContent('✓ Covered — dated bills only');
+    });
   });
 });
