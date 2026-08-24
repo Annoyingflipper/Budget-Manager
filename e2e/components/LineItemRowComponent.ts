@@ -36,7 +36,19 @@ export class LineItemRowComponent {
     await this.markUnpaidButton.click();
   }
   async setDue(iso: string): Promise<void> {
-    if (await this.setDueButton.isVisible()) await this.setDueButton.click();
+    // isVisible() is an instant, non-waiting check — called right after a fresh
+    // goto() on a just-created fixture row, it can read "not visible" simply
+    // because the row hasn't rendered yet, permanently skipping the click and
+    // leaving the later fill() waiting on an input that will never appear
+    // (reproduced: ~50% of full-file runs failed here). click() itself already
+    // auto-waits for the button to become actionable, so bound that wait and
+    // treat a timeout as "already editing" (the button never existed because a
+    // due date is already set) rather than "not rendered yet".
+    try {
+      await this.setDueButton.click({ timeout: 3000 });
+    } catch {
+      // No empty-state button — already in edit mode.
+    }
     await this.dueDateInput.fill(iso);
     await this.dueDateInput.blur();
   }

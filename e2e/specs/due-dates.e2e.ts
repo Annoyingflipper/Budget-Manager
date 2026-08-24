@@ -71,12 +71,35 @@ test.describe('due dates @regression', () => {
    * Serial because rollover creates a whole month for the shared test user.
    */
   test.describe.serial('rollover', () => {
+    // Target month is deterministic (derived from MONTH_CURRENT), so both the
+    // pre-test guard and this safety net can compute it without sharing state
+    // with the test body.
+    const target = addMonths(MONTH_CURRENT, 1);
+
+    test.afterEach(async () => {
+      // Safety net: remove any rows left behind if the test failed mid-flow —
+      // in particular if the DB assertion below fails, which is exactly the
+      // scenario this regression test exists to catch. Without this, the one
+      // moment someone most needs clean QA state to investigate a real
+      // rollover regression is the moment the test leaves it dirty. Mirrors
+      // delete-month.e2e.ts's afterEach for the same reason.
+      //
+      // The income delete is the load-bearing half: ScopedData.cleanup()
+      // (the scopedData fixture's own teardown) already removes the
+      // rolled-over line_items via category_id — rollover reuses the same
+      // category_id, so the fixture's per-category delete catches both the
+      // source and target rows — but it never touches income, which rollover
+      // writes as a separate row keyed by period_month with no category link.
+      const uid = await getTestUserId(env.E2E_USER_EMAIL);
+      await admin.from('line_items').delete().eq('user_id', uid).eq('period_month', target);
+      await admin.from('income').delete().eq('user_id', uid).eq('period_month', target);
+    });
+
     test('carries currency and due date into the new month', async ({
       dashboardPage,
       scopedData,
     }) => {
       const uid = await getTestUserId(env.E2E_USER_EMAIL);
-      const target = addMonths(MONTH_CURRENT, 1);
 
       // Make sure the target month is empty — rollover refuses otherwise.
       await admin.from('line_items').delete().eq('user_id', uid).eq('period_month', target);
@@ -117,9 +140,6 @@ test.describe('due dates @regression', () => {
 
       expect(data?.currency).toBe('EUR');
       expect(data?.due_on).toBe(`${target.slice(0, 8)}05`);
-
-      await admin.from('line_items').delete().eq('user_id', uid).eq('period_month', target);
-      await admin.from('income').delete().eq('user_id', uid).eq('period_month', target);
     });
   });
 });
