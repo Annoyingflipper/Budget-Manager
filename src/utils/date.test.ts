@@ -22,6 +22,12 @@ describe('todayISO', () => {
 });
 
 describe('addDays', () => {
+  it('runs under a timezone behind UTC, where the string-parsing bug is visible', () => {
+    // Guards the guard: if the TZ pin in vite.config.ts is ever removed, this
+    // fails here rather than silently weakening every test below it.
+    expect(new Date('2026-08-10').getDate()).toBe(9);
+  });
+
   it('adds days within a month', () => {
     expect(addDays('2026-08-10', 5)).toBe('2026-08-15');
   });
