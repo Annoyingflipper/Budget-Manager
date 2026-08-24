@@ -5,6 +5,7 @@ import { useIsMobile } from '../hooks/useIsMobile';
 import { todayISO } from '../utils/date';
 import { CURRENCY_CODES, formatCurrency, type Currency } from '../utils/currency';
 import { convertAmount } from '../utils/itemMoney';
+import DateCell from './DateCell';
 import AttachmentStrip from './AttachmentStrip';
 import AttachmentViewer from './AttachmentViewer';
 import { uploadAttachment, deleteAttachment } from '../api/attachments';
@@ -44,7 +45,6 @@ export default function LineItemRow({
   const [name, setName] = useState(item.name);
   const [projected, setProjected] = useState(String(item.projected));
   const [actual, setActual] = useState(String(item.actual));
-  const [paidDateDraft, setPaidDateDraft] = useState(item.paidOn ?? '');
   const [rateDraft, setRateDraft] = useState(
     item.rateUnitsPerUsd === null ? '' : String(item.rateUnitsPerUsd),
   );
@@ -52,7 +52,6 @@ export default function LineItemRow({
   useEffect(() => setName(item.name), [item.name]);
   useEffect(() => setProjected(String(item.projected)), [item.projected]);
   useEffect(() => setActual(String(item.actual)), [item.actual]);
-  useEffect(() => setPaidDateDraft(item.paidOn ?? ''), [item.paidOn]);
   useEffect(
     () => setRateDraft(item.rateUnitsPerUsd === null ? '' : String(item.rateUnitsPerUsd)),
     [item.rateUnitsPerUsd],
@@ -305,35 +304,14 @@ export default function LineItemRow({
     </div>
   );
 
-  const paidControl = item.paidOn ? (
-    <div className="flex items-center gap-1 min-w-0">
-      <button
-        type="button"
-        onClick={() => savePaidOn(null)}
-        aria-label="Mark unpaid"
-        title="Mark unpaid"
-        className="shrink-0 text-positive hover:text-negative text-sm"
-      >
-        ✓
-      </button>
-      <input
-        type="date"
-        aria-label="Paid date"
-        value={paidDateDraft}
-        onChange={(e) => setPaidDateDraft(e.target.value)}
-        onBlur={() => savePaidOn(paidDateDraft || null)}
-        className="w-full min-w-0 px-1 py-1 border border-highlight rounded-md bg-card text-xs"
-      />
-    </div>
-  ) : (
-    <button
-      type="button"
-      onClick={() => savePaidOn(todayISO())}
-      aria-label="Mark paid"
-      className="w-full px-2 py-1 border border-highlight rounded-md bg-bg text-muted text-xs hover:text-positive"
-    >
-      Mark paid
-    </button>
+  const paidControl = (
+    <DateCell
+      value={item.paidOn}
+      onSave={savePaidOn}
+      label="Paid date"
+      empty={{ label: 'Mark paid', ariaLabel: 'Mark paid', onClick: () => savePaidOn(todayISO()) }}
+      clear={{ ariaLabel: 'Mark unpaid', glyph: '✓' }}
+    />
   );
 
   if (isMobile) {
