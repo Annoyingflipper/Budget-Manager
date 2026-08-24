@@ -5,6 +5,8 @@ import { useIsMobile } from '../hooks/useIsMobile';
 import { todayISO } from '../utils/date';
 import { CURRENCY_CODES, formatCurrency, type Currency } from '../utils/currency';
 import { convertAmount } from '../utils/itemMoney';
+import { bucketFor } from '../utils/dueStatus';
+import { ROW_GRID } from './rowGrid';
 import DateCell from './DateCell';
 import AttachmentStrip from './AttachmentStrip';
 import AttachmentViewer from './AttachmentViewer';
@@ -115,6 +117,14 @@ export default function LineItemRow({
     const previous = item;
     onChange(withConversion({ ...item, paidOn: next }));
     try { await updateLineItem(item.id, { paidOn: next }); }
+    catch { onChange(previous); }
+  }
+
+  async function saveDueOn(next: string | null) {
+    if (next === item.dueOn) return;
+    const previous = item;
+    onChange({ ...item, dueOn: next });
+    try { await updateLineItem(item.id, { dueOn: next }); }
     catch { onChange(previous); }
   }
 
@@ -314,6 +324,18 @@ export default function LineItemRow({
     />
   );
 
+  const dueControl = (
+    <DateCell
+      value={item.dueOn}
+      onSave={saveDueOn}
+      label="Due date"
+      empty={{ label: '＋ due', ariaLabel: 'Set due date' }}
+      clear={{ ariaLabel: 'Clear due date', glyph: '✕' }}
+      tone={bucketFor(item, todayISO()) === 'overdue' ? 'overdue' : undefined}
+      testId={`due-${item.id}`}
+    />
+  );
+
   if (isMobile) {
     return (
       <div className="flex flex-col gap-2 p-2 bg-bg rounded-lg">
@@ -343,6 +365,10 @@ export default function LineItemRow({
             {paidControl}
           </div>
           <div>
+            <div className="text-[9px] uppercase tracking-wider text-muted mb-0.5">Due</div>
+            {dueControl}
+          </div>
+          <div>
             <div className="text-[9px] uppercase tracking-wider text-muted mb-0.5">Currency</div>
             {currencySelect}
           </div>
@@ -355,10 +381,7 @@ export default function LineItemRow({
 
   return (
     <div data-testid={`line-item-${item.id}`}>
-      <div
-        className="grid items-center gap-1.5"
-        style={{ gridTemplateColumns: '1.4fr 76px 76px 58px 76px 138px 24px' }}
-      >
+      <div className="grid items-center gap-1.5" style={{ gridTemplateColumns: ROW_GRID }}>
         {nameInput}
         {projectedInput}
         {actualInput}
@@ -367,6 +390,7 @@ export default function LineItemRow({
           {formatCurrency(diff, nativeCurrency)}
         </div>
         {paidControl}
+        {dueControl}
         <div className="text-center">{deleteButton}</div>
       </div>
       {currencyStrip}

@@ -3,6 +3,7 @@ import LineItemRow from './LineItemRow';
 import DraftRow from './DraftRow';
 import EmptyCategoryCard from './EmptyCategoryCard';
 import CategoryBudgetBar from './CategoryBudgetBar';
+import { ROW_GRID } from './rowGrid';
 import { addLineItem } from '../api/budget';
 import { difference, differenceClass, formatMoney, sum } from '../utils/money';
 import type { Currency } from '../utils/currency';
@@ -85,7 +86,7 @@ export default function CategoryTable({
 
       <div
         className="hidden sm:grid gap-1.5 items-center mb-1"
-        style={{ gridTemplateColumns: '1.4fr 76px 76px 58px 76px 138px 24px' }}
+        style={{ gridTemplateColumns: ROW_GRID }}
       >
         <div className="text-muted text-xs uppercase tracking-wider">Name</div>
         <div className="text-muted text-xs uppercase tracking-wider text-right">Proj</div>
@@ -93,6 +94,7 @@ export default function CategoryTable({
         <div className="text-muted text-xs uppercase tracking-wider">Cur</div>
         <div className="text-muted text-xs uppercase tracking-wider text-right">Diff</div>
         <div className="text-muted text-xs uppercase tracking-wider">Paid</div>
+        <div className="text-muted text-xs uppercase tracking-wider">Due</div>
         <div />
       </div>
 

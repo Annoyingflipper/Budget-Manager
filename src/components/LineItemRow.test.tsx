@@ -288,4 +288,69 @@ describe('LineItemRow', () => {
       expect(screen.getByTestId('rate-unresolved-42')).toBeInTheDocument();
     });
   });
+
+  describe('due date', () => {
+    const dueItem: LineItem = { ...baseItem, dueOn: '2026-09-01' };
+
+    it('offers to set a due date when none is set', () => {
+      renderRow();
+      expect(screen.getByRole('button', { name: 'Set due date' })).toBeInTheDocument();
+    });
+
+    it('shows the due date when one is set', () => {
+      renderRow({ item: dueItem });
+      expect(screen.getByLabelText('Due date')).toHaveValue('2026-09-01');
+    });
+
+    it('saves an edited due date', async () => {
+      const user = userEvent.setup();
+      vi.mocked(api.updateLineItem).mockResolvedValue();
+      const { onChange } = renderRow({ item: dueItem });
+      const input = screen.getByLabelText('Due date');
+      await user.clear(input);
+      await user.type(input, '2026-09-05');
+      await user.tab();
+      await waitFor(() => {
+        expect(api.updateLineItem).toHaveBeenCalledWith(42, { dueOn: '2026-09-05' });
+      });
+      expect(onChange).toHaveBeenCalledWith({ ...dueItem, dueOn: '2026-09-05' });
+    });
+
+    it('clears the due date', async () => {
+      const user = userEvent.setup();
+      vi.mocked(api.updateLineItem).mockResolvedValue();
+      const { onChange } = renderRow({ item: dueItem });
+      await user.click(screen.getByRole('button', { name: 'Clear due date' }));
+      await waitFor(() => {
+        expect(api.updateLineItem).toHaveBeenCalledWith(42, { dueOn: null });
+      });
+      expect(onChange).toHaveBeenCalledWith({ ...dueItem, dueOn: null });
+    });
+
+    it('reverts the due date when the update fails', async () => {
+      const user = userEvent.setup();
+      vi.mocked(api.updateLineItem).mockRejectedValue(new Error('network'));
+      const { onChange } = renderRow({ item: dueItem });
+      await user.click(screen.getByRole('button', { name: 'Clear due date' }));
+      await waitFor(() => {
+        expect(onChange).toHaveBeenLastCalledWith(dueItem);
+      });
+    });
+
+    it('tones an unpaid past-due row as overdue', () => {
+      vi.useFakeTimers({ shouldAdvanceTime: true });
+      vi.setSystemTime(new Date(2026, 7, 24, 9, 0)); // local 24 Aug 2026
+      renderRow({ item: { ...baseItem, dueOn: '2026-08-01', paidOn: null } });
+      expect(screen.getByLabelText('Due date').className).toContain('border-negative');
+      vi.useRealTimers();
+    });
+
+    it('does not tone a paid row as overdue', () => {
+      vi.useFakeTimers({ shouldAdvanceTime: true });
+      vi.setSystemTime(new Date(2026, 7, 24, 9, 0));
+      renderRow({ item: { ...baseItem, dueOn: '2026-08-01', paidOn: '2026-08-02' } });
+      expect(screen.getByLabelText('Due date').className).not.toContain('border-negative');
+      vi.useRealTimers();
+    });
+  });
 });

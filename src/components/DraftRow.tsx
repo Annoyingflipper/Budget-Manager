@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import type { FocusEvent, KeyboardEvent } from 'react';
 import { useIsMobile } from '../hooks/useIsMobile';
+import { ROW_GRID } from './rowGrid';
 
 type Props = {
   onCommit: (item: { name: string; projected: number; actual: number }) => void;
@@ -105,7 +106,7 @@ export default function DraftRow({ onCommit, onDiscard }: Props) {
       ref={rowRef}
       onBlur={handleFocusOut}
       className="grid items-center gap-1.5"
-      style={{ gridTemplateColumns: '1.4fr 76px 76px 58px 76px 138px 24px' }}
+      style={{ gridTemplateColumns: ROW_GRID }}
     >
       {nameInput}
       {projectedInput}
