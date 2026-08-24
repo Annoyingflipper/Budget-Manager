@@ -7,6 +7,19 @@ export type ChangelogEntry = {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '2.0',
+    date: '2026-08-24',
+    title: 'Due dates',
+    highlights: [
+      'Every expense can now carry a due date, right next to where you mark it paid.',
+      'A new "Coming up" panel splits what you still owe into overdue, due within the week, and later.',
+      'Overdue bills are flagged on the row itself, so you can spot them while you scroll.',
+      'It compares what is due soon against what your accounts hold, and tells you plainly whether you are covered.',
+      'Starting a new month now carries each bill\'s due day across, adjusted for short months.',
+      'Fixed: rolling a month over used to reset foreign expenses to your base currency. They now keep their own currency and rate.',
+    ],
+  },
+  {
     version: '1.9',
     date: '2026-08-02',
     title: 'Accounts & currencies',
