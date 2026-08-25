@@ -1,55 +1,106 @@
 name: Supabase Keepalive
 
-# Free-tier Supabase projects pause after ~7 days without activity, and a paused
+# Free-tier Supabase projects pause after ~7 days of low activity, and a paused
 # project can't be exported — every recovery path needs the database running.
-# This runs a real query against each project every 3 days to keep the
-# inactivity timer from ever reaching the threshold.
 #
-# ⚠️ GitHub disables scheduled workflows on repos with no commits for 60 days.
-# If this repo goes quiet that long, the cron stops and the projects will pause.
-# Re-enable it from the Actions tab, or push any commit, to restart the schedule.
+# ⚠️ CADENCE IS THE WHOLE POINT. Supabase's own docs say a free project needs
+# "a few user requests to the database each day over the previous week" to stay
+# active. An earlier version of this file ran ONE request every THREE days
+# (~0.33/day) on the assumption that any genuine query was enough. It wasn't:
+# QA was pinged successfully on 2026-08-16 and had paused by 2026-08-19 anyway,
+# roughly seven days after the last real app traffic. If you change the schedule
+# or the request count below, keep it at several requests a day.
+#
+# ⚠️ Scheduled workflows run from the DEFAULT BRANCH ONLY. Editing this file on
+# `staging` changes nothing until it reaches `main`.
+#
+# ⚠️ GitHub also disables scheduled workflows on repos with no commits for 60
+# days. That did NOT cause the 2026-08 pause (the runs fired on time throughout),
+# but it remains a real failure mode. Re-enable from the Actions tab if it hits.
 
 on:
   schedule:
-    - cron: '0 6 */3 * *' # every 3 days at 06:00 UTC
+    - cron: '17 6 * * *' # daily, 06:17 UTC — an odd minute avoids the on-the-hour rush
   workflow_dispatch: # run manually from the Actions tab
+
+concurrency:
+  group: supabase-keepalive
+  cancel-in-progress: false
+
+permissions:
+  contents: read
 
 jobs:
   ping:
+    # One job per environment so a failure notification names the environment
+    # that broke. fail-fast is off: one paused project must not mask the other.
+    name: ping ${{ matrix.env }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - env: QA
+            url_secret: VITE_SUPABASE_URL
+            key_secret: QA_SUPABASE_SERVICE_ROLE_KEY
+          - env: PRD
+            url_secret: PRD_SUPABASE_URL
+            key_secret: PRD_SUPABASE_SERVICE_ROLE_KEY
 
     steps:
-      # A PostgREST select is a genuine database query, not just an HTTP hit on
-      # the API gateway — that's what makes it count as activity.
-      - name: Ping QA
+      - name: Ping ${{ matrix.env }}
         env:
-          URL: ${{ secrets.VITE_SUPABASE_URL }}
-          KEY: ${{ secrets.QA_SUPABASE_SERVICE_ROLE_KEY }}
+          ENVIRONMENT: ${{ matrix.env }}
+          URL: ${{ secrets[matrix.url_secret] }}
+          KEY: ${{ secrets[matrix.key_secret] }}
+          # Supabase wants "a few user requests each day". Three per daily run,
+          # against a real table, clears that with margin.
+          REQUESTS: '3'
         run: |
-          if [ -z "$URL" ] || [ -z "$KEY" ]; then
-            echo "::error::Missing VITE_SUPABASE_URL or QA_SUPABASE_SERVICE_ROLE_KEY (QA)."
-            exit 1
-          fi
-          code=$(curl -sS -o /dev/null -w '%{http_code}' \
-            "$URL/rest/v1/categories?select=id&limit=1" \
-            -H "apikey: $KEY" -H "Authorization: Bearer $KEY")
-          echo "QA responded $code"
-          [ "$code" = "200" ] || { echo "::error::QA ping failed ($code)"; exit 1; }
+          # GitHub already invokes this as `bash -e`; stated explicitly so the
+          # error-handling below is readable on its own terms.
+          set -euo pipefail
 
-      # Runs even if QA failed — one paused project shouldn't take out the other.
-      - name: Ping PRD
-        if: always()
-        env:
-          URL: ${{ secrets.PRD_SUPABASE_URL }}
-          KEY: ${{ secrets.PRD_SUPABASE_SERVICE_ROLE_KEY }}
-        run: |
-          if [ -z "$URL" ] || [ -z "$KEY" ]; then
-            echo "::error::Missing PRD_SUPABASE_URL or PRD_SUPABASE_SERVICE_ROLE_KEY."
+          if [ -z "${URL:-}" ] || [ -z "${KEY:-}" ]; then
+            echo "::error::$ENVIRONMENT is missing ${{ matrix.url_secret }} or ${{ matrix.key_secret }}."
             echo "Add both under Settings → Secrets and variables → Actions."
             exit 1
           fi
-          code=$(curl -sS -o /dev/null -w '%{http_code}' \
-            "$URL/rest/v1/categories?select=id&limit=1" \
-            -H "apikey: $KEY" -H "Authorization: Bearer $KEY")
-          echo "PRD responded $code"
-          [ "$code" = "200" ] || { echo "::error::PRD ping failed ($code)"; exit 1; }
+
+          host=$(printf '%s' "$URL" | sed -E 's#^https?://##; s#/.*$##')
+          echo "$ENVIRONMENT host: $host"
+
+          # A paused project has its DNS record withdrawn, so curl fails with
+          # exit 6 ("Could not resolve host") and no HTTP status at all. Checking
+          # resolution first turns that into a diagnosis instead of a raw error.
+          if ! getent hosts "$host" >/dev/null 2>&1; then
+            echo "::error::$ENVIRONMENT PROJECT LIKELY PAUSED — DNS for $host does not resolve."
+            echo "Supabase withdraws the DNS record when a free project is paused."
+            echo "This workflow cannot un-pause it. Restore it from the Supabase dashboard:"
+            echo "  https://supabase.com/dashboard/projects"
+            echo "Then re-run this workflow to confirm it is back."
+            exit 1
+          fi
+
+          # A PostgREST select is a genuine database query, not just an HTTP hit
+          # on the API gateway — that is what makes it count as user activity.
+          failed=0
+          for i in $(seq 1 "$REQUESTS"); do
+            code=$(curl -sS --max-time 20 -o /dev/null -w '%{http_code}' \
+              "$URL/rest/v1/categories?select=id&limit=1" \
+              -H "apikey: $KEY" -H "Authorization: Bearer $KEY") || code="curl-error"
+            echo "  request $i/$REQUESTS → $code"
+            [ "$code" = "200" ] || failed=1
+            # Written as a full `if` rather than `[ … ] && sleep`: under `set -e`
+            # the short-circuit form returns non-zero on the final iteration,
+            # which is a well-known way to abort a loop that actually succeeded.
+            if [ "$i" -lt "$REQUESTS" ]; then sleep 2; fi
+          done
+
+          if [ "$failed" -ne 0 ]; then
+            echo "::error::$ENVIRONMENT ping failed — the host resolves but the API did not return 200."
+            echo "Check the service-role key has not been rotated, and that the project is healthy."
+            exit 1
+          fi
+
+          echo "$ENVIRONMENT alive — $REQUESTS/$REQUESTS requests returned 200."
