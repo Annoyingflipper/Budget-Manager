@@ -13,12 +13,6 @@ import CategoryTable from './components/CategoryTable';
 import GrandTotals from './components/GrandTotals';
 import Toast from './components/Toast';
 import ChangelogModal from './components/ChangelogModal';
-// Split out of the initial bundle: each is reached by an explicit click and
-// drags in heavy children (charts, the emoji picker, the rates panel) that
-// the dashboard never needs.
-const Settings = lazy(() => import('./pages/Settings'));
-const Insights = lazy(() => import('./pages/Insights'));
-const Accounts = lazy(() => import('./pages/Accounts'));
 import TotalAvailable from './components/TotalAvailable';
 import { getBudget, listMonths, rolloverMonth, deleteMonth } from './api/budget';
 import { getLastSeenChangelogVersion, setLastSeenChangelogVersion, getBaseCurrency } from './api/userPrefs';
@@ -31,6 +25,13 @@ import { formatMonth, formatMonthLabel, nextMonth, prevMonth } from './utils/mon
 import type { Currency } from './utils/currency';
 import type { RateRow } from './utils/rates';
 import type { Account, Attachment, Budget, CategoryWithItems, Income } from './types';
+
+// Split out of the initial bundle: each is reached by an explicit click and
+// drags in heavy children (charts, the emoji picker, the rates panel) that
+// the dashboard never needs.
+const Settings = lazy(() => import('./pages/Settings'));
+const Insights = lazy(() => import('./pages/Insights'));
+const Accounts = lazy(() => import('./pages/Accounts'));
 
 type Page = 'budget' | 'settings' | 'insights' | 'accounts';
 type CategoryAction = 'added' | 'renamed' | 'icon' | 'deleted' | 'reordered';
