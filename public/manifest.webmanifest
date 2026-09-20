@@ -1,0 +1,17 @@
+{
+  "id": "/",
+  "name": "Mesada",
+  "short_name": "Mesada",
+  "description": "Plan the month, track what you have paid, and see where you stand.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#fef3ec",
+  "theme_color": "#fef3ec",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
