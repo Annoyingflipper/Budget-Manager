@@ -60,6 +60,21 @@ describe('SidebarNav', () => {
     expect(signOut).toHaveBeenCalled();
   });
 
+  it('carries the sticky/viewport-height classes that keep it pinned', () => {
+    // Cheap guard only: jsdom has no layout engine, so this can only check
+    // that the classes are present on the element — it cannot verify that
+    // the nav actually stays on screen, or that top-4 still matches
+    // AppShell's p-4. e2e/specs/app-shell.e2e.ts is the real guard for that;
+    // it asserts (with a real browser layout engine) that the "Log out"
+    // button is in the viewport both at load and after scrolling.
+    render(<SidebarNav page="budget" onNavigate={vi.fn()} />);
+    const nav = screen.getByRole('navigation', { name: 'Main' });
+    expect(nav.className).toContain('sticky');
+    expect(nav.className).toContain('top-4');
+    expect(nav.className).toContain('h-[calc(100vh-2rem)]');
+    expect(nav.className).toContain('overflow-y-auto');
+  });
+
   it('reaches every destination by keyboard alone', async () => {
     // The spec requires keyboard navigability. Native <button>s give this for
     // free — this test exists so a later refactor to divs cannot silently

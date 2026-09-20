@@ -22,7 +22,15 @@ export default function SidebarNav({ page, onNavigate }: Props) {
   return (
     <nav
       aria-label="Main"
-      className="flex flex-col gap-1 w-56 shrink-0 p-4 bg-card rounded-card shadow-e1"
+      // sticky + h-[calc(100vh-2rem)]: pins the nav to the viewport instead of
+      // letting it stretch to the height of its sibling (see AppShell's
+      // items-start comment). top-4 and the 2rem subtracted here both mirror
+      // AppShell's p-4 (1rem top/bottom padding around this flex row) — change
+      // one and you must change the other, or the nav either overshoots the
+      // viewport by 1rem or leaves a 1rem gap at the bottom. overflow-y-auto
+      // is a backstop so a future nav-items addition scrolls internally
+      // instead of reintroducing this bug.
+      className="sticky top-4 h-[calc(100vh-2rem)] overflow-y-auto flex flex-col gap-1 w-56 shrink-0 p-4 bg-card rounded-card shadow-e1"
     >
       <div className="mb-4 px-2">
         <Wordmark />

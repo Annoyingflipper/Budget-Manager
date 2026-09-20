@@ -31,7 +31,11 @@ export default function AppShell({ page, onNavigate, children }: Props) {
   }
 
   return (
-    <div className="min-h-screen flex gap-4 p-4">
+    // items-start (not the default stretch): without it the flex row stretches
+    // SidebarNav to the height of its tallest sibling (the whole dashboard),
+    // which is exactly what made the sidebar's own mt-auto footer pin to the
+    // bottom of the document instead of the bottom of a viewport-height nav.
+    <div className="min-h-screen flex items-start gap-4 p-4">
       <SidebarNav page={page} onNavigate={onNavigate} />
       <main className="flex-1 min-w-0 max-w-3xl">{children}</main>
     </div>
