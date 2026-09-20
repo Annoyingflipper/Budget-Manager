@@ -154,6 +154,16 @@ pre-token UI feel unsystematic).
 | `text-caption` | 0.75rem | 1.4 | 400 | Helper text, counts, timestamps. |
 | `text-money` | 0.9375rem | 1.5 | 600 | Money — same size as body, tabular figures. |
 
+**This is a deliberate re-set of the app's type rhythm, not just a naming
+layer over the sizes already in use.** Tailwind's own `text-sm` (0.875rem)
+is the app's second-most-used text size at 76 occurrences, and the new
+scale has no 0.875rem step — `text-sm` call sites land between
+`text-label` (0.8125rem, and a heavier 600 weight) and `text-body`
+(0.9375rem), matching neither exactly. Chunk 3, which migrates components
+onto this scale, will therefore visibly resize most of the app's text, not
+just rename existing sizes. That's expected, not a bug to work around by
+adding an eighth step to match 0.875rem.
+
 `text-label` at weight 600 fills a gap the app previously had none of. A
 survey of every non-test `.tsx` file in `src/` found exactly two
 font-weight utilities in use: `font-bold` (44 occurrences) and
