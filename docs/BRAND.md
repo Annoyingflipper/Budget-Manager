@@ -91,19 +91,30 @@ suite is what should catch a regression here, not eyeballing a swatch.
 | peach / dark     | 13.07 / 10.91 | 7.16 / 5.98 | 8.59 / 7.17 | 5.42 / 4.52 | 7.59 / 6.34 |
 | sage / light     | 10.58 / 11.54 | 4.62 / 5.04 | 4.63 / 5.04 | 4.51 / 4.92 | 4.61 / 5.03 |
 | sage / dark      | 12.64 / 10.19 | 7.82 / 6.31 | 7.84 / 6.33 | 5.61 / 4.53 | 7.55 / 6.09 |
-| lavender / light | 11.30 / 12.67 | 4.60 / 5.16 | 4.50 / 5.05 | 4.57 / 5.12 | 4.56 / 5.11 |
+| lavender / light | 11.30 / 12.67 | 4.60 / 5.16 | 4.69 / 5.25 | 4.57 / 5.12 | 4.56 / 5.11 |
 | lavender / dark  | 12.79 / 10.58 | 7.33 / 6.06 | 8.39 / 6.94 | 5.54 / 4.58 | 7.21 / 5.96 |
 
 Every cell is ≥4.5. Several sit close to the floor on purpose rather than
-by accident — `lavender/light --positive` on `--bg` is 4.50, `sage/light
---negative` on `--bg` is 4.51, `peach/dark --negative` on `--card` is
-4.52. These were tuned to *just* clear AA rather than pulled further
-toward black/white, because pushing them further would have started to
-mute the theme's identity (the whole point of having peach/sage/lavender
-as distinct palettes) for no accessibility benefit past the 4.5 floor.
-`--muted` and `--text` run well above the floor because they're read far
-more densely (`--muted` is 12px caption/label text throughout the app) and
-had more headroom to spend without threatening the palette.
+by accident — `sage/light --negative` on `--bg` is 4.51, `peach/dark
+--negative` on `--card` is 4.52. These were tuned to *just* clear AA
+rather than pulled further toward black/white, because pushing them
+further would have started to mute the theme's identity (the whole point
+of having peach/sage/lavender as distinct palettes) for no accessibility
+benefit past the 4.5 floor. `--muted` and `--text` run well above the
+floor because they're read far more densely (`--muted` is 12px
+caption/label text throughout the app) and had more headroom to spend
+without threatening the palette.
+
+**`lavender/light --positive` was deliberately pulled off that floor.**
+It originally sat at 4.5002 on `--bg` — nominally passing, but with
+essentially no slack: a rounding difference in how a browser or a future
+edit computes sRGB gamma could tip it under 4.5 without any visible change
+and without the token test catching it until the exact boundary was
+crossed. It was darkened from `#5e7558` to `#5c7256`, moving it to 4.69 /
+5.25 (bg/card) — comfortably clear, not pushed toward black. `--positive-
+shade` (`#556850`) was re-checked against the new, closer `--positive` and
+still clears the ≤85% shaded-pair ceiling (82.8%, up from 78.5% — see the
+face/shade table below), so it did not need adjusting.
 
 ### `--positive`/`--positive-shade` and `--neutral`/`--neutral-shade`
 
@@ -125,14 +136,21 @@ Recomputed from `src/themes.css`:
 | peach / dark     | 48.2% | 52.0% |
 | sage / light     | 74.0% | 25.9% |
 | sage / dark      | 48.5% | 59.6% |
-| lavender / light | 78.5% | 21.4% |
+| lavender / light | 82.8% | 21.4% |
 | lavender / dark  | 48.4% | 54.7% |
 
-All comfortably under the 85% ceiling — but `peach/light`'s
-`positive-shade` at 73.8% is the closest of the three light themes to that
-ceiling, which is exactly the pairing the WCAG AA fix (§ above) pushed to
-97% before the gap assertion caught it and it was pulled back to
-`#506745`. Keep that history in mind before nudging `--positive` in any
+All comfortably under the 85% ceiling — but `lavender/light`'s
+`positive-shade` at 82.8% is now the closest of the three light themes to
+that ceiling (up from 78.5% — darkening `--positive` from `#5e7558` to
+`#5c7256` to fix its zero-headroom text contrast, see §3 above, narrowed
+the gap to its unchanged `--positive-shade`). It was re-checked against
+the ≤85% ceiling and still clears it, so `--positive-shade` was left as-is,
+but there is markedly less room left here than there was: pulling
+`lavender/light --positive` any darker in the future should re-run this
+check first. `peach/light`'s `positive-shade` at 73.8% is exactly the
+pairing the WCAG AA fix (§ above) pushed to 97% before the gap assertion
+caught it and it was pulled back to `#506745`. Keep that history in mind
+before nudging `--positive` in any
 light theme for a future contrast tweak: check the shade gap, not just the
 `--positive` text-contrast number, or the coin can quietly go flat again.
 

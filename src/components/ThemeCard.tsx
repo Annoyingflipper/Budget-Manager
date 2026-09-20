@@ -30,7 +30,7 @@ const META: Record<Theme, ThemeMeta> = {
     label: 'Lavender',
     emoji: '🌙',
     tagline: 'Soft evening',
-    swatches: ['#f5f0fa', '#e0d5f5', '#5e7558', '#b9446b'],
+    swatches: ['#f5f0fa', '#e0d5f5', '#5c7256', '#b9446b'],
   },
 };
 
