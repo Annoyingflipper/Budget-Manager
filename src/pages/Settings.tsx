@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import ThemeCard from '../components/ThemeCard';
 import CategoriesEditor from '../components/CategoriesEditor';
 import { useTheme } from '../theme/ThemeProvider';
+import { supabase } from '../lib/supabase';
 import { getBaseCurrency, setBaseCurrency } from '../api/userPrefs';
 import { CURRENCIES, CURRENCY_CODES, type Currency } from '../utils/currency';
 import type { Theme } from '../theme/types';
@@ -136,6 +137,16 @@ export default function Settings({ onBack, onCategoriesChanged, onOpenChangelog 
           🆕 What's new
         </button>
       </div>
+
+      <section className="bg-card rounded-xl p-4">
+        <button
+          type="button"
+          onClick={() => { supabase.auth.signOut(); }}
+          className="text-label rounded-control px-3 py-2 border-0 bg-card text-negative"
+        >
+          Log out
+        </button>
+      </section>
     </div>
   );
 }
