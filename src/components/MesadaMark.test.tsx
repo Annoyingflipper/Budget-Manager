@@ -121,4 +121,36 @@ describe('MesadaMark', () => {
 
     expect(extractGeometry(componentSrc)).toEqual(extractGeometry(iconSvg));
   });
+
+  // Colour parity, added in v2.2 chunk 1's fix wave: a peach/light re-tuning
+  // of --positive/--positive-shade left icon.svg's hardcoded top-coin fills
+  // (rasterised into the five committed PNGs) on the old values, so the Dock
+  // and tab icon visibly diverged from the in-app mark. The mapping is
+  // deterministic — MesadaMark's top coin uses var(--positive)/
+  // var(--positive-shade), so icon.svg must use exactly the peach/light
+  // values of those two tokens, resolved from themes.css rather than
+  // hardcoded here a second time.
+  it('keeps top-coin colour in sync with public/icon.svg (peach/light values)', () => {
+    const iconSvg = readFileSync(resolve(__dirname, '../../public/icon.svg'), 'utf8');
+    const block = themeBlock('peach', 'light');
+
+    const positive = block.match(/--positive:\s*(#[0-9a-fA-F]{6})\s*;/)?.[1];
+    const positiveShade = block.match(/--positive-shade:\s*(#[0-9a-fA-F]{6})\s*;/)?.[1];
+    if (!positive || !positiveShade) {
+      throw new Error('could not resolve --positive/--positive-shade from peach/light block');
+    }
+
+    const topCoinMatch = iconSvg.match(/<g data-coin="top">([\s\S]*?)<\/g>/);
+    if (!topCoinMatch) throw new Error('icon.svg has no data-coin="top" group');
+    const topCoin = topCoinMatch[1];
+
+    // Body (rect + edge ellipse) fills use the shade; the face ellipse uses
+    // the face colour.
+    const fills = [...topCoin.matchAll(/fill="(#[0-9a-fA-F]{6})"/g)].map((m) => m[1].toLowerCase());
+    expect(fills, 'top coin fills, in source order (rect, edge ellipse, face ellipse)').toEqual([
+      positiveShade.toLowerCase(),
+      positiveShade.toLowerCase(),
+      positive.toLowerCase(),
+    ]);
+  });
 });
