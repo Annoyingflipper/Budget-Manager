@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { THEME_BG } from './theme/themeColors';
 
 const root = resolve(__dirname, '..');
 const manifest = JSON.parse(
@@ -45,6 +46,20 @@ describe('web app manifest', () => {
       expect(existsSync(path), `missing icon file: ${icon.src}`).toBe(true);
     }
   });
+
+  it('scopes the app to the whole origin', () => {
+    expect(manifest.scope).toBe('/');
+  });
+
+  // Derived from THEME_BG rather than hardcoded: themeColors.test.ts already
+  // fails and forces THEME_BG to update if --bg ever changes in themes.css,
+  // but a literal here would keep passing and certify a now-stale manifest/
+  // index.html. Pinning to THEME_BG.peach.light means this test only passes
+  // when the manifest and index.html actually track the CSS source of truth.
+  it('theme_color and background_color match the peach/light background', () => {
+    expect(manifest.theme_color).toBe(THEME_BG.peach.light);
+    expect(manifest.background_color).toBe(THEME_BG.peach.light);
+  });
 });
 
 describe('index.html', () => {
@@ -62,8 +77,14 @@ describe('index.html', () => {
     expect(html).toMatch(/rel="apple-touch-icon"/);
   });
 
-  it('ships an initial theme-color for ThemeProvider to update', () => {
-    expect(html).toMatch(/<meta name="theme-color" content="#fef3ec"/);
+  it('ships an initial theme-color matching THEME_BG.peach.light for ThemeProvider to update', () => {
+    // See the comment on the manifest theme_color/background_color test
+    // above: derived from THEME_BG, not hardcoded, so a --bg change in
+    // themes.css that themeColors.test.ts forces into THEME_BG also forces
+    // this test to catch a stale index.html rather than keep passing.
+    expect(html).toMatch(
+      new RegExp(`<meta name="theme-color" content="${THEME_BG.peach.light}"`),
+    );
   });
 
   it('no longer calls the app Budget Manager', () => {
