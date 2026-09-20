@@ -154,9 +154,13 @@ pre-token UI feel unsystematic).
 | `text-caption` | 0.75rem | 1.4 | 400 | Helper text, counts, timestamps. |
 | `text-money` | 0.9375rem | 1.5 | 600 | Money — same size as body, tabular figures. |
 
-`text-label` at weight 600 fills a gap the app previously had none of
-(only 400/700/800 existed), so labels and column headers used to be set in
-bold and visually competed with real headings.
+`text-label` at weight 600 fills a gap the app previously had none of. A
+survey of every non-test `.tsx` file in `src/` found exactly two
+font-weight utilities in use: `font-bold` (44 occurrences) and
+`font-extrabold` (26) — no `font-medium` or `font-semibold` anywhere.
+With only 400/700/800 available, labels and column headers were set in
+bold and visually competed with real headings; `text-label`'s 600 is the
+first mid-weight the app has had.
 
 **`text-money` exists so amounts line up in a column.** Tabular figures
 (`font-variant-numeric: tabular-nums`) are what makes that happen — without
@@ -201,19 +205,40 @@ Three radius tokens, defined in `src/tokens.css`:
 |---|---|---|
 | `--radius-control` | 0.5rem | Buttons, inputs, date cells. |
 | `--radius-card` | 0.75rem | Cards and panels. |
-| `--radius-chip` | 9999px | Pills and chips. |
+| `--radius-chip` | 9999px | Reserved — see below. |
 
-These values were chosen to match what the app already renders today,
-not to change it: as of this chunk, no component has been migrated to the
+As of this chunk, no component has been migrated to the
 `rounded-control`/`rounded-card`/`rounded-chip` utility classes yet (that
-migration is chunk 2/3's job) — components still write Tailwind's default
-`rounded-lg` (0.5rem, cards/buttons/inputs), `rounded-xl` (0.75rem, section
-cards), and `rounded-full` (pills, budget-bar fills) directly. The token
-values are deliberately identical to those defaults so that swapping a
-literal `rounded-lg`/`rounded-xl`/`rounded-full` for its semantic
-`rounded-control`/`rounded-card`/`rounded-chip` equivalent in chunk 2/3 is
-a rename, not a redesign — nothing should visibly move when that migration
-lands.
+migration is chunk 2/3's job); components still write Tailwind's default
+radius utilities directly. That migration is **not a uniform rename** —
+a survey of every `rounded-*` use in `src/` (non-test files) found three
+distinct existing values doing three different jobs:
+
+| class | value | count | where |
+|---|---|---|---|
+| `rounded-xl` | 0.75rem | 26 | Cards and section containers. |
+| `rounded-lg` | 0.5rem | 35 | Mostly auth screens and header buttons. |
+| `rounded-md` | 0.375rem | 33 | The app's row and table inputs — `DateCell`, `LineItemRow`, `DraftRow`, `IncomeSummary`, `AccountRow`, `CategoriesEditor`, `ExchangeRatesPanel`, `Settings`, `Accounts`. |
+
+**`--radius-card` (0.75rem) matches `rounded-xl` exactly.** Migrating
+cards from `rounded-xl` to `rounded-card` is a genuine rename — nothing
+should visibly move.
+
+**`--radius-control` (0.5rem) does *not* match the app's row/table inputs**,
+which currently sit at `rounded-md` (0.375rem), not `rounded-lg`. It does
+match the `rounded-lg` buttons on auth screens and in the header, so a
+migration limited to those is likewise a plain rename. But `DateCell` —
+the very component this table cites as a `--radius-control` example — is
+one of the 33 `rounded-md` uses, not a `rounded-lg` one. Migrating it
+(and the other row inputs) straight onto `--radius-control` would visibly
+widen their corners from 0.375rem to 0.5rem. See "Known and open" below:
+this is left as an explicit decision for chunk 2/3, not resolved here.
+
+**No pill, tag, or chip component exists yet.** The only current
+`rounded-full` usage is `CategoryBudgetBar`'s two bar-fill elements (a
+progress bar, not a pill/chip in the usual sense). `--radius-chip` is
+provided ahead of a consumer, for whenever one is built, rather than
+matching something already in the app.
 
 **Spacing deliberately introduces no tokens.** Tailwind's default spacing
 scale is already one consistent ramp; a second, parallel spacing scale
@@ -284,6 +309,16 @@ neither is addressed by this chunk:
   from any dedicated dashboard a11y check (none exists yet). This is
   chunk 3's job, not this chunk's — chunk 1 only lands tokens, it doesn't
   restyle any component.
+- **`--radius-control` doesn't match the app's row/table inputs.** The
+  token is 0.5rem; the row and table inputs it's meant to cover
+  (`DateCell`, `LineItemRow`, `DraftRow`, `IncomeSummary`, `AccountRow`,
+  `CategoriesEditor`, `ExchangeRatesPanel`, `Settings`, `Accounts` — 33
+  uses) currently render at `rounded-md`, 0.375rem. Whoever does the
+  chunk 2/3 restyle has to decide this deliberately rather than migrating
+  by find-and-replace: either widen those inputs to 0.5rem to adopt the
+  token as specified, or leave them off `--radius-control` and either
+  introduce a second control-radius token or accept that row inputs stay
+  an un-tokenized exception. Not decided here.
 
 ## How the numbers in this document were produced
 
