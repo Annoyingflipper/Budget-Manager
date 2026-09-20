@@ -14,7 +14,17 @@ export class AccountsPage {
   }
 
   async goto() {
-    await this.page.getByText('🏦 Accounts').click();
+    // Was `getByText('🏦 Accounts')`, targeting the old <header> nav, which
+    // rendered the icon and label as one text node with a literal space.
+    // SidebarNav (the AppShell replacement) renders the icon as a separate
+    // aria-hidden span immediately followed by the label with no space, so
+    // the flattened text is `🏦Accounts` — that locator can never match.
+    // Scope to the nav landmark and match by role + accessible name
+    // (the label alone, per SidebarNav's a11y contract) instead of raw text.
+    await this.page
+      .getByRole('navigation', { name: 'Main' })
+      .getByRole('button', { name: 'Accounts' })
+      .click();
     await this.heading.waitFor();
   }
 
