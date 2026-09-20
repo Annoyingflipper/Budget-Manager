@@ -5,28 +5,6 @@ import { render, screen } from '@testing-library/react';
 import MesadaMark from './MesadaMark';
 
 /**
- * sRGB relative luminance (WCAG definition): linearise each channel, then
- * weight by 0.2126R + 0.7152G + 0.0722B.
- */
-function relativeLuminance(hex: string): number {
-  const clean = hex.replace('#', '');
-  const full =
-    clean.length === 3
-      ? clean.split('').map((c) => c + c).join('')
-      : clean;
-  const [r, g, b] = [0, 2, 4].map((i) => parseInt(full.slice(i, i + 2), 16) / 255);
-  const linearise = (c: number) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
-  const [rl, gl, bl] = [r, g, b].map(linearise);
-  return 0.2126 * rl + 0.7152 * gl + 0.0722 * bl;
-}
-
-function tokenFromBlock(block: string, token: string): string {
-  const match = block.match(new RegExp(`--${token}:\\s*(#[0-9a-fA-F]{3,8})\\s*;`));
-  if (!match) throw new Error(`no --${token} in block`);
-  return match[1];
-}
-
-/**
  * Pulls each `:root[data-theme=X][data-mode=Y]` block out of themes.css by
  * splitting on `}`, matching the theme/mode substrings anywhere in the
  * selector list. Mirrors the bgFromCss helper in src/theme/themeColors.test.ts
@@ -102,30 +80,13 @@ describe('MesadaMark', () => {
     }
   });
 
-  // This is the test that would have caught the dark-mode inversion: a
-  // presence check alone (the test above) passes whether or not the face is
-  // actually lighter than the body. A coin whose edge (the "-shade" token)
-  // is brighter than its face (the base token) reads as inverted — the top
-  // face stops looking raised, and in the two neutral coins specifically
-  // that collapse made them merge into a single pale cylinder under a green
-  // lid. Asserting the luminance ordering directly is what catches that.
-  it('face tokens (--positive, --neutral) are lighter than their -shade body tokens, in every theme block', () => {
-    const themes: Array<'peach' | 'sage' | 'lavender'> = ['peach', 'sage', 'lavender'];
-    const modes: Array<'light' | 'dark'> = ['light', 'dark'];
-    for (const theme of themes) {
-      for (const mode of modes) {
-        const block = themeBlock(theme, mode);
-        for (const pair of ['positive', 'neutral'] as const) {
-          const face = relativeLuminance(tokenFromBlock(block, pair));
-          const shade = relativeLuminance(tokenFromBlock(block, `${pair}-shade`));
-          expect(
-            face,
-            `${theme}/${mode}: --${pair} should be lighter than --${pair}-shade`,
-          ).toBeGreaterThan(shade);
-        }
-      }
-    }
-  });
+  // The luminance-ordering assertion that used to live here (face tokens
+  // lighter than their -shade body tokens) has migrated to the strictly
+  // stronger "shaded token pairs stay visibly separated" suite in
+  // src/theme/tokens.test.ts, which asserts the luminance *gap* (<=85%)
+  // rather than mere ordering — see that file for why ordering alone isn't
+  // enough. This file keeps its presence checks above and drops the
+  // now-redundant private luminance/token-parsing helpers along with it.
 
   // Guards src/components/MesadaMark.tsx and public/icon.svg staying in sync.
   // icon.svg is a hand-maintained static twin of this component (it can't
