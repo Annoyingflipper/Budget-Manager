@@ -3,16 +3,19 @@
        this file is served before React boots and cannot read custom properties.
        Keep the geometry in sync with that component by hand. -->
   <rect width="64" height="64" rx="14" fill="#fef3ec"/>
-  <g>
-    <rect x="10" y="40" width="44" height="8" rx="4" fill="#3d2c2e"/>
-    <ellipse cx="32" cy="40" rx="22" ry="8" fill="#3d2c2e"/>
+  <g data-coin="bottom">
+    <rect x="15" y="38" width="34" height="7" fill="#3d2c2e"/>
+    <ellipse cx="32" cy="45" rx="17" ry="6" fill="#3d2c2e"/>
+    <ellipse cx="32" cy="38" rx="17" ry="6" fill="#86685b"/>
   </g>
-  <g>
-    <rect x="10" y="28" width="44" height="8" rx="4" fill="#86685b"/>
-    <ellipse cx="32" cy="28" rx="22" ry="8" fill="#86685b"/>
+  <g data-coin="middle">
+    <rect x="15" y="29" width="34" height="7" fill="#3d2c2e"/>
+    <ellipse cx="32" cy="36" rx="17" ry="6" fill="#3d2c2e"/>
+    <ellipse cx="32" cy="29" rx="17" ry="6" fill="#86685b"/>
   </g>
-  <g>
-    <rect x="10" y="16" width="44" height="8" rx="4" fill="#86a578"/>
-    <ellipse cx="32" cy="16" rx="22" ry="8" fill="#86a578"/>
+  <g data-coin="top">
+    <rect x="15" y="20" width="34" height="7" fill="#5e7454"/>
+    <ellipse cx="32" cy="27" rx="17" ry="6" fill="#5e7454"/>
+    <ellipse cx="32" cy="20" rx="17" ry="6" fill="#86a578"/>
   </g>
 </svg>
