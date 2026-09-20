@@ -36,20 +36,42 @@ export default defineConfig({
     { name: 'setup', testMatch: /auth\.setup\.ts/ },
     {
       name: 'chromium',
-      // delete-month runs separately — see below.
-      testIgnore: /delete-month\.e2e\.ts/,
+      // Month-mutating specs run separately — see below.
+      testIgnore: /(delete-month|rollover)\.e2e\.ts/,
       dependencies: ['setup'],
       use: { ...devices['Desktop Chrome'], storageState: 'e2e/.auth/user.json' },
     },
     {
       // All specs share one QA test user, and the app opens on the latest month
-      // that has data. delete-month rolls over to a *new* latest month mid-run,
-      // so under fullyParallel it silently changed the month other specs were
-      // asserting against (it's what made the CSV export spec flaky). Depending
-      // on 'chromium' makes it run only after every other spec has finished.
-      name: 'chromium-month-mutating',
-      testMatch: /delete-month\.e2e\.ts/,
+      // that has data. Any spec that creates or removes a month silently changes
+      // what every other spec sees, and `fullyParallel` is on — so the two specs
+      // that do that run in their own projects, CHAINED, after everything else.
+      //
+      // Why chained and not one shared project: `fullyParallel` applies inside a
+      // project too, so putting both in one still let them run concurrently with
+      // each other — and they both operate on MONTH_CURRENT + 1. That failed
+      // immediately and explicitly: delete-month asserted the future month was
+      // empty and found rollover's four rows sitting in it.
+      //
+      // delete-month was separated first (it's what made the CSV export spec
+      // flaky). rollover joined later, after three consecutive full runs each
+      // failed a DIFFERENT spec — receipts, expense-currency, paid-dates — with
+      // every one passing when re-run alone. It had been serialized inside
+      // due-dates.e2e.ts, which serialized it against that file's own tests but
+      // not against other FILES; for the seconds it held MONTH_CURRENT + 1 open,
+      // any spec navigating on another worker asserted against the wrong month.
+      //
+      // Do not merge these two back together, and do not move either into the
+      // parallel 'chromium' project.
+      name: 'chromium-rollover',
+      testMatch: /rollover\.e2e\.ts/,
       dependencies: ['chromium'],
+      use: { ...devices['Desktop Chrome'], storageState: 'e2e/.auth/user.json' },
+    },
+    {
+      name: 'chromium-delete-month',
+      testMatch: /delete-month\.e2e\.ts/,
+      dependencies: ['chromium-rollover'],
       use: { ...devices['Desktop Chrome'], storageState: 'e2e/.auth/user.json' },
     },
   ],
