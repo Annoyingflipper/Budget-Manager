@@ -157,7 +157,7 @@ Per the standing convention, every feature gets an E2E spec, not just backend fl
 | Risk | Mitigation |
 |---|---|
 | macOS caches Dock icons aggressively. A later revision to the mark may not appear without reinstalling. | Called out in the QA smoke checklist. This is also why the icon has an approval checkpoint before wiring. |
-| `public/` is new to this repo; if Vite or Vercel did not copy it, the manifest would 404 in production while passing locally. | The E2E spec fetches the manifest from the deployed QA URL, so a copy failure fails CI rather than reaching PRD. |
+| `public/` is new to this repo; if Vite or Vercel did not copy it, the manifest would 404 in production while passing locally. | `npm run check:bundle` parses `dist/index.html` and Vercel's actual build output, so a copy failure fails the build rather than reaching PRD — this is the real mitigation. (The E2E spec does **not** cover this: it drives `http://localhost:5173` per the Testing section above, i.e. `public/` through the dev server, not Vercel's output.) Consequently the manual QA install smoke is load-bearing for one thing nothing automated checks: the deployed `Content-Type` on `/manifest.webmanifest`. |
 | Code splitting could regress a page behind a Suspense boundary in a way unit tests miss. | Existing E2E specs already navigate to Insights, Accounts and Settings; they will exercise the lazy paths against a real build. |
 | The bundle-budget test could become an obstacle during v2.2. | Intentional. It should be consciously re-baselined with a justification, not silently deleted. |
 
