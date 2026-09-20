@@ -77,6 +77,13 @@ describe('App', () => {
     expect(await screen.findByRole('heading', { name: 'Accounts' })).toBeInTheDocument();
   });
 
+  it('renders the Insights page after its lazy chunk resolves', async () => {
+    vi.mocked(api.listMonths).mockResolvedValue(['2026-06-01']);
+    render(<App />);
+    fireEvent.click(await screen.findByRole('button', { name: /insights/i }));
+    expect(await screen.findByRole('heading', { name: 'Insights' })).toBeInTheDocument();
+  });
+
   it('does not render the total-available card when there are no accounts', async () => {
     vi.mocked(api.listMonths).mockResolvedValue(['2026-06-01']);
     render(<App />);

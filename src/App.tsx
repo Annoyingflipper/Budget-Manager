@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import AuthGate from './auth/AuthGate';
@@ -13,9 +13,12 @@ import CategoryTable from './components/CategoryTable';
 import GrandTotals from './components/GrandTotals';
 import Toast from './components/Toast';
 import ChangelogModal from './components/ChangelogModal';
-import Settings from './pages/Settings';
-import Insights from './pages/Insights';
-import Accounts from './pages/Accounts';
+// Split out of the initial bundle: each is reached by an explicit click and
+// drags in heavy children (charts, the emoji picker, the rates panel) that
+// the dashboard never needs.
+const Settings = lazy(() => import('./pages/Settings'));
+const Insights = lazy(() => import('./pages/Insights'));
+const Accounts = lazy(() => import('./pages/Accounts'));
 import TotalAvailable from './components/TotalAvailable';
 import { getBudget, listMonths, rolloverMonth, deleteMonth } from './api/budget';
 import { getLastSeenChangelogVersion, setLastSeenChangelogVersion, getBaseCurrency } from './api/userPrefs';
@@ -196,76 +199,78 @@ function BudgetApp() {
 
   return (
     <>
-      {page === 'settings' ? (
-        <Settings
-          onBack={() => setPage('budget')}
-          onCategoriesChanged={handleCategoriesChanged}
-          onOpenChangelog={() => setChangelogOpen(true)}
-        />
-      ) : page === 'accounts' ? (
-        <Accounts onBack={() => setPage('budget')} base={baseCurrency} />
-      ) : page === 'insights' ? (
-        <Insights
-          selectedMonth={selectedMonth}
-          budget={budget}
-          onBack={() => setPage('budget')}
-          base={baseCurrency}
-        />
-      ) : (
-        <div className="mx-auto max-w-3xl p-6">
-          <Header
+      <Suspense fallback={<div className="p-8 text-muted">Loading…</div>}>
+        {page === 'settings' ? (
+          <Settings
+            onBack={() => setPage('budget')}
+            onCategoriesChanged={handleCategoriesChanged}
+            onOpenChangelog={() => setChangelogOpen(true)}
+          />
+        ) : page === 'accounts' ? (
+          <Accounts onBack={() => setPage('budget')} base={baseCurrency} />
+        ) : page === 'insights' ? (
+          <Insights
             selectedMonth={selectedMonth}
-            latestMonth={latestMonth}
-            onPrev={handlePrev}
-            onNext={handleNext}
-            onRollover={handleRollover}
-            canDelete={selectedMonth > formatMonth(new Date())}
-            onDelete={handleDelete}
-            onOpenSettings={() => setPage('settings')}
-            onOpenInsights={() => setPage('insights')}
-            onOpenAccounts={() => setPage('accounts')}
-          />
-          <BalanceHero income={budget.income} categories={budget.categories} />
-          <TotalAvailable
-            accounts={accounts}
-            rates={rates}
+            budget={budget}
+            onBack={() => setPage('budget')}
             base={baseCurrency}
-            date={todayISO()}
-            compact
-            onOpen={() => setPage('accounts')}
           />
-          <IncomeSummary
-            income={budget.income}
-            periodMonth={selectedMonth}
-            onChange={updateIncomeLocal}
-          />
-          <StillToPay categories={budget.categories} />
-          <ComingUp
-            categories={budget.categories}
-            accounts={accounts}
-            rates={rates}
-            base={baseCurrency}
-            month={selectedMonth}
-          />
-          <UnresolvedRatesNotice
-            categories={budget.categories}
-            onOpenRates={() => setPage('accounts')}
-          />
-          {budget.categories.map((c) => (
-            <CategoryTable
-              key={c.id}
-              category={c}
-              periodMonth={selectedMonth}
-              onCategoryChange={(next) => updateCategoryLocal(c.id, next)}
-              base={baseCurrency}
-              rates={rates}
-              attachments={attachments}
-              onAttachmentsChange={reloadAttachments}
+        ) : (
+          <div className="mx-auto max-w-3xl p-6">
+            <Header
+              selectedMonth={selectedMonth}
+              latestMonth={latestMonth}
+              onPrev={handlePrev}
+              onNext={handleNext}
+              onRollover={handleRollover}
+              canDelete={selectedMonth > formatMonth(new Date())}
+              onDelete={handleDelete}
+              onOpenSettings={() => setPage('settings')}
+              onOpenInsights={() => setPage('insights')}
+              onOpenAccounts={() => setPage('accounts')}
             />
-          ))}
-          <GrandTotals categories={budget.categories} />
-        </div>
-      )}
+            <BalanceHero income={budget.income} categories={budget.categories} />
+            <TotalAvailable
+              accounts={accounts}
+              rates={rates}
+              base={baseCurrency}
+              date={todayISO()}
+              compact
+              onOpen={() => setPage('accounts')}
+            />
+            <IncomeSummary
+              income={budget.income}
+              periodMonth={selectedMonth}
+              onChange={updateIncomeLocal}
+            />
+            <StillToPay categories={budget.categories} />
+            <ComingUp
+              categories={budget.categories}
+              accounts={accounts}
+              rates={rates}
+              base={baseCurrency}
+              month={selectedMonth}
+            />
+            <UnresolvedRatesNotice
+              categories={budget.categories}
+              onOpenRates={() => setPage('accounts')}
+            />
+            {budget.categories.map((c) => (
+              <CategoryTable
+                key={c.id}
+                category={c}
+                periodMonth={selectedMonth}
+                onCategoryChange={(next) => updateCategoryLocal(c.id, next)}
+                base={baseCurrency}
+                rates={rates}
+                attachments={attachments}
+                onAttachmentsChange={reloadAttachments}
+              />
+            ))}
+            <GrandTotals categories={budget.categories} />
+          </div>
+        )}
+      </Suspense>
       {toast && (
         <Toast
           message={toast.message}
