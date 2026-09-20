@@ -18,19 +18,19 @@ const META: Record<Theme, ThemeMeta> = {
     label: 'Peach',
     emoji: '🍑',
     tagline: 'Sunlit kitchen',
-    swatches: ['#fef3ec', '#f5d5c0', '#86a578', '#b54545'],
+    swatches: ['#fef3ec', '#f5d5c0', '#5c774f', '#b54545'],
   },
   sage: {
     label: 'Sage',
     emoji: '🌿',
     tagline: 'Botanical study',
-    swatches: ['#f4f6ee', '#d5e3c0', '#6a9558', '#c05454'],
+    swatches: ['#f4f6ee', '#d5e3c0', '#557847', '#bd4b4b'],
   },
   lavender: {
     label: 'Lavender',
     emoji: '🌙',
     tagline: 'Soft evening',
-    swatches: ['#f5f0fa', '#e0d5f5', '#7a9572', '#c05478'],
+    swatches: ['#f5f0fa', '#e0d5f5', '#5e7558', '#b9446b'],
   },
 };
 
