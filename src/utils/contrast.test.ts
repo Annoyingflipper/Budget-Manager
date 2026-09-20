@@ -35,4 +35,36 @@ describe('contrastRatio', () => {
     expect(contrastRatio('#767676', '#ffffff')).toBeGreaterThanOrEqual(4.5);
     expect(contrastRatio('#777777', '#ffffff')).toBeLessThan(4.5);
   });
+
+  it('pins the red and blue coefficients with chromatic tests', () => {
+    // All previous tests use grayscale (R=G=B) so transposing the R/B coefficients
+    // would still pass. These chromatic values catch that transposition:
+    // #ff0000 (pure red) becomes 8.5925 if R and B coefficients are swapped.
+    // #0000ff (pure blue) becomes 3.9985 if R and B coefficients are swapped.
+    // Either one alone catches the error; together they guard against silent regression.
+    expect(contrastRatio('#ff0000', '#ffffff')).toBeCloseTo(3.9985, 3);
+    expect(contrastRatio('#0000ff', '#ffffff')).toBeCloseTo(8.5925, 3);
+  });
+});
+
+describe('relativeLuminance error handling', () => {
+  it('throws for a 3-digit hex', () => {
+    expect(() => relativeLuminance('#abc')).toThrow('not a 6-digit hex colour: #abc');
+  });
+
+  it('throws for an 8-digit hex with alpha', () => {
+    expect(() => relativeLuminance('#aabbccdd')).toThrow('not a 6-digit hex colour: #aabbccdd');
+  });
+
+  it('throws for a named colour', () => {
+    expect(() => relativeLuminance('red')).toThrow('not a 6-digit hex colour: red');
+  });
+
+  it('throws for rgb() notation', () => {
+    expect(() => relativeLuminance('rgb(0,0,0)')).toThrow('not a 6-digit hex colour: rgb(0,0,0)');
+  });
+
+  it('throws for an empty string', () => {
+    expect(() => relativeLuminance('')).toThrow('not a 6-digit hex colour: ');
+  });
 });
