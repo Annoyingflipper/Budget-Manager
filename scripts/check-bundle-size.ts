@@ -201,6 +201,40 @@ if (!existsSync(cssAssetsDir)) {
   }
 }
 
+// 6. Radius scale compiled output. src/tokens.css declares --radius-control/
+//    --radius-card/--radius-chip inside @theme, which is supposed to make
+//    Tailwind emit .rounded-control/.rounded-card/.rounded-chip utilities
+//    resolving to those custom properties. This family had NO coverage at
+//    all before this section: no source test asserted the token existed,
+//    and this script's compiled-output checks only ever covered --text-*/
+//    .text-money. That gap matters most here because chunk 2/3 is exactly
+//    the work that migrates components onto these classes (see BRAND.md
+//    §5's open row/table-input radius question) — the one token family
+//    getting touched most had the least protection against silently not
+//    compiling, the same failure mode section 4 exists to catch for
+//    text-money's tabular numerals.
+if (existsSync(cssAssetsDir)) {
+  const cssFiles = readdirSync(cssAssetsDir).filter((f) => f.endsWith('.css'));
+  if (cssFiles.length > 0) {
+    const css = cssFiles.map((f) => readFileSync(resolve(cssAssetsDir, f), 'utf8')).join('\n');
+    const RADII = [
+      ['control', 'radius-control'],
+      ['card', 'radius-card'],
+      ['chip', 'radius-chip'],
+    ] as const;
+    for (const [cls, varName] of RADII) {
+      const re = new RegExp(`\\.rounded-${cls}\\s*\\{[^}]*var\\(--${varName}\\)[^}]*\\}`);
+      if (!re.test(css)) {
+        failures.push(
+          `compiled CSS has no .rounded-${cls} rule resolving to var(--${varName}) — ` +
+            'the mapping in src/tokens.css is missing or not reaching the build ' +
+            '(checked dist/assets/*.css)',
+        );
+      }
+    }
+  }
+}
+
 if (failures.length > 0) {
   console.error('\nBundle check failed:');
   for (const f of failures) console.error(`  - ${f}`);

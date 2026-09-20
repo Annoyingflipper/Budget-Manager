@@ -155,6 +155,32 @@ describe('typography scale', () => {
   });
 });
 
+describe('radius', () => {
+  // --radius-control/--radius-card/--radius-chip previously had no coverage
+  // at all: no source test here, and check-bundle-size.ts's compiled-output
+  // section only covered --text-*/.text-money. This is the one token family
+  // chunk 2/3 touches most (the row/table-input radius migration BRAND.md
+  // §5 flags as open), so it's the one most worth guarding before that work
+  // starts. The compiled-output half of this guard (proving Tailwind
+  // actually emits .rounded-control/.rounded-card/.rounded-chip resolving
+  // to these custom properties, not just that the source declares them) is
+  // in scripts/check-bundle-size.ts, for the same reason section 4/5 of that
+  // script exists rather than being a Vitest test — see that file's header.
+  const tokensCss = readFileSync(resolve(__dirname, '../tokens.css'), 'utf8');
+
+  const RADII = [
+    ['control', '0.5rem'],
+    ['card', '0.75rem'],
+    ['chip', '9999px'],
+  ] as const;
+
+  for (const [name, value] of RADII) {
+    it(`--radius-${name} is declared in src/tokens.css`, () => {
+      expect(tokensCss).toMatch(new RegExp(`--radius-${name}:\\s*${value.replace('.', '\\.')}\\b`));
+    });
+  }
+});
+
 describe('elevation', () => {
   for (const theme of THEMES) {
     for (const mode of MODES) {
