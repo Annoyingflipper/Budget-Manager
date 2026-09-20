@@ -1,6 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap')
 layer(base);
 @import './themes.css' layer(base);
+/* Unlayered and before 'tailwindcss': tokens.css's @theme block must reach
+   Tailwind's theme scan directly (@theme content is not layered content).
+   Confirmed by building and grepping dist/assets/*.css for the emitted
+   text-display rule and its --text-display custom property under :root —
+   don't move this without re-checking that grep. */
+@import './tokens.css';
 
 @import 'tailwindcss';
 

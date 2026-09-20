@@ -65,3 +65,57 @@ describe('shaded token pairs stay visibly separated', () => {
     }
   }
 });
+
+describe('typography scale', () => {
+  const tokensCss = readFileSync(resolve(__dirname, '../tokens.css'), 'utf8');
+
+  const STEPS = ['display', 'title', 'heading', 'body', 'label', 'caption', 'money'] as const;
+
+  for (const step of STEPS) {
+    it(`--text-${step} defines a size, a line-height and a weight`, () => {
+      // Every step carries all three so a caller picks a ROLE, not a size —
+      // which is what stops line-height and weight being re-decided per
+      // component, the thing that made the old UI feel unsystematic.
+      expect(tokensCss, `--text-${step} size`).toMatch(
+        new RegExp(`--text-${step}:\\s*[0-9.]+rem`),
+      );
+      expect(tokensCss, `--text-${step} line-height`).toMatch(
+        new RegExp(`--text-${step}--line-height:\\s*[0-9.]+`),
+      );
+      expect(tokensCss, `--text-${step} weight`).toMatch(
+        new RegExp(`--text-${step}--font-weight:\\s*[0-9]{3}`),
+      );
+    });
+  }
+
+  it('sizes descend monotonically from display to caption', () => {
+    const sizeOf = (step: string) => {
+      const m = tokensCss.match(new RegExp(`--text-${step}:\\s*([0-9.]+)rem`));
+      if (!m) throw new Error(`no --text-${step}`);
+      return Number(m[1]);
+    };
+    const ordered = ['display', 'title', 'heading', 'body', 'label', 'caption'];
+    const sizes = ordered.map(sizeOf);
+    for (let i = 1; i < sizes.length; i++) {
+      expect(sizes[i], `${ordered[i]} must be smaller than ${ordered[i - 1]}`)
+        .toBeLessThan(sizes[i - 1]);
+    }
+  });
+
+  it('provides a mid weight between normal and bold', () => {
+    // The app had only 400, 700 and 800 — nothing for labels and column
+    // headers, so they were set in bold and competed with real headings.
+    const weights = [...tokensCss.matchAll(/--text-[a-z]+--font-weight:\s*(\d{3})/g)]
+      .map((m) => Number(m[1]));
+    expect(weights.some((w) => w >= 500 && w <= 600)).toBe(true);
+  });
+
+  it('money uses tabular numerals so columns align', () => {
+    expect(tokensCss).toMatch(/--text-money--font-variant-numeric:\s*tabular-nums/);
+  });
+
+  it('the scale is exposed to Tailwind through the @theme block', () => {
+    const indexCss = readFileSync(resolve(__dirname, '../index.css'), 'utf8');
+    expect(indexCss).toMatch(/@import\s+['"]\.\/tokens\.css['"]/);
+  });
+});

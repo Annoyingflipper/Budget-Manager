@@ -1,0 +1,65 @@
+/*
+  Theme-invariant design tokens.
+
+  Colours and elevation vary per theme and live in themes.css. Everything
+  here is the same in all six theme x mode combinations.
+
+  These sit inside @theme so Tailwind generates utilities from them:
+  --text-body produces `text-body`, and the --line-height / --font-weight
+  companions are applied by that same utility. Each step therefore carries
+  its whole typographic role, which is what stops line-height and weight
+  being re-decided in every component.
+
+  Guarded by src/theme/tokens.test.ts.
+*/
+
+@theme {
+  /* --- Typography -------------------------------------------------- */
+
+  /* Balance figures. The largest thing on the dashboard. */
+  --text-display: 2.5rem;
+  --text-display--line-height: 1.1;
+  --text-display--font-weight: 800;
+
+  /* Page and major section headings. */
+  --text-title: 1.5rem;
+  --text-title--line-height: 1.25;
+  --text-title--font-weight: 700;
+
+  /* Card headings — category names, panel titles. */
+  --text-heading: 1.125rem;
+  --text-heading--line-height: 1.3;
+  --text-heading--font-weight: 700;
+
+  /* Default running text. */
+  --text-body: 0.9375rem;
+  --text-body--line-height: 1.5;
+  --text-body--font-weight: 400;
+
+  /* Form labels and column headers. The mid weight the app never had —
+     previously these were set in bold and competed with real headings. */
+  --text-label: 0.8125rem;
+  --text-label--line-height: 1.4;
+  --text-label--font-weight: 600;
+
+  /* Helper text, counts, timestamps. */
+  --text-caption: 0.75rem;
+  --text-caption--line-height: 1.4;
+  --text-caption--font-weight: 400;
+
+  /* Money. Same size as body, but tabular figures so amounts in a column
+     line up digit-for-digit instead of drifting. */
+  --text-money: 0.9375rem;
+  --text-money--line-height: 1.5;
+  --text-money--font-weight: 600;
+  --text-money--font-variant-numeric: tabular-nums;
+
+  /* --- Radius ------------------------------------------------------- */
+
+  /* Buttons, inputs, date cells. */
+  --radius-control: 0.5rem;
+  /* Cards and panels. */
+  --radius-card: 0.75rem;
+  /* Pills and chips. */
+  --radius-chip: 9999px;
+}
