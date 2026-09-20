@@ -33,16 +33,16 @@ export default function MesadaMark({ size = 24, className, title }: Props) {
 
       {/* bottom coin */}
       <g data-coin="bottom">
-        <rect x="15" y="38" width="34" height="7" fill="var(--text)" />
-        <ellipse cx="32" cy="45" rx="17" ry="6" fill="var(--text)" />
-        <ellipse cx="32" cy="38" rx="17" ry="6" fill="var(--muted)" />
+        <rect x="15" y="38" width="34" height="7" fill="var(--neutral-shade)" />
+        <ellipse cx="32" cy="45" rx="17" ry="6" fill="var(--neutral-shade)" />
+        <ellipse cx="32" cy="38" rx="17" ry="6" fill="var(--neutral)" />
       </g>
 
       {/* middle coin */}
       <g data-coin="middle">
-        <rect x="15" y="29" width="34" height="7" fill="var(--text)" />
-        <ellipse cx="32" cy="36" rx="17" ry="6" fill="var(--text)" />
-        <ellipse cx="32" cy="29" rx="17" ry="6" fill="var(--muted)" />
+        <rect x="15" y="29" width="34" height="7" fill="var(--neutral-shade)" />
+        <ellipse cx="32" cy="36" rx="17" ry="6" fill="var(--neutral-shade)" />
+        <ellipse cx="32" cy="29" rx="17" ry="6" fill="var(--neutral)" />
       </g>
 
       {/* top coin */}
