@@ -17,11 +17,25 @@ test.describe('PWA installability @smoke', () => {
 
   test('every icon the manifest declares is actually served', async ({ page }) => {
     const manifest = await (await page.request.get('/manifest.webmanifest')).json();
-    for (const icon of manifest.icons as { src: string; type: string }[]) {
+    const icons = manifest.icons as { src: string; type: string }[];
+    expect(icons?.length ?? 0, 'manifest declares no icons at all').toBeGreaterThan(0);
+
+    // Expected content-type substring per declared MIME type. An icon type not
+    // listed here should fail loudly rather than being silently assumed to be
+    // a PNG (see task-8 review, Finding 2).
+    const expectedSubstringByType: Record<string, string> = {
+      'image/svg+xml': 'svg',
+      'image/png': 'png',
+    };
+
+    for (const icon of icons) {
+      const expectedSubstring = expectedSubstringByType[icon.type];
+      expect(expectedSubstring, `${icon.src} declares unrecognised type ${icon.type}`).toBeDefined();
+
       const res = await page.request.get(icon.src);
       expect(res.status(), `${icon.src} should be served`).toBe(200);
       expect(res.headers()['content-type'], `${icon.src} content type`)
-        .toContain(icon.type.split('/')[1] === 'svg+xml' ? 'svg' : 'png');
+        .toContain(expectedSubstring);
     }
   });
 
