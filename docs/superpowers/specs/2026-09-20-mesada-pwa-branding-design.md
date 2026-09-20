@@ -101,7 +101,7 @@ Three changes, cheapest first:
 **Budget, enforced by test.** The rule is a ratchet, defined in two parts so it cannot be read two ways:
 
 1. **Target:** get the initial JS chunk to **≤ 115 kB gzipped**, down from the 137.59 kB baseline. Roughly 90–100 kB of the current bundle is React plus `supabase-js`, both needed before first paint, so this is close to the practical floor without deferring authentication itself — which is out of scope.
-2. **Assertion:** once the work lands, the test is pinned to the figure actually measured, rounded **up** to the next 5 kB. If the result is 108.2 kB, the test asserts ≤ 110 kB.
+2. **Assertion:** once the work lands, `npm run check:bundle` is pinned to the figure actually measured, rounded **up** to the next 5 kB. If the result is 108.2 kB, it asserts ≤ 110 kB. The same script also asserts that `dist/` actually contains the manifest and every icon it declares — which is the only check in the suite that inspects Vercel's real build output.
 
 So the target drives the effort, and the assertion locks in the result. A future change may only raise the pinned number by editing it deliberately, with the reason in the commit message. This is the mechanism that stops v2.2's restructure from silently undoing the split.
 
@@ -117,14 +117,33 @@ So the target drives the effort, and the assertion locks in the result. A future
 | `Wordmark` | Renders the mark and the name "Mesada"; used by Header, Login and Signup. |
 | Theme-color sync | Meta tag updates on theme change and on mode change; matches the resolved `--bg`. |
 | **Manifest contract** | Parses as JSON; has `name`, `short_name`, `start_url`, `display: "standalone"`, `id`; declares both a 192px and a 512px icon; declares a maskable icon. Every declared icon file exists on disk. |
-| **Bundle budget** | Initial JS chunk ≤ the agreed gzipped ceiling. |
+| Theme colour map | The TS background map matches the `--bg` value declared in `src/themes.css` for all six theme × mode combinations. |
 | Lazy routes | Insights/Accounts/Settings still render after their chunk resolves; the Suspense fallback does not flash on an already-loaded route. |
+
+**Why the theme colour map is a TS constant rather than a computed style read.** jsdom does not load `src/index.css`, so `getComputedStyle(documentElement).getPropertyValue('--bg')` returns an empty string under test — an effect written that way would be untestable at the unit level. The map therefore lives in TypeScript, and a test parses `src/themes.css` and asserts the two agree. The CSS stays the single source of truth; the test enforces it.
+
+### Bundle budget — a post-build script, not a Vitest test
+
+The budget check **cannot** be a Vitest test. `npm test` runs before `npm run build` in both CI and `vercel.json`, so `dist/` does not exist at that point; a test reading it would either fail spuriously or silently skip.
+
+It is instead `scripts/check-bundle-size.ts`, exposed as `npm run check:bundle`, run **after** the build in two places:
+
+- `.github/workflows/ci.yml` — a new step after `Build`.
+- `vercel.json` — `buildCommand` becomes `npm test && npm run build && npm run check:bundle`, so a regression blocks the deploy rather than merely annoying CI.
 
 The manifest contract test is the important one. Installability is invisible in normal use — it fails silently and the only symptom is a missing button that nobody thinks to look for. This test makes that failure loud.
 
 ### Playwright
 
-New `e2e/specs/pwa-install.e2e.ts` against the real QA deployment:
+New `e2e/specs/pwa-install.e2e.ts`.
+
+**What this actually runs against.** `playwright.config.ts` resolves `baseURL` to `E2E_BASE_URL ?? 'http://localhost:5173'`, and the CI `e2e` job does not set `E2E_BASE_URL` — so the suite drives a **local `npm run dev` server against the real QA Supabase backend**, not the deployed QA site. Vite's dev server does serve `public/` at the root, so these assertions are meaningful there. But they verify the *source* assets, not Vercel's build output, and that limit must not be glossed over:
+
+- The **E2E spec** proves the manifest and icons are correct and self-consistent.
+- The **`npm run check:bundle` step** proves the production build actually emitted them, since it runs against `dist/` and fails the Vercel build otherwise.
+- The **QA smoke** is what finally proves it on the deployed URL, by installing the app from QA in a real browser.
+
+Assertions:
 
 - `/manifest.webmanifest` returns 200 with a JSON content type and parses.
 - Every icon URL it declares returns 200 with an image content type and the declared pixel dimensions.
