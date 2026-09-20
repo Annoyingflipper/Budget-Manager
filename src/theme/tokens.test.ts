@@ -222,3 +222,30 @@ describe('elevation', () => {
     }
   });
 });
+
+describe('focus ring', () => {
+  // A focus ring can land on any surface in the app, so it owes WCAG's 3:1
+  // non-text contrast against all three — including --hero-bg, which is why
+  // --text cannot serve: --text IS --hero-bg in every theme (ratio 1.00), so a
+  // --text ring would be invisible on the GrandTotals card.
+  for (const theme of THEMES) {
+    for (const mode of MODES) {
+      it(`${theme}/${mode}: --focus clears 3:1 on --bg, --card and --hero-bg`, () => {
+        const t = tokensFor(theme, mode);
+        expect(t.focus, `${theme}/${mode} --focus is defined`).toMatch(/^#[0-9a-f]{6}$/);
+        for (const surface of ['bg', 'card', 'hero-bg'] as const) {
+          expect(contrastRatio(t.focus, t[surface]), `--focus on --${surface}`)
+            .toBeGreaterThanOrEqual(3);
+        }
+      });
+    }
+  }
+
+  it('is exposed to Tailwind and drives a global focus-visible outline', () => {
+    const indexCss = readFileSync(resolve(__dirname, '../index.css'), 'utf8');
+    expect(indexCss).toMatch(/--color-focus:\s*var\(--focus\)/);
+    // The base rule is what makes focus visible everywhere without every
+    // component remembering to style it.
+    expect(indexCss).toMatch(/:focus-visible/);
+  });
+});

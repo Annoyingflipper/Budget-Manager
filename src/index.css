@@ -24,6 +24,7 @@ layer(base);
   --color-dashed: var(--dashed);
   --color-hero-bg: var(--hero-bg);
   --color-hero-text: var(--hero-text);
+  --color-focus: var(--focus);
 
   --shadow-e1: var(--elev-1);
   --shadow-e2: var(--elev-2);
@@ -47,5 +48,16 @@ layer(base);
   ::backdrop,
   ::file-selector-button {
     border-color: var(--color-gray-200, currentcolor);
+  }
+
+  /*
+    One global focus ring rather than per-component styling. The app had no
+    focus-visible style at all before v2.2, so keyboard users had nothing to
+    follow. :focus-visible (not :focus) means pointer users do not see rings
+    on click, which is why this can be global without looking noisy.
+  */
+  :focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
   }
 }
