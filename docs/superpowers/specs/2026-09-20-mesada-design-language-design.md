@@ -88,9 +88,19 @@ The point is that later changes have something to conform to. A brand manual tha
 
 ### 5. Performance
 
-v2.1's route-level code splitting and its enforced bundle budget **carry forward**. The shell restructure touches exactly the routing code where the `React.lazy` boundaries live, which is the most likely place for the split to be undone by accident — the budget test exists to catch that.
+v2.1's route-level code splitting and its enforced bundle budget **carry forward**. The shell restructure touches exactly the routing code where the `React.lazy` boundaries live, which is the most likely place for the split to be undone by accident — `npm run check:bundle` exists to catch that. It is pinned at **135 kB gzipped** on the critical path (entry script plus every `modulepreload`ed chunk, parsed from `dist/index.html`) and currently measures 130.72 kB, so there is roughly 4 kB of headroom.
 
-If the new shell genuinely requires more initial JavaScript, the budget is re-baselined in the same commit with the reason recorded. It is not deleted.
+If the new shell genuinely requires more, the ceiling is re-baselined in the same commit with the reason in the commit message. It is not deleted.
+
+### 6. Three invariants v2.1 left behind — do not lose them
+
+These were each bought at real cost during v2.1 and are easy to drop while rewriting the token system.
+
+1. **Luminance ordering.** `MesadaMark.test.tsx` asserts the coin's face is strictly lighter than its edge — `--neutral` over `--neutral-shade`, `--positive` over `--positive-shade` — in all six theme × mode combinations. The brown coins originally reused `--text`/`--muted`, whose lightness ordering *flips* between modes, so the mark's shading inverted in all three dark themes and the stack collapsed into one pale cylinder. A presence-only token check passed against that broken code. **Any new token pair introducing a shaded variant adopts the same ordering assertion.**
+2. **`useTheme()` must not reach the auth screens.** `ThemeProvider` is mounted inside `AuthGate`, so `Login`/`Signup` render outside it. `Login.test.tsx` and `Signup.test.tsx` render with **no provider** on purpose. If the shell restructure moves where `ThemeProvider` sits, that is a deliberate decision to make and document — not something to discover when the sign-in page goes blank.
+3. **Typecheck and build are not optional.** `npm test` alone proves nothing about the build: Vitest strips types through esbuild without checking them, which hid a broken `tsc -b` for three consecutive tasks in v2.1. Every task runs `npm run typecheck` and `npm run build` before committing.
+
+Also carried forward: `src/components/ErrorBoundary.tsx` wraps the lazy `Suspense` boundary. If the shell moves that boundary, the error boundary moves with it — a stale chunk in an installed standalone window is a blank page with no address bar and no reload button.
 
 ## Testing
 
@@ -134,15 +144,18 @@ Each is rewritten deliberately and run red before the corresponding implementati
 | Fixing a11y and restyling simultaneously makes it harder to tell which change caused a regression. | The unscoped axe scan is written and run red before the restyle begins, so a11y progress is measured continuously rather than asserted at the end. |
 | Scope creep from the reference mockups — search, goals, avatars are visible in them and are tempting. | Listed as explicit non-goals above. |
 
-## Rollout
+## Rollout — three chunks, one PRD release
 
-Same flow as every version, and the dependency on v2.1 is strict:
+v2.1 is live on PRD as of 2026-09-20, so the dependency is satisfied.
 
-1. **v2.1 must be live on PRD first.** Shipping a rebranded UI before the identity it is built around would invert the sequence.
-2. Implement on `staging`, subagent-driven, one task per subagent, each with the test-first requirement stated in its prompt.
-3. Push to `staging`; QA deploy green; full Vitest and Playwright suites green.
-4. User smokes the QA URL on both desktop and mobile, as an installed app and in the browser, across all three themes in both modes.
-5. User explicitly authorizes the push to `main`.
-6. Fast-forward merge; PRD deploys.
-7. User smokes PRD.
-8. Notion `v2.2 Smoke Tests` sub-page created under the hub and linked from the Versions index.
+This version ships in **three chunks to `staging`, each with its own QA smoke, and a single fast-forward to `main` at the end** — the pattern v1.9 established and that CLAUDE.md records as the one to reuse for any version too big for a single smoke. One smoke covering a navigation rewrite *and* a full restyle *and* a11y fixes cannot tell you which change caused a regression; three can.
+
+| Chunk | Contents | Why this order |
+|---|---|---|
+| **1** | Design tokens (type scale, spacing, radius, elevation, refined colours) + `docs/BRAND.md`. **No visible change** beyond what the refined colour tokens themselves produce. | The token system is the foundation everything else consumes. Landing it alone means a contrast or luminance regression is caught before any layout moves on top of it. |
+| **2** | The app shell: `SidebarNav` on desktop, `TabBarNav` on mobile, `Toolbar` for the month controls. `Header.tsx` retires. | The structural change, isolated. Its QA smoke is specifically "can I still reach everything, on both desktop and phone". |
+| **3** | The component restyle against chunk 1's tokens + the dashboard a11y fixes, ending with the unscoped axe scan. | Pure presentation and accessibility, on a shell that is already proven. |
+
+Within each chunk: implement on `staging` subagent-driven, test-first, full Vitest + Playwright green, push, QA smoke. **`main` is untouched until all three chunks are smoked**, then one fast-forward and one PRD smoke.
+
+A Notion `v2.2 Smoke Tests` sub-page is created under the hub at chunk 1 and **updated** after each chunk, rather than three separate pages — one release, one record.
