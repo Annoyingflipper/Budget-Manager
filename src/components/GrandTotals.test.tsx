@@ -54,13 +54,26 @@ describe('GrandTotals', () => {
     expect(screen.getAllByText('$0.00').length).toBeGreaterThanOrEqual(3);
   });
 
-  it('applies text-negative color when total difference is positive (over budget)', () => {
+  // text-*-on-hero, not text-negative/text-positive: this section renders on
+  // --hero-bg, and neither --negative nor --positive clears 4.5:1 there (see
+  // src/theme/tokens.test.ts's "on --hero-bg" suite) — a regression the
+  // v2.2 chunk 1 fix wave caught and corrected.
+  it('applies text-negative-on-hero color when total difference is positive (over budget)', () => {
     const categories: CategoryWithItems[] = [
       category(1, 'Services', [{ id: 1, projected: 10, actual: 25 }]),
     ];
     render(<GrandTotals categories={categories} />);
     const diffCell = screen.getByText('$15.00');
-    expect(diffCell).toHaveClass('text-negative');
+    expect(diffCell).toHaveClass('text-negative-on-hero');
+  });
+
+  it('applies text-positive-on-hero color when total difference is negative (under budget)', () => {
+    const categories: CategoryWithItems[] = [
+      category(1, 'Services', [{ id: 1, projected: 25, actual: 10 }]),
+    ];
+    render(<GrandTotals categories={categories} />);
+    const diffCell = screen.getByText('-$15.00');
+    expect(diffCell).toHaveClass('text-positive-on-hero');
   });
 
   // The whole point of chunk 2: an expense recorded in bolivares must contribute

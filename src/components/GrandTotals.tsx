@@ -10,7 +10,11 @@ export default function GrandTotals({ categories }: Props) {
   const totalProjected = sum(allItems.map((i) => i.baseProjected));
   const totalActual = sum(allItems.map((i) => i.baseActual));
   const totalDiff = difference(totalActual, totalProjected);
-  const diffColor = totalDiff === 0 ? 'opacity-70' : totalDiff > 0 ? 'text-negative' : 'text-positive';
+  // text-*-on-hero, not text-negative/text-positive: this section renders on
+  // --hero-bg, not --bg/--card, and no single token clears 4.5:1 on all three
+  // surfaces (see src/theme/tokens.test.ts's "on --hero-bg" suite).
+  const diffColor =
+    totalDiff === 0 ? 'opacity-70' : totalDiff > 0 ? 'text-negative-on-hero' : 'text-positive-on-hero';
 
   return (
     <section className="bg-hero-bg text-hero-text rounded-xl p-4 mt-4">

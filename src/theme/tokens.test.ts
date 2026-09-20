@@ -41,6 +41,30 @@ describe('colour tokens meet WCAG AA', () => {
   }
 });
 
+describe('colour tokens meet WCAG AA on the surfaces they actually render on', () => {
+  // GrandTotals renders its diff figure on --hero-bg, not --bg/--card — a
+  // regression (v2.2 chunk 1's fix wave) shipped because the surface list
+  // above was fixed at --bg/--card and never re-checked against where
+  // components actually paint text. --positive-on-hero/--negative-on-hero
+  // exist because a single --positive/--negative cannot clear 4.5:1 on both
+  // --bg (needs luminance <=0.162) and --hero-bg (needs luminance >=0.302)
+  // at once. This surface list must keep growing as components are audited
+  // for what they render on — it is not exhaustive by construction.
+  const HERO_TEXT_TOKENS = ['positive-on-hero', 'negative-on-hero'] as const;
+
+  for (const theme of THEMES) {
+    for (const mode of MODES) {
+      for (const token of HERO_TEXT_TOKENS) {
+        it(`${theme}/${mode}: --${token} clears 4.5:1 on --hero-bg`, () => {
+          const t = tokensFor(theme, mode);
+          expect(contrastRatio(t[token], t['hero-bg']), `--${token} on --hero-bg`)
+            .toBeGreaterThanOrEqual(4.5);
+        });
+      }
+    }
+  }
+});
+
 describe('shaded token pairs stay visibly separated', () => {
   // A "shade" is the darker companion used for a surface's edge — the coin's
   // rim in MesadaMark. Strict ordering is not enough: v2.2's contrast work
