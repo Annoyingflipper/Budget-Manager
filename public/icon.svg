@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Static twin of src/components/MesadaMark.tsx. Literal hex, not CSS vars:
+       this file is served before React boots and cannot read custom properties.
+       Keep the geometry in sync with that component by hand. -->
+  <rect width="64" height="64" rx="14" fill="#fef3ec"/>
+  <g>
+    <rect x="10" y="40" width="44" height="8" rx="4" fill="#3d2c2e"/>
+    <ellipse cx="32" cy="40" rx="22" ry="8" fill="#3d2c2e"/>
+  </g>
+  <g>
+    <rect x="10" y="28" width="44" height="8" rx="4" fill="#86685b"/>
+    <ellipse cx="32" cy="28" rx="22" ry="8" fill="#86685b"/>
+  </g>
+  <g>
+    <rect x="10" y="16" width="44" height="8" rx="4" fill="#86a578"/>
+    <ellipse cx="32" cy="16" rx="22" ry="8" fill="#86a578"/>
+  </g>
+</svg>
