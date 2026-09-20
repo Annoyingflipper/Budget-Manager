@@ -16,7 +16,8 @@
     "e2e:report": "playwright show-report",
     "e2e:typecheck": "tsc -p tsconfig.e2e.json --noEmit",
     "e2e:provision": "node --experimental-strip-types scripts/e2e-provision-user.ts",
-    "backup": "node --experimental-strip-types scripts/backup-supabase.ts"
+    "backup": "node --experimental-strip-types scripts/backup-supabase.ts",
+    "icons": "node --experimental-strip-types scripts/generate-icons.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.0",
