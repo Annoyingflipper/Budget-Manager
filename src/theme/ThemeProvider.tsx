@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { getPreferences, updatePreferences } from '../api/userPrefs';
 import { DEFAULT_PREFERENCES } from './types';
 import type { Mode, Preferences, Theme } from './types';
+import { backgroundFor } from './themeColors';
 
 type ThemeContextValue = Preferences & {
   setTheme: (next: Theme) => void;
@@ -20,6 +21,17 @@ export function useTheme(): ThemeContextValue {
 function applyToHtml(prefs: Preferences) {
   document.documentElement.setAttribute('data-theme', prefs.theme);
   document.documentElement.setAttribute('data-mode', prefs.mode);
+
+  // Chrome tints the installed standalone window's title bar from this tag.
+  // Without it the title bar stays on index.html's static peach while the
+  // rest of the app is in, say, lavender dark.
+  let meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+  if (!meta) {
+    meta = document.createElement('meta');
+    meta.name = 'theme-color';
+    document.head.appendChild(meta);
+  }
+  meta.content = backgroundFor(prefs.theme, prefs.mode);
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {

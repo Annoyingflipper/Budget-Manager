@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ThemeProvider, useTheme } from './ThemeProvider';
 import * as prefsApi from '../api/userPrefs';
+import { THEME_BG } from './themeColors';
 
 vi.mock('../api/userPrefs');
 
@@ -27,6 +28,7 @@ beforeEach(() => {
 afterEach(() => {
   document.documentElement.removeAttribute('data-theme');
   document.documentElement.removeAttribute('data-mode');
+  document.querySelector('meta[name="theme-color"]')?.remove();
 });
 
 describe('ThemeProvider', () => {
@@ -79,6 +81,38 @@ describe('ThemeProvider', () => {
     await vi.waitFor(() => {
       expect(screen.getByTestId('theme').textContent).toBe('peach');
       expect(prefsApi.updatePreferences).toHaveBeenCalledWith({ theme: 'sage' });
+    });
+  });
+
+  it('writes the active theme background into the theme-color meta tag', async () => {
+    vi.mocked(prefsApi.getPreferences).mockResolvedValue({ theme: 'sage', mode: 'dark' });
+    render(<ThemeProvider><Probe /></ThemeProvider>);
+    await vi.waitFor(() => {
+      const meta = document.querySelector('meta[name="theme-color"]');
+      expect(meta?.getAttribute('content')).toBe(THEME_BG.sage.dark);
+    });
+  });
+
+  it('creates the theme-color meta tag when index.html has not provided one', async () => {
+    document.querySelector('meta[name="theme-color"]')?.remove();
+    vi.mocked(prefsApi.getPreferences).mockResolvedValue({ theme: 'peach', mode: 'light' });
+    render(<ThemeProvider><Probe /></ThemeProvider>);
+    await vi.waitFor(() => {
+      const meta = document.querySelector('meta[name="theme-color"]');
+      expect(meta?.getAttribute('content')).toBe(THEME_BG.peach.light);
+    });
+  });
+
+  it('updates theme-color when the user switches mode', async () => {
+    vi.mocked(prefsApi.getPreferences).mockResolvedValue({ theme: 'peach', mode: 'light' });
+    vi.mocked(prefsApi.updatePreferences).mockResolvedValue();
+    const user = userEvent.setup();
+    render(<ThemeProvider><Probe /></ThemeProvider>);
+    await vi.waitFor(() => expect(screen.getByTestId('mode').textContent).toBe('light'));
+    await user.click(screen.getByText('dark'));
+    await vi.waitFor(() => {
+      const meta = document.querySelector('meta[name="theme-color"]');
+      expect(meta?.getAttribute('content')).toBe(THEME_BG.peach.dark);
     });
   });
 });
