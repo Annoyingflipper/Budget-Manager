@@ -254,12 +254,25 @@ matching something already in the app.
 **Spacing deliberately introduces no tokens.** Tailwind's default spacing
 scale is already one consistent ramp; a second, parallel spacing scale
 would be machinery competing with it for no benefit — every value in it
-would just be a rename of a Tailwind step. The discipline instead is to
-stay on a **sanctioned subset of Tailwind's own scale: 1, 2, 3, 4, 6, 8,
-12** (i.e. `p-2`, `gap-4`, `mb-8`, and so on — not `p-5`, `gap-7`, or an
-arbitrary `p-[13px]`). This was a choice, not an oversight: it keeps
-spacing consistent without inventing anything for a future reader to learn
-on top of Tailwind's own vocabulary.
+would just be a rename of a Tailwind step.
+
+**Sanctioned subset of Tailwind's own scale: 0.5, 1, 1.5, 2, 2.5, 3, 4, 5,
+6, 8, 12** (i.e. `p-2`, `gap-2.5`, `mb-8`, and so on — not `p-7` or an
+arbitrary `p-[13px]`). This was widened from an earlier draft that listed
+only whole steps 1–4, 6, 8, 12: a survey of every `.tsx` file in `src/`
+found the half-steps in heavy real use — `2.5` ×20, `1.5` ×20, `0.5` ×17 —
+almost entirely in the dense table/row components (`LineItemRow`,
+`CategoryTable`, `DateCell`, `AccountRow`) where a whole-step gap is
+visibly too loose for an 8-column desktop grid, plus `5` ×7. Excluding
+those would have meant the manual described a narrower practice than the
+codebase already followed everywhere it mattered, which is worse than not
+having the rule at all. `12` stays sanctioned even though nothing currently
+uses it — it's for a future section-level gap, not a description of
+current usage. This is a **binding rule for new work**, not a description
+of every value ever written: an occasional one-off (an arbitrary
+`p-[13px]`, or a step outside this list) that predates this manual is not
+retroactively non-compliant, but new code should stay on this list rather
+than reach for an unlisted step.
 
 ## 6. Elevation
 
