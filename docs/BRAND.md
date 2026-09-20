@@ -184,6 +184,17 @@ tabular-nums }` rule rather than trusting the source. **Do not re-add a
 fourth `--text-*` suffix expecting Tailwind to wire it up — it won't; use
 a real `@utility` block instead, the way `text-money` does.**
 
+`src/themes.css` also sets `body { font-feature-settings: 'tnum' }`
+(pre-existing, untouched by this chunk). That is a second, independent
+mechanism for the same visual result — tabular figures — applied app-wide
+at the `body` level, and being a low-level property it wins over
+`font-variant-numeric` regardless of which one a given element gets.
+Practically, that means `text-money`'s tabular behaviour was never actually
+broken by the `--text-money--font-variant-numeric` bug above, even before
+the `@utility` fix: the `body` rule was already carrying it everywhere.
+Recorded here so neither rule is deleted by someone who believes the other
+one is the only thing covering it.
+
 **Do not stack a `font-*` or `leading-*` utility on a `text-*` step.**
 Tailwind compiles a generated `text-*` utility's line-height/weight as
 `line-height: var(--tw-leading, var(--text-*--line-height))` and
