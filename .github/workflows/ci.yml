@@ -39,6 +39,9 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Check bundle budget
+        run: npm run check:bundle
+
   e2e:
     runs-on: ubuntu-latest
     # Serialize against the shared QA test user across concurrent runs.

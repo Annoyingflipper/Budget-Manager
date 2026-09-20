@@ -1,0 +1,121 @@
+/**
+ * Post-build gate. Two jobs:
+ *
+ *   1. Keep the pre-first-paint JS payload under budget. `dist/index.html`
+ *      loads more than just the entry chunk before first paint: it also
+ *      `modulepreload`s @supabase/supabase-js (Rollup names this chunk
+ *      `currency-*` by an alphabetical heuristic — the name is misleading,
+ *      it has nothing to do with the currency feature). Both are fetched
+ *      together, so BOTH count toward the critical path. Measuring only
+ *      the entry chunk would misreport the real number and let the
+ *      preloaded chunk grow without limit — a ratchet guarding a number
+ *      nobody actually waits on.
+ *
+ *      Pre-v2.1 baseline: a single 494.72 kB chunk (138.15 kB gzipped),
+ *      no code splitting. v2.1 split the bundle and brought the critical
+ *      path (entry + preloaded supabase chunk) down to 131.54 kB gzipped
+ *      (a 6.63 kB saving over the old single-chunk total), plus deferred
+ *      ~20.6 kB gzipped of route code (Settings/Insights/Accounts) that
+ *      now only loads if the user opens those pages.
+ *
+ *   2. Prove the manifest and every icon it declares actually reached
+ *      dist/. This is the only check in the suite that inspects Vercel's
+ *      real build output — the Vitest suite reads public/ from disk, and
+ *      the Playwright suite reads a dev server. Without this, public/
+ *      silently failing to copy would reach production with everything
+ *      green.
+ *
+ * Not a Vitest test: `npm test` runs before `npm run build` in both CI and
+ * vercel.json, so dist/ does not exist yet at that point. A Vitest test
+ * here would fail spuriously or silently skip.
+ *
+ * To raise MAX_CRITICAL_PATH_GZIP_KB, do it deliberately and say why in
+ * the commit message. Deleting this check is not how you make it pass.
+ */
+import { gzipSync } from 'node:zlib';
+import { readFileSync, existsSync } from 'node:fs';
+import { resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const MAX_CRITICAL_PATH_GZIP_KB = 135;
+
+const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const dist = resolve(root, 'dist');
+
+if (!existsSync(dist)) {
+  console.error('dist/ not found — run `npm run build` first.');
+  process.exit(1);
+}
+
+const failures: string[] = [];
+
+// 1. Critical-path JS: every module-script src and every modulepreload href
+//    referenced by dist/index.html — that's everything the browser fetches
+//    before first paint.
+const indexHtmlPath = resolve(dist, 'index.html');
+if (!existsSync(indexHtmlPath)) {
+  failures.push('dist/index.html is missing');
+} else {
+  const html = readFileSync(indexHtmlPath, 'utf8');
+
+  const criticalPaths = new Set<string>();
+
+  // <script type="module" ... src="/assets/xyz.js">
+  for (const m of html.matchAll(/<script\b[^>]*\btype=["']module["'][^>]*>/gi)) {
+    const src = m[0].match(/\bsrc=["']([^"']+)["']/i)?.[1];
+    if (src) criticalPaths.add(src);
+  }
+
+  // <link rel="modulepreload" ... href="/assets/xyz.js">
+  for (const m of html.matchAll(/<link\b[^>]*\brel=["']modulepreload["'][^>]*>/gi)) {
+    const href = m[0].match(/\bhref=["']([^"']+)["']/i)?.[1];
+    if (href) criticalPaths.add(href);
+  }
+
+  if (criticalPaths.size === 0) {
+    failures.push('no <script type="module"> or modulepreload links found in dist/index.html');
+  } else {
+    let totalGzipKb = 0;
+    console.log('Critical-path JS (script + modulepreload) in dist/index.html:');
+    for (const p of criticalPaths) {
+      const filePath = resolve(dist, p.replace(/^\//, ''));
+      if (!existsSync(filePath)) {
+        failures.push(`dist/index.html references ${p} but dist/ does not contain it`);
+        continue;
+      }
+      const gzipKb = gzipSync(readFileSync(filePath)).byteLength / 1000;
+      totalGzipKb += gzipKb;
+      console.log(`  - ${p}: ${(Math.round(gzipKb * 100) / 100).toFixed(2)} kB gzipped`);
+    }
+    const roundedTotal = Math.round(totalGzipKb * 100) / 100;
+    console.log(
+      `Total critical-path JS: ${roundedTotal.toFixed(2)} kB gzipped (budget ${MAX_CRITICAL_PATH_GZIP_KB} kB)`,
+    );
+    if (totalGzipKb > MAX_CRITICAL_PATH_GZIP_KB) {
+      failures.push(
+        `critical-path JS is ${roundedTotal.toFixed(2)} kB gzipped, over the ${MAX_CRITICAL_PATH_GZIP_KB} kB budget`,
+      );
+    }
+  }
+}
+
+// 2. Manifest and icons present in the built output.
+const manifestPath = resolve(dist, 'manifest.webmanifest');
+if (!existsSync(manifestPath)) {
+  failures.push('dist/manifest.webmanifest is missing — did public/ get copied?');
+} else {
+  const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
+  for (const icon of manifest.icons as { src: string }[]) {
+    if (!existsSync(resolve(dist, icon.src.replace(/^\//, '')))) {
+      failures.push(`manifest declares ${icon.src} but dist/ does not contain it`);
+    }
+  }
+}
+
+if (failures.length > 0) {
+  console.error('\nBundle check failed:');
+  for (const f of failures) console.error(`  - ${f}`);
+  process.exit(1);
+}
+
+console.log('Bundle check passed.');

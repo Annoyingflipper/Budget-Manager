@@ -17,7 +17,8 @@
     "e2e:typecheck": "tsc -p tsconfig.e2e.json --noEmit",
     "e2e:provision": "node --experimental-strip-types scripts/e2e-provision-user.ts",
     "backup": "node --experimental-strip-types scripts/backup-supabase.ts",
-    "icons": "node --experimental-strip-types scripts/generate-icons.ts"
+    "icons": "node --experimental-strip-types scripts/generate-icons.ts",
+    "check:bundle": "node --experimental-strip-types scripts/check-bundle-size.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.0",
