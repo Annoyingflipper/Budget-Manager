@@ -1,6 +1,7 @@
 import { useTheme } from '../theme/ThemeProvider';
 import { supabase } from '../lib/supabase';
 import { formatMonthLabel, nextMonth } from '../utils/month';
+import Wordmark from './Wordmark';
 
 type Props = {
   selectedMonth: string;
@@ -33,10 +34,7 @@ export default function Header({
 
   return (
     <header className="flex flex-wrap justify-between items-center gap-2 mb-4">
-      <div className="flex items-center gap-2">
-        <span className="text-2xl">💵</span>
-        <span className="font-extrabold text-xl">Budget</span>
-      </div>
+      <Wordmark />
       <div className="flex items-center gap-2">
         <button
           type="button"

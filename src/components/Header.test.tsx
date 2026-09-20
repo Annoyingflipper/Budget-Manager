@@ -38,6 +38,12 @@ describe('Header', () => {
     expect(screen.getByText('June 2026')).toBeInTheDocument();
   });
 
+  it('shows the Mesada wordmark rather than the old Budget label', () => {
+    renderHeader();
+    expect(screen.getByText('Mesada')).toBeInTheDocument();
+    expect(screen.queryByText('Budget')).not.toBeInTheDocument();
+  });
+
   it('clicking the back arrow calls onPrev', async () => {
     const user = userEvent.setup();
     const props = renderHeader();
