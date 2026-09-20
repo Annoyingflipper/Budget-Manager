@@ -26,7 +26,7 @@ export default function Signup({ onSwitch }: Props) {
   return (
     <div className="mx-auto max-w-sm p-8 space-y-4">
       <div className="text-center mb-2">
-        <Wordmark size="lg" className="justify-center" />
+        <Wordmark size="lg" as="h1" className="justify-center" />
       </div>
       <form onSubmit={submit} className="space-y-2">
         <input

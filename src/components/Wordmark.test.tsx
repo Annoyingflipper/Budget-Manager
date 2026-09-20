@@ -27,4 +27,17 @@ describe('Wordmark', () => {
     const { container } = render(<Wordmark />);
     expect(container.querySelector('svg')).toHaveAttribute('aria-hidden', 'true');
   });
+
+  it('renders a span by default, with "Mesada" as its accessible name', () => {
+    render(<Wordmark />);
+    expect(screen.queryByRole('heading')).not.toBeInTheDocument();
+    const name = screen.getByText('Mesada');
+    expect(name.tagName).toBe('SPAN');
+  });
+
+  it('renders an h1 when as="h1", with "Mesada" as its accessible name', () => {
+    render(<Wordmark as="h1" />);
+    const heading = screen.getByRole('heading', { level: 1, name: 'Mesada' });
+    expect(heading).toBeInTheDocument();
+  });
 });
