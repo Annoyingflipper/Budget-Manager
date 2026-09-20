@@ -10,7 +10,26 @@
   its whole typographic role, which is what stops line-height and weight
   being re-decided in every component.
 
-  Guarded by src/theme/tokens.test.ts.
+  Tailwind 4 recognises exactly THREE companion suffixes on a --text-* theme
+  key: --line-height, --letter-spacing, --font-weight (confirmed against
+  node_modules/tailwindcss/dist/lib.js). Anything else — e.g. a
+  --font-variant-numeric suffix — compiles to a dangling custom property
+  under :root that no utility ever reads. That is why text-money's tabular
+  numerals are applied below via a real @utility block instead of a fourth
+  theme-key suffix.
+
+  A generated text-* utility's line-height/weight are themselves overridable:
+  the compiled rule is `line-height:var(--tw-leading, var(--text-*--line-
+  height))` / `font-weight:var(--tw-font-weight, var(--text-*--font-weight))`.
+  Tailwind's own leading- and font- weight utilities set --tw-leading and
+  --tw-font-weight and win over the token silently, with no error. Do not
+  stack a font- weight utility or a leading- utility on a text- step —
+  pick a different step instead, or the token's intended weight/line-height
+  is not what renders.
+
+  Guarded by src/theme/tokens.test.ts and the compiled-output check in
+  scripts/check-bundle-size.ts (the latter is what actually proves Tailwind
+  emits what this file claims — see the comment at the top of that script).
 */
 
 @theme {
@@ -47,12 +66,12 @@
   --text-caption--line-height: 1.4;
   --text-caption--font-weight: 400;
 
-  /* Money. Same size as body, but tabular figures so amounts in a column
-     line up digit-for-digit instead of drifting. */
+  /* Money. Same size as body, but tabular figures (applied below via
+     @utility — see the file-header comment for why) so amounts in a
+     column line up digit-for-digit instead of drifting. */
   --text-money: 0.9375rem;
   --text-money--line-height: 1.5;
   --text-money--font-weight: 600;
-  --text-money--font-variant-numeric: tabular-nums;
 
   /* --- Radius ------------------------------------------------------- */
 
@@ -62,4 +81,13 @@
   --radius-card: 0.75rem;
   /* Pills and chips. */
   --radius-chip: 9999px;
+}
+
+/* Not a --text-money--* theme-key suffix: Tailwind only wires up
+   --line-height / --letter-spacing / --font-weight companions, so a
+   --font-variant-numeric suffix here would compile to a dangling custom
+   property nothing reads. @utility composes real CSS onto the class
+   Tailwind already generates from --text-money above. */
+@utility text-money {
+  font-variant-numeric: tabular-nums;
 }

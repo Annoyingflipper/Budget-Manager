@@ -111,7 +111,18 @@ describe('typography scale', () => {
   });
 
   it('money uses tabular numerals so columns align', () => {
-    expect(tokensCss).toMatch(/--text-money--font-variant-numeric:\s*tabular-nums/);
+    // Tailwind only wires up --line-height / --letter-spacing / --font-weight
+    // as --text-* theme-key suffixes — a --font-variant-numeric suffix would
+    // compile to a dangling custom property nothing reads (confirmed against
+    // node_modules/tailwindcss/dist/lib.js). So this is applied via a real
+    // @utility block instead, which this asserts the source declares.
+    // Whether Tailwind actually *emits* tabular-nums for .text-money is
+    // proven separately, from compiled output, by
+    // scripts/check-bundle-size.ts — a source-text regex like this one
+    // cannot catch a token Tailwind silently ignores.
+    expect(tokensCss).toMatch(
+      /@utility\s+text-money\s*\{[^}]*font-variant-numeric:\s*tabular-nums[^}]*\}/,
+    );
   });
 
   it('the scale is exposed to Tailwind through the @theme block', () => {

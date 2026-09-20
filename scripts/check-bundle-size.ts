@@ -1,5 +1,5 @@
 /**
- * Post-build gate. Two jobs:
+ * Post-build gate. Three jobs:
  *
  *   1. Keep the pre-first-paint JS payload under budget. `dist/index.html`
  *      loads more than just the entry chunk before first paint: it also
@@ -27,6 +27,17 @@
  *      server. Without this, public/ silently failing to copy would reach
  *      production with everything green.
  *
+ *   3. Prove the typography scale in src/tokens.css actually compiles the
+ *      way it claims. src/theme/tokens.test.ts only regexes tokens.css'
+ *      source text — that proves the file *says* the right things, never
+ *      that Tailwind *does* the right thing with them. That gap is exactly
+ *      how text-money's tabular numerals shipped silently broken: Tailwind
+ *      4 only wires up --line-height / --letter-spacing / --font-weight as
+ *      --text-* theme-key suffixes, so a --font-variant-numeric suffix
+ *      compiled to a dangling custom property nothing read, and every
+ *      source-text test still passed. This section reads the real emitted
+ *      CSS instead, the same way section 1 reads real emitted JS.
+ *
  * Not a Vitest test: `npm test` runs before `npm run build` in both CI and
  * vercel.json, so dist/ does not exist yet at that point. A Vitest test
  * here would fail spuriously or silently skip.
@@ -35,7 +46,7 @@
  * the commit message. Deleting this check is not how you make it pass.
  */
 import { gzipSync } from 'node:zlib';
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -126,6 +137,43 @@ if (existsSync(indexHtmlPath)) {
     if (!href) continue;
     if (!existsSync(resolve(dist, href.replace(/^\//, '')))) {
       failures.push(`index.html links ${href} but dist/ does not contain it`);
+    }
+  }
+}
+
+// 4. Typography scale compiled output. src/tokens.css declares seven
+//    --text-* steps and applies tabular numerals to .text-money via an
+//    @utility block (not a --text-money--font-variant-numeric theme-key
+//    suffix — Tailwind doesn't wire that suffix up to anything). Both
+//    claims are checked here against the real emitted CSS, not the source.
+const cssAssetsDir = resolve(dist, 'assets');
+if (!existsSync(cssAssetsDir)) {
+  failures.push('dist/assets/ is missing — cannot check compiled CSS for the typography scale');
+} else {
+  const cssFiles = readdirSync(cssAssetsDir).filter((f) => f.endsWith('.css'));
+  if (cssFiles.length === 0) {
+    failures.push('no .css file found in dist/assets/ — cannot check the typography scale');
+  } else {
+    const css = cssFiles.map((f) => readFileSync(resolve(cssAssetsDir, f), 'utf8')).join('\n');
+
+    const TEXT_STEPS = ['display', 'title', 'heading', 'body', 'label', 'caption', 'money'];
+    for (const step of TEXT_STEPS) {
+      // A real definition (e.g. `--text-money:.9375rem`), not merely a
+      // utility referencing it via var(--text-money) — that would pass even
+      // if the defining declaration were missing entirely.
+      if (!new RegExp(`--text-${step}:\\s*[0-9.]+rem`).test(css)) {
+        failures.push(
+          `compiled CSS never defines --text-${step} with a real value (checked dist/assets/*.css)`,
+        );
+      }
+    }
+
+    if (!/\.text-money\s*\{[^}]*font-variant-numeric:\s*tabular-nums[^}]*\}/.test(css)) {
+      failures.push(
+        'compiled CSS has no .text-money rule applying font-variant-numeric:tabular-nums — ' +
+          'the @utility block in src/tokens.css is missing or not reaching the build ' +
+          '(checked dist/assets/*.css)',
+      );
     }
   }
 }
