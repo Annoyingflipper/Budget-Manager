@@ -23,6 +23,10 @@ layer(base);
   --color-hero-bg: var(--hero-bg);
   --color-hero-text: var(--hero-text);
 
+  --shadow-e1: var(--elev-1);
+  --shadow-e2: var(--elev-2);
+  --shadow-e3: var(--elev-3);
+
   --font-sans: Nunito, ui-sans-serif, system-ui, sans-serif;
 }
 

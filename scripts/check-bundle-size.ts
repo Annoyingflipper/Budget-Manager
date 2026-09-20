@@ -175,6 +175,29 @@ if (!existsSync(cssAssetsDir)) {
           '(checked dist/assets/*.css)',
       );
     }
+
+    // 5. Elevation scale compiled output. src/themes.css declares --elev-1..3
+    //    per theme/mode block, and src/index.css maps each into the @theme
+    //    block as --shadow-e1..3 so Tailwind generates .shadow-e1/e2/e3
+    //    utilities. src/theme/tokens.test.ts only regexes that source-text
+    //    mapping — the same gap that let text-money's tabular numerals ship
+    //    silently broken (see the comment above). This checks the real
+    //    emitted CSS: each .shadow-eN rule must exist and resolve to
+    //    var(--elev-N).
+    for (const n of [1, 2, 3]) {
+      // Tailwind v4 emits `.shadow-eN{--tw-shadow:var(--elev-N);box-shadow:var(--tw-inset-shadow), ...,
+      // var(--tw-shadow)}` — box-shadow itself never references --elev-N directly, it goes through the
+      // --tw-shadow custom property. So this checks the rule body contains var(--elev-N) anywhere,
+      // not specifically attached to a `box-shadow:` declaration.
+      const re = new RegExp(`\\.shadow-e${n}\\s*\\{[^}]*var\\(--elev-${n}\\)[^}]*\\}`);
+      if (!re.test(css)) {
+        failures.push(
+          `compiled CSS has no .shadow-e${n} rule resolving to var(--elev-${n}) — ` +
+            'the --shadow-e mapping in src/index.css is missing or not reaching the build ' +
+            '(checked dist/assets/*.css)',
+        );
+      }
+    }
   }
 }
 

@@ -130,3 +130,45 @@ describe('typography scale', () => {
     expect(indexCss).toMatch(/@import\s+['"]\.\/tokens\.css['"]/);
   });
 });
+
+describe('elevation', () => {
+  for (const theme of THEMES) {
+    for (const mode of MODES) {
+      it(`${theme}/${mode} defines all three elevation levels`, () => {
+        const css = readFileSync(resolve(__dirname, '../themes.css'), 'utf8');
+        const block = css
+          .split('}')
+          .find((b) => b.includes(`[data-theme="${theme}"]`) && b.includes(`[data-mode="${mode}"]`))!;
+        for (const level of ['--elev-1', '--elev-2', '--elev-3']) {
+          expect(block, `${theme}/${mode} ${level}`).toContain(level);
+        }
+      });
+    }
+  }
+
+  it('dark modes use stronger shadow alpha than light modes', () => {
+    // On a dark surface a soft light-mode shadow is invisible. Depth in dark
+    // themes comes mostly from --card being lighter than --bg, but what
+    // shadow there is has to be deeper to register at all.
+    const css = readFileSync(resolve(__dirname, '../themes.css'), 'utf8');
+    const alphaOf = (theme: string, mode: string) => {
+      const block = css
+        .split('}')
+        .find((b) => b.includes(`[data-theme="${theme}"]`) && b.includes(`[data-mode="${mode}"]`))!;
+      const m = block.match(/--elev-2:[^;]*rgba\([^)]*,\s*([0-9.]+)\)/);
+      if (!m) throw new Error(`no --elev-2 rgba alpha in ${theme}/${mode}`);
+      return Number(m[1]);
+    };
+    for (const theme of THEMES) {
+      expect(alphaOf(theme, 'dark'), `${theme} dark --elev-2 alpha`)
+        .toBeGreaterThan(alphaOf(theme, 'light'));
+    }
+  });
+
+  it('exposes elevation to Tailwind as shadow utilities', () => {
+    const indexCss = readFileSync(resolve(__dirname, '../index.css'), 'utf8');
+    for (const n of [1, 2, 3]) {
+      expect(indexCss).toMatch(new RegExp(`--shadow-e${n}:\\s*var\\(--elev-${n}\\)`));
+    }
+  });
+});
