@@ -7,6 +7,17 @@ export type ChangelogEntry = {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '2.1',
+    date: '2026-09-20',
+    title: 'Mesada',
+    highlights: [
+      'The app has a name and a face: Mesada, with a new coin-stack icon.',
+      'You can install it. In Chrome, look for the install button in the address bar — it opens in its own window with its own Dock icon, no browser tabs.',
+      "The window's title bar now picks up whichever theme you are using.",
+      'Small speed boost: the Insights, Accounts and Settings pages now load only when you open them, so first paint is a touch faster if you go straight to your dashboard.',
+    ],
+  },
+  {
     version: '2.0',
     date: '2026-08-24',
     title: 'Due dates',
