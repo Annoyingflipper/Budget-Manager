@@ -39,6 +39,26 @@ test.describe('PWA installability @smoke', () => {
     }
   });
 
+  // manifest.icons is covered by the test above, but apple-touch-icon.png
+  // and favicon-32.png are linked from index.html directly and are not in
+  // manifest.icons — nothing else in the suite checks them. The iOS install
+  // path this release targets depends on apple-touch-icon.png specifically:
+  // if it 404s, iOS silently substitutes a screenshot of the page instead
+  // of the mark.
+  test('every icon link in the document head is actually served', async ({ page }) => {
+    await page.goto('/');
+    const hrefs = await page.locator('link[rel*="icon"]').evaluateAll((links) =>
+      links.map((l) => l.getAttribute('href')).filter((h): h is string => !!h),
+    );
+    expect(hrefs.length, 'expected at least one <link rel*="icon"> in the document').toBeGreaterThan(0);
+
+    for (const href of hrefs) {
+      const res = await page.request.get(href);
+      expect(res.status(), `${href} should be served`).toBe(200);
+      expect(res.headers()['content-type'], `${href} content type`).toMatch(/^image\//);
+    }
+  });
+
   test('the document links the manifest and is titled Mesada', async ({ page }) => {
     await page.goto('/');
     await expect(page).toHaveTitle('Mesada');

@@ -19,11 +19,13 @@
  *      now only loads if the user opens those pages.
  *
  *   2. Prove the manifest and every icon it declares actually reached
- *      dist/. This is the only check in the suite that inspects Vercel's
- *      real build output — the Vitest suite reads public/ from disk, and
- *      the Playwright suite reads a dev server. Without this, public/
- *      silently failing to copy would reach production with everything
- *      green.
+ *      dist/, and that every icon dist/index.html links to directly
+ *      (apple-touch-icon.png, favicon-32.png — neither is in
+ *      manifest.icons) reached dist/ too. This is the only check in the
+ *      suite that inspects Vercel's real build output — the Vitest suite
+ *      reads public/ from disk, and the Playwright suite reads a dev
+ *      server. Without this, public/ silently failing to copy would reach
+ *      production with everything green.
  *
  * Not a Vitest test: `npm test` runs before `npm run build` in both CI and
  * vercel.json, so dist/ does not exist yet at that point. A Vitest test
@@ -108,6 +110,22 @@ if (!existsSync(manifestPath)) {
   for (const icon of manifest.icons as { src: string }[]) {
     if (!existsSync(resolve(dist, icon.src.replace(/^\//, '')))) {
       failures.push(`manifest declares ${icon.src} but dist/ does not contain it`);
+    }
+  }
+}
+
+// 3. Icons linked directly from dist/index.html — apple-touch-icon.png and
+//    favicon-32.png are neither in manifest.icons nor covered by section 2,
+//    so nothing else in this script checks them. The iOS install path
+//    depends on apple-touch-icon.png: if it 404s, iOS silently substitutes
+//    a screenshot of the page for the Home Screen icon.
+if (existsSync(indexHtmlPath)) {
+  const html = readFileSync(indexHtmlPath, 'utf8');
+  for (const m of html.matchAll(/<link\b[^>]*\brel=["'][^"']*icon[^"']*["'][^>]*>/gi)) {
+    const href = m[0].match(/\bhref=["']([^"']+)["']/i)?.[1];
+    if (!href) continue;
+    if (!existsSync(resolve(dist, href.replace(/^\//, '')))) {
+      failures.push(`index.html links ${href} but dist/ does not contain it`);
     }
   }
 }
