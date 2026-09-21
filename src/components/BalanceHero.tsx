@@ -17,7 +17,7 @@ export default function BalanceHero({ income, categories }: Props) {
   return (
     <section className="bg-card rounded-card p-4 mb-4">
       <div className="text-caption uppercase tracking-wider text-muted">Where you stand</div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-1">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-1">
         <div>
           <div className="text-caption text-muted">Projected balance</div>
           <div className="text-display" data-testid="projected-balance">{formatMoney(projectedBalance)}</div>

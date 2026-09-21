@@ -53,6 +53,17 @@ describe('AttachmentViewer', () => {
     expect(screen.getByText(/30,000/)).toBeInTheDocument();
   });
 
+  // The title must read as a title, not as a footnote the same size and weight
+  // as its own subtitle. text-heading is what src/tokens.css calls out for
+  // "Card headings — category names, panel titles".
+  it('gives the title a heading step, distinct from the subtitle beneath it', () => {
+    setup();
+    const title = screen.getByText('Groceries');
+    const subtitle = screen.getByText(/30,000/);
+    expect(title.className).toContain('text-heading');
+    expect(title.className).not.toBe(subtitle.className);
+  });
+
   it('renders the attachment at startIndex', async () => {
     setup({ startIndex: 1 });
     await waitFor(() =>

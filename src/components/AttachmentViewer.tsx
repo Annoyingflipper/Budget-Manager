@@ -87,14 +87,14 @@ export default function AttachmentViewer({
       >
         <div className="flex items-start justify-between gap-3 mb-3">
           <div className="min-w-0">
-            <div className="text-caption truncate">{title}</div>
+            <div className="text-heading truncate">{title}</div>
             <div className="text-muted text-caption">{subtitle}</div>
           </div>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="text-muted hover:text-text text-label shrink-0"
+            className="text-muted hover:text-text text-heading shrink-0"
           >
             ✕
           </button>
@@ -106,7 +106,7 @@ export default function AttachmentViewer({
               type="button"
               onClick={prev}
               aria-label="Previous attachment"
-              className="text-label text-muted hover:text-text px-1"
+              className="text-heading text-muted hover:text-text px-1"
             >
               ‹
             </button>
@@ -139,7 +139,7 @@ export default function AttachmentViewer({
               type="button"
               onClick={next}
               aria-label="Next attachment"
-              className="text-label text-muted hover:text-text px-1"
+              className="text-heading text-muted hover:text-text px-1"
             >
               ›
             </button>

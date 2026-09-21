@@ -88,4 +88,29 @@ describe('GrandTotals', () => {
     render(<GrandTotals categories={categories} />);
     expect(screen.getAllByText('$60.00').length).toBeGreaterThan(0);
   });
+
+  // Shape assertions guarding a measured layout fix, not a re-derivation of the
+  // measurement itself — jsdom has no layout engine, so it cannot see that the
+  // figures overflow their columns. The actual scrollWidth/clientWidth numbers
+  // that justify this change are recorded in the commit message for the fix
+  // (checked live at 640/768/900/1024/1280px against the running app), not here.
+  it("uses text-title for the totals, not text-display — GrandTotals is a footer, not a second hero", () => {
+    const categories: CategoryWithItems[] = [
+      category(1, 'Services', [{ id: 1, projected: 20, actual: 25 }]),
+    ];
+    render(<GrandTotals categories={categories} />);
+    expect(screen.getByText('$20.00', { selector: '.text-title' })).toBeInTheDocument();
+    expect(screen.getByText('$25.00', { selector: '.text-title' })).toBeInTheDocument();
+    expect(document.querySelector('.text-display')).toBeNull();
+  });
+
+  it('uses lg:grid-cols-3 rather than sm:grid-cols-3, so three columns never appear inside a main area narrower than they need', () => {
+    const categories: CategoryWithItems[] = [
+      category(1, 'Services', [{ id: 1, projected: 20, actual: 20 }]),
+    ];
+    const { container } = render(<GrandTotals categories={categories} />);
+    const grid = container.querySelector('.grid');
+    expect(grid?.className).toContain('lg:grid-cols-3');
+    expect(grid?.className).not.toContain('sm:grid-cols-3');
+  });
 });

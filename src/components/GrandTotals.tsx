@@ -19,18 +19,18 @@ export default function GrandTotals({ categories }: Props) {
   return (
     <section className="bg-hero-bg text-hero-text rounded-card p-4 mt-4">
       <div className="text-caption uppercase tracking-widest opacity-70">Grand totals</div>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 mt-1">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-2.5 mt-1">
         <div>
           <div className="text-caption opacity-60">Total Projected</div>
-          <div className="text-display">{formatMoney(totalProjected)}</div>
+          <div className="text-title">{formatMoney(totalProjected)}</div>
         </div>
         <div>
           <div className="text-caption opacity-60">Total Actual</div>
-          <div className="text-display">{formatMoney(totalActual)}</div>
+          <div className="text-title">{formatMoney(totalActual)}</div>
         </div>
         <div>
           <div className="text-caption opacity-60">Difference</div>
-          <div className={`text-display ${diffColor}`}>{formatMoney(totalDiff)}</div>
+          <div className={`text-title ${diffColor}`}>{formatMoney(totalDiff)}</div>
         </div>
       </div>
     </section>
