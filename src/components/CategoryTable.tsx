@@ -69,10 +69,10 @@ export default function CategoryTable({
     <section className="bg-card rounded-card p-4 mb-3">
       <div className="flex justify-between items-center mb-2">
         <div className="flex items-center gap-1.5">
-          <span className="text-base">{category.icon}</span>
-          <span className="font-extrabold text-sm">{category.name}</span>
+          <span className="text-body">{category.icon}</span>
+          <span className="text-heading">{category.name}</span>
         </div>
-        <span className={`text-xs font-bold ${differenceClass('cost', subDiff)}`}>
+        <span className={`text-label ${differenceClass('cost', subDiff)}`}>
           {subDiff === 0 ? 'on budget' : (subDiff > 0 ? `${formatMoney(subDiff)} over` : `${formatMoney(Math.abs(subDiff))} under`)}
         </span>
       </div>
@@ -88,13 +88,13 @@ export default function CategoryTable({
         className="hidden sm:grid gap-1.5 items-center mb-1"
         style={{ gridTemplateColumns: ROW_GRID }}
       >
-        <div className="text-muted text-xs uppercase tracking-wider">Name</div>
-        <div className="text-muted text-xs uppercase tracking-wider text-right">Proj</div>
-        <div className="text-muted text-xs uppercase tracking-wider text-right">Actual</div>
-        <div className="text-muted text-xs uppercase tracking-wider">Cur</div>
-        <div className="text-muted text-xs uppercase tracking-wider text-right">Diff</div>
-        <div className="text-muted text-xs uppercase tracking-wider">Paid</div>
-        <div className="text-muted text-xs uppercase tracking-wider">Due</div>
+        <div className="text-muted text-label uppercase tracking-wider">Name</div>
+        <div className="text-muted text-label uppercase tracking-wider text-right">Proj</div>
+        <div className="text-muted text-label uppercase tracking-wider text-right">Actual</div>
+        <div className="text-muted text-label uppercase tracking-wider">Cur</div>
+        <div className="text-muted text-label uppercase tracking-wider text-right">Diff</div>
+        <div className="text-muted text-label uppercase tracking-wider">Paid</div>
+        <div className="text-muted text-label uppercase tracking-wider">Due</div>
         <div />
       </div>
 
@@ -128,21 +128,21 @@ export default function CategoryTable({
         type="button"
         onClick={() => setDrafting(true)}
         disabled={drafting}
-        className="mt-2 w-full text-xs text-muted bg-bg rounded-control px-2.5 py-1.5 disabled:opacity-50"
+        className="mt-2 w-full text-caption text-muted bg-bg rounded-control px-2.5 py-1.5 disabled:opacity-50"
         style={{ border: '1px dashed var(--dashed)' }}
       >
         + Add item
       </button>
 
       <div
-        className="mt-2 pt-1.5 flex justify-between text-xs"
+        className="mt-2 pt-1.5 flex justify-between"
         style={{ borderTop: '1px dashed var(--dashed)' }}
       >
-        <span className="font-bold">Subtotal</span>
-        <span data-testid={`subtotal-${category.id}`}>
+        <span className="text-label">Subtotal</span>
+        <span data-testid={`subtotal-${category.id}`} className="text-money">
           <span className="text-muted">{formatMoney(subProjected)} / {formatMoney(subActual)}</span>{' '}
           ·{' '}
-          <span className={`font-bold ${differenceClass('cost', subDiff)}`}>{formatMoney(subDiff)}</span>
+          <span className={differenceClass('cost', subDiff)}>{formatMoney(subDiff)}</span>
         </span>
       </div>
     </section>

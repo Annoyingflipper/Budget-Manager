@@ -209,7 +209,7 @@ export default function LineItemRow({
       type="button"
       onClick={handleDelete}
       aria-label="Confirm delete"
-      className="text-negative text-base"
+      className="text-negative text-body"
     >
       ✓
     </button>
@@ -235,7 +235,7 @@ export default function LineItemRow({
       onChange={(e) => setName(e.target.value)}
       onBlur={saveName}
       aria-label={`Name for ${item.name}`}
-      className="w-full min-w-0 px-2 py-1 border border-highlight rounded-control bg-card text-sm"
+      className="w-full min-w-0 px-2 py-1 border border-highlight rounded-control bg-card text-body"
     />
   );
 
@@ -247,7 +247,7 @@ export default function LineItemRow({
       onChange={(e) => setProjected(e.target.value)}
       onBlur={saveProjected}
       aria-label={`Projected for ${item.name}`}
-      className="w-full min-w-0 px-2 py-1 border border-highlight rounded-control bg-card text-sm text-right"
+      className="w-full min-w-0 px-2 py-1 border border-highlight rounded-control bg-card text-money text-right"
     />
   );
 
@@ -259,7 +259,7 @@ export default function LineItemRow({
       onChange={(e) => setActual(e.target.value)}
       onBlur={saveActual}
       aria-label={`Actual for ${item.name}`}
-      className="w-full min-w-0 px-2 py-1 border border-highlight rounded-control bg-card text-sm text-right"
+      className="w-full min-w-0 px-2 py-1 border border-highlight rounded-control bg-card text-money text-right"
     />
   );
 
@@ -269,7 +269,7 @@ export default function LineItemRow({
       onChange={(e) => saveCurrency((e.target.value || null) as Currency | null)}
       aria-label="Currency"
       title="Currency for this expense"
-      className="w-full min-w-0 px-1 py-1 border border-highlight rounded-control bg-card text-xs"
+      className="w-full min-w-0 px-1 py-1 border border-highlight rounded-control bg-card text-caption"
     >
       <option value="">—</option>
       {CURRENCY_CODES.map((code) => <option key={code} value={code}>{code}</option>)}
@@ -280,10 +280,10 @@ export default function LineItemRow({
   // in the base currency has nothing to convert and no rate to override, so the
   // strip would be dead weight on every row.
   const currencyStrip = !showConverted ? null : (
-    <div className="flex items-center gap-2 flex-wrap text-xs text-muted pl-1 pb-1">
+    <div className="flex items-center gap-2 flex-wrap text-caption text-muted pl-1 pb-1">
       {showConverted && (
         <span data-testid={`converted-${item.id}`}>
-          ≈ <span className="font-bold text-text">{formatCurrency(item.baseProjected, base)}</span>
+          ≈ <span className="text-money text-text">{formatCurrency(item.baseProjected, base)}</span>
           {item.baseActual !== item.baseProjected && (
             <> · actual {formatCurrency(item.baseActual, base)}</>
           )}
@@ -300,7 +300,7 @@ export default function LineItemRow({
           placeholder="official"
           aria-label="Rate override"
           title={`${item.currency} per 1 USD — leave blank to use the official rate`}
-          className="w-24 px-1 py-0.5 border border-highlight rounded bg-card text-xs"
+          className="w-24 px-1 py-0.5 border border-highlight rounded bg-card text-caption"
         />
       </label>
       {item.rateUnitsPerUsd !== null && (
@@ -311,7 +311,7 @@ export default function LineItemRow({
       {!item.rateResolved && (
         <span
           data-testid={`rate-unresolved-${item.id}`}
-          className="text-warning font-bold"
+          className="text-warning"
           title="No rate is known for this date, so this expense is counted at face value"
         >
           ⚠ no rate for this date
@@ -360,7 +360,7 @@ export default function LineItemRow({
           </div>
           <div>
             <div className="text-[9px] uppercase tracking-wider text-muted mb-0.5">Diff</div>
-            <div className={`px-2 py-1 text-right text-sm font-bold ${diffClass}`}>
+            <div className={`px-2 py-1 text-right text-money ${diffClass}`}>
               {formatCurrency(diff, nativeCurrency)}
             </div>
           </div>
@@ -392,7 +392,7 @@ export default function LineItemRow({
         {projectedInput}
         {actualInput}
         {currencySelect}
-        <div className={`text-right pr-1 text-sm font-bold ${diffClass}`}>
+        <div className={`text-right pr-1 text-money ${diffClass}`}>
           {formatCurrency(diff, nativeCurrency)}
         </div>
         {paidControl}

@@ -31,7 +31,7 @@ export default function DateCell({ value, onSave, label, empty, clear, tone, tes
         onClick={() => { if (empty.onClick) empty.onClick(); else setEditing(true); }}
         aria-label={empty.ariaLabel}
         data-testid={testId}
-        className="w-full px-2 py-1 border border-highlight rounded-control bg-bg text-muted text-xs hover:text-positive"
+        className="w-full px-2 py-1 border border-highlight rounded-control bg-bg text-muted text-label hover:text-positive"
       >
         {empty.label}
       </button>
@@ -45,7 +45,7 @@ export default function DateCell({ value, onSave, label, empty, clear, tone, tes
         onClick={() => { setEditing(false); onSave(null); }}
         aria-label={clear.ariaLabel}
         title={clear.ariaLabel}
-        className="shrink-0 text-positive hover:text-negative text-sm"
+        className="shrink-0 text-positive hover:text-negative text-label"
       >
         {clear.glyph}
       </button>
@@ -66,7 +66,7 @@ export default function DateCell({ value, onSave, label, empty, clear, tone, tes
           onSave(draft);
         }}
         title={tone === 'overdue' ? 'Overdue' : undefined}
-        className={`w-full min-w-0 px-1 py-1 border rounded-control bg-card text-xs ${
+        className={`w-full min-w-0 px-1 py-1 border rounded-control bg-card text-label ${
           tone === 'overdue' ? 'border-negative ring-1 ring-negative' : 'border-highlight'
         }`}
       />

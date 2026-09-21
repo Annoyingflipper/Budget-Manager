@@ -63,7 +63,7 @@ export default function AttachmentStrip({
             onClick={() => onOpen(0)}
             data-testid={`attachment-doc-${lineItemId}`}
             aria-label={`View receipts for this expense (${attachments.length})`}
-            className="shrink-0 text-sm"
+            className="shrink-0 text-caption"
           >
             📄
           </button>
@@ -71,7 +71,7 @@ export default function AttachmentStrip({
       )}
 
       {attachments.length > 1 && (
-        <span data-testid={`attachment-count-${lineItemId}`} className="text-xs text-muted">
+        <span data-testid={`attachment-count-${lineItemId}`} className="text-caption text-muted">
           ×{attachments.length}
         </span>
       )}
@@ -106,17 +106,17 @@ export default function AttachmentStrip({
             ? `Up to ${MAX_PER_ITEM} attachments per expense`
             : 'Attach a receipt or payment screenshot'
         }
-        className="shrink-0 flex items-center gap-1 text-xs text-muted hover:text-text
+        className="shrink-0 flex items-center gap-1 text-caption text-muted hover:text-text
                    rounded px-2 py-0.5 bg-bg disabled:opacity-40"
       >
         <span aria-hidden="true">📎</span>
         <span>{attachments.length === 0 ? 'Choose a file' : 'Add another'}</span>
       </button>
 
-      {uploading && <span className="text-xs text-muted">Uploading…</span>}
+      {uploading && <span className="text-caption text-muted">Uploading…</span>}
 
       {error && (
-        <span data-testid={`attachment-error-${lineItemId}`} className="text-xs text-negative">
+        <span data-testid={`attachment-error-${lineItemId}`} className="text-caption text-negative">
           {error}
         </span>
       )}
