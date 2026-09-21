@@ -56,7 +56,7 @@ export default function Insights({ selectedMonth, budget, onBack, base = 'USD' }
 
       <div>
         <h1 className="text-title">Insights</h1>
-        <p className="text-muted text-caption">{formatMonthLabel(selectedMonth)}</p>
+        <p className="text-muted text-body">{formatMonthLabel(selectedMonth)}</p>
       </div>
 
       <ProjectedVsActualChart totals={totals} />

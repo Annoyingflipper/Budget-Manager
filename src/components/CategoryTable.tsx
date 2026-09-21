@@ -128,7 +128,7 @@ export default function CategoryTable({
         type="button"
         onClick={() => setDrafting(true)}
         disabled={drafting}
-        className="mt-2 w-full text-caption text-muted bg-bg rounded-control px-2.5 py-1.5 disabled:opacity-50"
+        className="mt-2 w-full text-label text-muted bg-bg rounded-control px-2.5 py-1.5 disabled:opacity-50"
         style={{ border: '1px dashed var(--dashed)' }}
       >
         + Add item

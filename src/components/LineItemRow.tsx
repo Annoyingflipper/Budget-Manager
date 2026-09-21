@@ -269,7 +269,7 @@ export default function LineItemRow({
       onChange={(e) => saveCurrency((e.target.value || null) as Currency | null)}
       aria-label="Currency"
       title="Currency for this expense"
-      className="w-full min-w-0 px-1 py-1 border border-highlight rounded-control bg-card text-caption"
+      className="w-full min-w-0 px-1 py-1 border border-highlight rounded-control bg-card text-label"
     >
       <option value="">—</option>
       {CURRENCY_CODES.map((code) => <option key={code} value={code}>{code}</option>)}
@@ -300,7 +300,7 @@ export default function LineItemRow({
           placeholder="official"
           aria-label="Rate override"
           title={`${item.currency} per 1 USD — leave blank to use the official rate`}
-          className="w-24 px-1 py-0.5 border border-highlight rounded bg-card text-caption"
+          className="w-24 px-1 py-0.5 border border-highlight rounded-control bg-card text-caption"
         />
       </label>
       {item.rateUnitsPerUsd !== null && (
@@ -311,7 +311,7 @@ export default function LineItemRow({
       {!item.rateResolved && (
         <span
           data-testid={`rate-unresolved-${item.id}`}
-          className="text-warning"
+          className="text-label text-warning"
           title="No rate is known for this date, so this expense is counted at face value"
         >
           ⚠ no rate for this date
@@ -344,22 +344,22 @@ export default function LineItemRow({
 
   if (isMobile) {
     return (
-      <div className="flex flex-col gap-2 p-2 bg-bg rounded-control">
+      <div data-testid={`line-item-${item.id}`} className="flex flex-col gap-2 p-2 bg-bg rounded-control">
         <div className="flex items-center gap-2">
           {nameInput}
           <div className="shrink-0">{deleteButton}</div>
         </div>
         <div className="grid grid-cols-3 gap-2">
           <div>
-            <div className="text-[9px] uppercase tracking-wider text-muted mb-0.5">Projected</div>
+            <div className="text-caption uppercase tracking-wider text-muted mb-0.5">Projected</div>
             {projectedInput}
           </div>
           <div>
-            <div className="text-[9px] uppercase tracking-wider text-muted mb-0.5">Actual</div>
+            <div className="text-caption uppercase tracking-wider text-muted mb-0.5">Actual</div>
             {actualInput}
           </div>
           <div>
-            <div className="text-[9px] uppercase tracking-wider text-muted mb-0.5">Diff</div>
+            <div className="text-caption uppercase tracking-wider text-muted mb-0.5">Diff</div>
             <div className={`px-2 py-1 text-right text-money ${diffClass}`}>
               {formatCurrency(diff, nativeCurrency)}
             </div>
@@ -367,15 +367,15 @@ export default function LineItemRow({
         </div>
         <div className="grid grid-cols-2 gap-2">
           <div>
-            <div className="text-[9px] uppercase tracking-wider text-muted mb-0.5">Paid</div>
+            <div className="text-caption uppercase tracking-wider text-muted mb-0.5">Paid</div>
             {paidControl}
           </div>
           <div>
-            <div className="text-[9px] uppercase tracking-wider text-muted mb-0.5">Due</div>
+            <div className="text-caption uppercase tracking-wider text-muted mb-0.5">Due</div>
             {dueControl}
           </div>
           <div>
-            <div className="text-[9px] uppercase tracking-wider text-muted mb-0.5">Currency</div>
+            <div className="text-caption uppercase tracking-wider text-muted mb-0.5">Currency</div>
             {currencySelect}
           </div>
         </div>

@@ -90,11 +90,11 @@ export default function DraftRow({ onCommit, onDiscard }: Props) {
         {nameInput}
         <div className="grid grid-cols-2 gap-2">
           <div>
-            <div className="text-[9px] uppercase tracking-wider text-muted mb-0.5">Projected</div>
+            <div className="text-caption uppercase tracking-wider text-muted mb-0.5">Projected</div>
             {projectedInput}
           </div>
           <div>
-            <div className="text-[9px] uppercase tracking-wider text-muted mb-0.5">Actual</div>
+            <div className="text-caption uppercase tracking-wider text-muted mb-0.5">Actual</div>
             {actualInput}
           </div>
         </div>

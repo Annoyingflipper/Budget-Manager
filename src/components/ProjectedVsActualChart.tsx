@@ -17,7 +17,7 @@ export default function ProjectedVsActualChart({ totals }: Props) {
         return (
           <div key={t.id} data-testid={`chart-row-${t.id}`}>
             <div className="flex justify-between mb-1">
-              <span className="text-caption">{t.icon} {t.name}</span>
+              <span className="text-body">{t.icon} {t.name}</span>
               <span className={`text-money ${over ? 'text-negative' : 'text-positive'}`}>
                 {formatMoney(t.actual)} / {formatMoney(t.projected)}
               </span>

@@ -58,7 +58,7 @@ export default function Settings({ onBack, onCategoriesChanged, onOpenChangelog 
       <section className="bg-card rounded-card p-4">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <div className="text-label">Color mode</div>
+            <div className="text-heading">Color mode</div>
             <div className="text-muted text-caption">Light during the day, dark at night.</div>
           </div>
           <div
@@ -93,7 +93,7 @@ export default function Settings({ onBack, onCategoriesChanged, onOpenChangelog 
       </section>
 
       {/* Theme picker */}
-      <div className="text-label">Theme</div>
+      <div className="text-heading">Theme</div>
       <div role="radiogroup" aria-label="Theme" className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {THEMES.map((t) => (
           <ThemeCard
@@ -110,7 +110,7 @@ export default function Settings({ onBack, onCategoriesChanged, onOpenChangelog 
         <p className="text-muted text-body">Make the budget match what you actually spend on.</p>
       </div>
       <section className="bg-card rounded-card p-4">
-        <div className="text-label">Base currency</div>
+        <div className="text-heading">Base currency</div>
         <div className="text-muted text-caption mb-2">
           The currency your total available is shown in.
         </div>

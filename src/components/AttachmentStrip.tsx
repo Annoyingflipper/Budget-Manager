@@ -54,7 +54,7 @@ export default function AttachmentStrip({
               // If the object is gone or the URL has expired, fall back to the
               // document icon rather than showing a broken image.
               onError={() => setThumbUrl(null)}
-              className="h-7 w-7 object-cover rounded border border-highlight"
+              className="h-7 w-7 object-cover rounded-control border border-highlight"
             />
           </button>
         ) : (
@@ -107,7 +107,7 @@ export default function AttachmentStrip({
             : 'Attach a receipt or payment screenshot'
         }
         className="shrink-0 flex items-center gap-1 text-caption text-muted hover:text-text
-                   rounded px-2 py-0.5 bg-bg disabled:opacity-40"
+                   rounded-control px-2 py-0.5 bg-bg disabled:opacity-40"
       >
         <span aria-hidden="true">📎</span>
         <span>{attachments.length === 0 ? 'Choose a file' : 'Add another'}</span>

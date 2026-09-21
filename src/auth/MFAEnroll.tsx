@@ -90,7 +90,7 @@ export default function MFAEnroll() {
           placeholder="123456"
           value={code}
           onChange={(e) => setCode(e.target.value)}
-          className="w-full border border-highlight bg-card rounded-control px-3 py-2 text-center text-body tracking-widest"
+          className="w-full border border-highlight bg-card rounded-control px-3 py-2 text-center text-heading tracking-widest"
           required
         />
         {error && <p className="text-negative text-body">{error}</p>}

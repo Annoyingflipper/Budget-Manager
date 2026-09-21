@@ -24,7 +24,12 @@ test.describe('accessibility @a11y', () => {
     await dashboardPage.goto();
     // Wait for real line items, not just the shell: the nine unlabelled
     // inputs this scan exists to catch live inside CategoryTable's rows.
-    await expect(dashboardPage.page.locator('input[type="number"]').first()).toBeVisible();
+    // Anchored to a line-item row (not IncomeSummary's Projected field,
+    // which renders before any category data arrives and would let this
+    // wait pass against an empty budget).
+    await expect(
+      dashboardPage.page.locator('[data-testid^="line-item-"]').first(),
+    ).toBeVisible();
 
     const violations = await seriousOrCritical(dashboardPage.page);
     expect(violations, JSON.stringify(violations, null, 2)).toEqual([]);
@@ -37,7 +42,9 @@ test.describe('accessibility @a11y', () => {
     // stacked rows instead of an 8-column grid.
     await dashboardPage.page.setViewportSize({ width: 375, height: 812 });
     await dashboardPage.goto();
-    await expect(dashboardPage.page.locator('input[type="number"]').first()).toBeVisible();
+    await expect(
+      dashboardPage.page.locator('[data-testid^="line-item-"]').first(),
+    ).toBeVisible();
 
     const violations = await seriousOrCritical(dashboardPage.page);
     expect(violations, JSON.stringify(violations, null, 2)).toEqual([]);

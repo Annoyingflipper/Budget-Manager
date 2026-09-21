@@ -24,7 +24,7 @@ export default function UnresolvedRatesNotice({ categories, onOpenRates }: Props
     >
       <div className="text-body">
         <span className="text-warning">⚠</span>{' '}
-        <span>
+        <span className="text-label">
           {affected.length} {noun}
         </span>{' '}
         <span className="text-muted">

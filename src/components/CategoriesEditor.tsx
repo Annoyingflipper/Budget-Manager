@@ -130,7 +130,7 @@ export default function CategoriesEditor({ onCategoriesChanged }: Props = {}) {
 
   return (
     <section className="bg-card rounded-card p-4">
-      <div className="text-label">Categories</div>
+      <div className="text-heading">Categories</div>
       <div className="text-muted text-caption mb-2">Drag to reorder. Click an emoji to change it.</div>
       {error && <div className="text-negative text-caption mb-2">{error}</div>}
       <div className="space-y-1.5">
@@ -195,7 +195,7 @@ export default function CategoriesEditor({ onCategoriesChanged }: Props = {}) {
             className="bg-card rounded-card p-5 max-w-sm w-full"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="text-label mb-2">Delete "{dialog.source.name}"?</div>
+            <div className="text-heading mb-2">Delete "{dialog.source.name}"?</div>
             {dialog.itemCount === 0 ? (
               <div className="text-muted text-caption mb-3">It has no items.</div>
             ) : (
@@ -225,7 +225,7 @@ export default function CategoriesEditor({ onCategoriesChanged }: Props = {}) {
               <button
                 type="button"
                 onClick={() => setDialog({ open: false })}
-                className="text-caption bg-bg rounded-control px-2.5 py-1"
+                className="text-label bg-bg rounded-control px-2.5 py-1"
               >
                 Cancel
               </button>
@@ -233,7 +233,7 @@ export default function CategoriesEditor({ onCategoriesChanged }: Props = {}) {
                 type="button"
                 onClick={confirmDelete}
                 disabled={dialog.itemCount > 0 && !dstChoice}
-                className="text-caption bg-negative text-white rounded-control px-2.5 py-1 disabled:opacity-50"
+                className="text-label bg-negative text-white rounded-control px-2.5 py-1 disabled:opacity-50"
               >
                 {dialog.itemCount === 0 ? 'Delete' : 'Move & delete'}
               </button>

@@ -87,7 +87,7 @@ export default function ComingUp({ categories, accounts, rates, base, month }: P
 
   return (
     <section data-testid="coming-up" className="bg-card rounded-card px-4 py-3 mb-3">
-      <div className="text-heading uppercase tracking-wider text-muted mb-1">
+      <div className="text-caption uppercase tracking-wider text-muted mb-1">
         ⏰ Coming up — {formatMonthLabel(month)}
       </div>
 
@@ -111,8 +111,8 @@ export default function ComingUp({ categories, accounts, rates, base, month }: P
           ) : (
             <>
               <div className="text-caption text-muted">
-                <span className="text-money">{formatCurrency(summary.actionableAmount, base)}</span> due soon ·{' '}
-                <span className="text-money">{formatCurrency(available, base)}</span> available
+                {formatCurrency(summary.actionableAmount, base)} due soon ·{' '}
+                {formatCurrency(available, base)} available
               </div>
               {shortfall !== null && shortfall > 0 ? (
                 <div className="text-label text-negative mt-0.5">

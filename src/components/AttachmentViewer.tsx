@@ -120,7 +120,7 @@ export default function AttachmentViewer({
                 src={url}
                 alt={current.originalName}
                 data-testid="viewer-image"
-                className="max-h-[70vh] max-w-full object-contain rounded"
+                className="max-h-[70vh] max-w-full object-contain rounded-card"
               />
             ) : (
               <a
