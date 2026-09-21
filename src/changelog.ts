@@ -7,6 +7,19 @@ export type ChangelogEntry = {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '2.2',
+    date: '2026-09-20',
+    title: 'A proper look',
+    highlights: [
+      'New layout: the navigation lives in a sidebar on a computer and a bar along the bottom on a phone, so it is always there instead of only at the top of the page.',
+      'The month controls moved into their own row above the budget — they act on the month you are looking at, not on which page you are on.',
+      'Everything is now set on one type scale, so headings look like headings and amounts line up down a column instead of drifting.',
+      'Text colours were corrected across all six themes. Several of them, error messages especially, were genuinely hard to read before.',
+      'Tabbing through the app now shows you where you are, and every box you can type into tells a screen reader what it is for.',
+      'On a phone, sign out is in Settings.',
+    ],
+  },
+  {
     version: '2.1',
     date: '2026-09-20',
     title: 'Mesada',
