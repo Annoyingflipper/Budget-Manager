@@ -59,6 +59,18 @@ describe('TotalAvailable (compact)', () => {
     expect(screen.getByTestId('total-available-card')).toHaveTextContent('1 account');
   });
 
+  it('gives the compact card figure heading weight, not column weight', () => {
+    // text-money exists so that a COLUMN of amounts lines up digit-for-digit.
+    // This card is a single figure between two captions and is the only reason
+    // the card exists, so at text-money (15px) it rendered the same size as the
+    // "1 account" line beneath it and the card read as having no subject.
+    // BalanceHero makes the same call one step further up with text-display.
+    // The full (non-compact) variant below keeps text-money on purpose: there
+    // it genuinely is in a column, under the per-currency subtotals.
+    render(<TotalAvailable accounts={ACCOUNTS} rates={RATES} base="USD" date="2026-08-01" compact />);
+    expect(screen.getByTestId('grand-total').className).toContain('text-title');
+  });
+
   it('calls onOpen when clicked', () => {
     const onOpen = vi.fn();
     render(<TotalAvailable accounts={ACCOUNTS} rates={RATES} base="USD" date="2026-08-01"

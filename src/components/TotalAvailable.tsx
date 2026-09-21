@@ -31,7 +31,12 @@ export default function TotalAvailable({ accounts, rates, base, date, compact, o
             Set an exchange rate to see your total
           </div>
         ) : (
-          <div className="text-money" data-testid="grand-total">
+          // text-title, not text-money: tabular figures exist to align a COLUMN
+          // of amounts, and this is a single figure between two captions. At
+          // text-money it rendered the same size as the "1 account" line below
+          // it, so the card read as having no subject. The full variant further
+          // down keeps text-money, where it really is in a column of subtotals.
+          <div className="text-title" data-testid="grand-total">
             {formatCurrency(total, base)}
           </div>
         )}
