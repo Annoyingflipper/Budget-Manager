@@ -237,6 +237,49 @@ gambling on whether `font-bold` happens to agree with `--text-heading`'s
 own 700. Pick a different step instead of stacking a weight/line-height
 utility on top of one.
 
+### Type scale in practice
+
+The rule chunk 3 actually followed when migrating components off
+Tailwind's default size/weight utilities onto the seven steps above.
+Recorded here so the next person restyling a new component has the rule
+rather than having to infer it from diffs.
+
+**Each step already carries its own weight and line-height**, so a
+`font-bold`/`font-extrabold` that previously sat beside a size utility is
+deleted, not translated — stacking a weight utility back on top of a step
+is exactly the anti-pattern called out above.
+
+| Replace | With | Because |
+|---|---|---|
+| `text-4xl` / `text-3xl` on a balance or total figure | `text-display` (2.5rem/800) | The largest thing on a screen. |
+| `text-3xl` / `text-2xl` on a page `<h1>` | `text-title` (1.5rem/700) | Page and major section headings. |
+| `text-xl` / `text-lg` on a card or section heading | `text-heading` (1.125rem/700) | Card headings, panel titles, category names. |
+| `text-base` / `text-sm` on running prose or a description | `text-body` (0.9375rem/400) | Default running text. |
+| `text-sm` / `text-xs` **with** `font-bold` or `font-extrabold`, on a form label, column header, or button | `text-label` (0.8125rem/600) | The mid weight the app never had. |
+| `text-xs` on helper text, counts, hints, timestamps | `text-caption` (0.75rem/400) | Secondary information. |
+| Any rendered money amount | `text-money` (0.9375rem/600, tabular) | Columns line up digit-for-digit. |
+
+**Sizes that visibly change as a result — expected, not mistakes:**
+
+| from | to | change |
+|---|---|---|
+| `text-sm` 14px → `text-label` | 13px | slightly smaller, lighter (700→600) |
+| `text-sm` 14px → `text-body` | 15px | slightly larger, much lighter (700→400 where bold was stacked) |
+| `text-base` 16px → `text-body` | 15px | −1px |
+| `text-xl` 20px → `text-heading` | 18px | −2px |
+| `text-3xl` 30px → `text-title` | 24px | −6px |
+| `text-4xl` 36px → `text-display` | 40px | +4px, and 700→800 |
+
+**When a `font-*` utility sits on an element with no size utility**, it
+still goes: pick the step whose role matches and apply that instead. A
+bare `font-bold` on a `<span>` inside a caption-sized parent becomes
+`text-label` if it is a label, `text-money` if it is an amount.
+
+**Colour utilities are untouched by this rule.** `text-muted`,
+`text-negative`, `text-positive`, `text-hero-text` and friends are colour
+tokens, not type steps, and compose with a type step on the same element
+— only the *size* and *weight* families move.
+
 ## 5. Geometry
 
 Three radius tokens, defined in `src/tokens.css`:
@@ -247,38 +290,40 @@ Three radius tokens, defined in `src/tokens.css`:
 | `--radius-card` | 0.75rem | Cards and panels. |
 | `--radius-chip` | 9999px | Reserved — see below. |
 
-As of this chunk, no component has been migrated to the
-`rounded-control`/`rounded-card`/`rounded-chip` utility classes yet (that
-migration is chunk 2/3's job); components still write Tailwind's default
-radius utilities directly. That migration is **not a uniform rename** —
-a survey of every `rounded-*` use in `src/` (non-test files) found three
-distinct existing values doing three different jobs:
+As of chunk 3, every non-test component in `src/` is on the
+`rounded-control`/`rounded-card`/`rounded-chip` utility classes; no
+component writes Tailwind's default radius utilities directly any more.
+The migration was **not a uniform rename** — a survey of every
+`rounded-*` use in `src/` (non-test files) going in found four distinct
+existing values doing three different jobs, and each was mapped
+deliberately rather than by find-and-replace:
 
-| class | value | count | where |
-|---|---|---|---|
-| `rounded-xl` | 0.75rem | 26 | Cards and section containers. |
-| `rounded-lg` | 0.5rem | 35 | Mostly auth screens and header buttons. |
-| `rounded-md` | 0.375rem | 33 | The app's row and table inputs — `DateCell`, `LineItemRow`, `DraftRow`, `IncomeSummary`, `AccountRow`, `CategoriesEditor`, `ExchangeRatesPanel`, `Settings`, `Accounts`. |
+| class | value | count | where | became |
+|---|---|---|---|---|
+| `rounded-xl` | 0.75rem | 26 | Cards and section containers. | `rounded-card` — exact rename, nothing moved. |
+| `rounded-lg` | 0.5rem | 27 | Auth screens, header/nav buttons. | `rounded-control` — exact rename, nothing moved. |
+| `rounded-md` | 0.375rem | 33 | The app's row and table inputs — `DateCell`, `LineItemRow`, `DraftRow`, `IncomeSummary`, `AccountRow`, `CategoriesEditor`, `ExchangeRatesPanel`, `Settings`, `Accounts`. | `rounded-control` — **visible widening, 0.375rem → 0.5rem.** |
+| `rounded-sm` | 0.125rem | 4 | A handful of small chrome elements alongside the `rounded-md` inputs. | `rounded-control` — **visible widening, 0.125rem → 0.5rem.** |
 
-**`--radius-card` (0.75rem) matches `rounded-xl` exactly.** Migrating
-cards from `rounded-xl` to `rounded-card` is a genuine rename — nothing
-should visibly move.
+**`--radius-card` (0.75rem) matched `rounded-xl` exactly**, so that leg of
+the migration was a genuine rename — nothing visibly moved.
 
-**`--radius-control` (0.5rem) does *not* match the app's row/table inputs**,
-which currently sit at `rounded-md` (0.375rem), not `rounded-lg`. It does
-match the `rounded-lg` buttons on auth screens and in the header, so a
-migration limited to those is likewise a plain rename. But `DateCell` —
-the very component this table cites as a `--radius-control` example — is
-one of the 33 `rounded-md` uses, not a `rounded-lg` one. Migrating it
-(and the other row inputs) straight onto `--radius-control` would visibly
-widen their corners from 0.375rem to 0.5rem. See "Known and open" below:
-this is left as an explicit decision for chunk 2/3, not resolved here.
+**`--radius-control` (0.5rem) did *not* match the app's row/table
+inputs**, which sat at `rounded-md` (0.375rem) or, in a few places,
+`rounded-sm` (0.125rem) — together ~37 uses across `DateCell`,
+`LineItemRow`, `DraftRow`, `IncomeSummary`, `AccountRow`,
+`CategoriesEditor`, `ExchangeRatesPanel`, `Settings` and `Accounts`. The
+chunk 2/3 decision (see "Known and open" below) was to widen those inputs
+onto `--radius-control` rather than carve out a second control-radius
+token for them — so `DateCell` and every other row/table input now render
+at the same 0.5rem corner as every other control in the app, a visible
+2px widening from what they shipped with.
 
-**No pill, tag, or chip component exists yet.** The only current
-`rounded-full` usage is `CategoryBudgetBar`'s two bar-fill elements (a
-progress bar, not a pill/chip in the usual sense). `--radius-chip` is
-provided ahead of a consumer, for whenever one is built, rather than
-matching something already in the app.
+**`rounded-full` stays on `CategoryBudgetBar`'s progress fills.** Its only
+uses remain that component's two bar-fill elements — a progress bar, not
+a pill/tag/chip — so it was left off the `--radius-chip` migration.
+`--radius-chip` is still provided ahead of a consumer, for whenever a
+pill/tag/chip component is actually built.
 
 **Spacing deliberately introduces no tokens.** Tailwind's default spacing
 scale is already one consistent ramp; a second, parallel spacing scale
@@ -362,16 +407,17 @@ neither is addressed by this chunk:
   from any dedicated dashboard a11y check (none exists yet). This is
   chunk 3's job, not this chunk's — chunk 1 only lands tokens, it doesn't
   restyle any component.
-- **`--radius-control` doesn't match the app's row/table inputs.** The
-  token is 0.5rem; the row and table inputs it's meant to cover
+- **`--radius-control` and the app's row/table inputs — resolved in
+  chunk 3.** The decision is one control radius: the row and table inputs
   (`DateCell`, `LineItemRow`, `DraftRow`, `IncomeSummary`, `AccountRow`,
-  `CategoriesEditor`, `ExchangeRatesPanel`, `Settings`, `Accounts` — 33
-  uses) currently render at `rounded-md`, 0.375rem. Whoever does the
-  chunk 2/3 restyle has to decide this deliberately rather than migrating
-  by find-and-replace: either widen those inputs to 0.5rem to adopt the
-  token as specified, or leave them off `--radius-control` and either
-  introduce a second control-radius token or accept that row inputs stay
-  an un-tokenized exception. Not decided here.
+  `CategoriesEditor`, `ExchangeRatesPanel`, `Settings`, `Accounts`) adopt
+  `--radius-control` like every other control in the app, widening from
+  `rounded-md`/`rounded-sm` (0.375rem/0.125rem) to 0.5rem. The 0.375rem
+  those components previously rendered at was never a competing design
+  decision — it was what they happened to be written with before a radius
+  scale existed. A second control-radius token would have encoded that
+  accident into the system permanently, for a saving of 2px of corner on
+  ~37 inputs. See §5 Geometry above for the full mapping.
 
 ## How the numbers in this document were produced
 
