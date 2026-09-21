@@ -20,7 +20,7 @@ export default function UnresolvedRatesNotice({ categories, onOpenRates }: Props
   return (
     <section
       data-testid="unresolved-rates"
-      className="bg-card rounded-xl p-3 mb-4 border border-warning"
+      className="bg-card rounded-card p-3 mb-4 border border-warning"
     >
       <div className="text-sm">
         <span className="text-warning font-bold">⚠</span>{' '}
@@ -35,7 +35,7 @@ export default function UnresolvedRatesNotice({ categories, onOpenRates }: Props
       <button
         type="button"
         onClick={onOpenRates}
-        className="mt-2 text-xs bg-bg rounded-md px-2.5 py-1"
+        className="mt-2 text-xs bg-bg rounded-control px-2.5 py-1"
       >
         Set a rate →
       </button>

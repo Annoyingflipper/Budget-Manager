@@ -55,7 +55,7 @@ export default function Settings({ onBack, onCategoriesChanged, onOpenChangelog 
       </div>
 
       {/* Color mode toggle */}
-      <section className="bg-card rounded-xl p-4">
+      <section className="bg-card rounded-card p-4">
         <div className="flex items-center justify-between gap-4">
           <div>
             <div className="font-extrabold text-sm">Color mode</div>
@@ -64,15 +64,15 @@ export default function Settings({ onBack, onCategoriesChanged, onOpenChangelog 
           <div
             role="radiogroup"
             aria-label="Color mode"
-            className="flex bg-bg rounded-xl p-1"
+            className="flex bg-bg rounded-card p-1"
           >
             <button
               type="button"
               role="radio"
               aria-checked={mode === 'light'}
               onClick={() => setMode('light')}
-              className={`px-3 py-1 text-xs font-bold rounded-lg ${
-                mode === 'light' ? 'bg-card shadow-xs' : 'text-muted'
+              className={`px-3 py-1 text-xs font-bold rounded-control ${
+                mode === 'light' ? 'bg-card shadow-e1' : 'text-muted'
               }`}
             >
               ☀️ Light
@@ -82,8 +82,8 @@ export default function Settings({ onBack, onCategoriesChanged, onOpenChangelog 
               role="radio"
               aria-checked={mode === 'dark'}
               onClick={() => setMode('dark')}
-              className={`px-3 py-1 text-xs font-bold rounded-lg ${
-                mode === 'dark' ? 'bg-card shadow-xs' : 'text-muted'
+              className={`px-3 py-1 text-xs font-bold rounded-control ${
+                mode === 'dark' ? 'bg-card shadow-e1' : 'text-muted'
               }`}
             >
               🌙 Dark
@@ -109,7 +109,7 @@ export default function Settings({ onBack, onCategoriesChanged, onOpenChangelog 
         <h2 className="text-2xl font-extrabold">Categories</h2>
         <p className="text-muted text-sm">Make the budget match what you actually spend on.</p>
       </div>
-      <section className="bg-card rounded-xl p-4">
+      <section className="bg-card rounded-card p-4">
         <div className="font-extrabold text-sm">Base currency</div>
         <div className="text-muted text-xs mb-2">
           The currency your total available is shown in.
@@ -118,7 +118,7 @@ export default function Settings({ onBack, onCategoriesChanged, onOpenChangelog 
           value={baseCurrency}
           onChange={(e) => handleBaseCurrency(e.target.value as Currency)}
           aria-label="Base currency"
-          className="px-2 py-1 border border-highlight rounded-md bg-bg text-sm"
+          className="px-2 py-1 border border-highlight rounded-control bg-bg text-sm"
         >
           {CURRENCY_CODES.map((code) => (
             <option key={code} value={code}>{CURRENCIES[code].label} ({code})</option>
@@ -132,7 +132,7 @@ export default function Settings({ onBack, onCategoriesChanged, onOpenChangelog 
         <button
           type="button"
           onClick={onOpenChangelog}
-          className="bg-card border-0 rounded-lg px-3 py-2 text-sm font-bold"
+          className="bg-card border-0 rounded-control px-3 py-2 text-sm font-bold"
         >
           🆕 What's new
         </button>

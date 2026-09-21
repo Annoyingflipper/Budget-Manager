@@ -83,7 +83,7 @@ export default function AttachmentViewer({
         aria-label={`Receipts for ${title}`}
         data-testid="viewer-panel"
         onClick={(e) => e.stopPropagation()}
-        className="bg-card rounded-xl p-4 max-w-3xl w-full max-h-full overflow-auto outline-none"
+        className="bg-card rounded-card p-4 max-w-3xl w-full max-h-full overflow-auto outline-none"
       >
         <div className="flex items-start justify-between gap-3 mb-3">
           <div className="min-w-0">
@@ -155,7 +155,7 @@ export default function AttachmentViewer({
               type="button"
               onClick={() => { setConfirming(false); onDelete(current); }}
               aria-label="Confirm delete attachment"
-              className="text-xs bg-negative text-white rounded-md px-2.5 py-1"
+              className="text-xs bg-negative text-white rounded-control px-2.5 py-1"
             >
               Confirm delete
             </button>

@@ -52,7 +52,7 @@ export default function DraftRow({ onCommit, onDiscard }: Props) {
       value={name}
       onChange={(e) => setName(e.target.value)}
       onKeyDown={handleKey}
-      className="w-full min-w-0 px-2 py-1 border border-highlight rounded-md bg-card text-sm"
+      className="w-full min-w-0 px-2 py-1 border border-highlight rounded-control bg-card text-sm"
     />
   );
 
@@ -64,7 +64,7 @@ export default function DraftRow({ onCommit, onDiscard }: Props) {
       value={projected}
       onChange={(e) => setProjected(e.target.value)}
       onKeyDown={handleKey}
-      className="w-full min-w-0 px-2 py-1 border border-highlight rounded-md bg-card text-sm text-right"
+      className="w-full min-w-0 px-2 py-1 border border-highlight rounded-control bg-card text-sm text-right"
     />
   );
 
@@ -76,7 +76,7 @@ export default function DraftRow({ onCommit, onDiscard }: Props) {
       value={actual}
       onChange={(e) => setActual(e.target.value)}
       onKeyDown={handleKey}
-      className="w-full min-w-0 px-2 py-1 border border-highlight rounded-md bg-card text-sm text-right"
+      className="w-full min-w-0 px-2 py-1 border border-highlight rounded-control bg-card text-sm text-right"
     />
   );
 
@@ -85,7 +85,7 @@ export default function DraftRow({ onCommit, onDiscard }: Props) {
       <div
         ref={rowRef}
         onBlur={handleFocusOut}
-        className="flex flex-col gap-2 p-2 bg-bg rounded-lg"
+        className="flex flex-col gap-2 p-2 bg-bg rounded-control"
       >
         {nameInput}
         <div className="grid grid-cols-2 gap-2">

@@ -37,7 +37,7 @@ export default function IncomeSummary({ income, periodMonth, onChange }: Props) 
   }
 
   return (
-    <section className="bg-card rounded-xl p-4 mb-3">
+    <section className="bg-card rounded-card p-4 mb-3">
       <div className="flex items-center gap-1.5 mb-2.5">
         <span className="text-lg">💰</span>
         <span className="font-extrabold text-sm">Income</span>
@@ -51,7 +51,7 @@ export default function IncomeSummary({ income, periodMonth, onChange }: Props) 
             value={projectedDraft}
             onChange={(e) => setProjectedDraft(e.target.value)}
             onBlur={saveProjected}
-            className="w-full px-2 py-1 border border-highlight rounded-md bg-bg text-base font-bold"
+            className="w-full px-2 py-1 border border-highlight rounded-control bg-bg text-base font-bold"
           />
         </label>
         <label className="block">
@@ -62,7 +62,7 @@ export default function IncomeSummary({ income, periodMonth, onChange }: Props) 
             value={actualDraft}
             onChange={(e) => setActualDraft(e.target.value)}
             onBlur={saveActual}
-            className="w-full px-2 py-1 border border-highlight rounded-md bg-bg text-base font-bold"
+            className="w-full px-2 py-1 border border-highlight rounded-control bg-bg text-base font-bold"
           />
         </label>
         <div className="col-span-2 sm:col-span-1">

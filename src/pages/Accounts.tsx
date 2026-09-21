@@ -151,7 +151,7 @@ export default function Accounts({ onBack, base }: Props) {
 
       {error && <div className="text-negative text-xs">{error}</div>}
 
-      <section className="bg-card rounded-xl p-4 space-y-1.5">
+      <section className="bg-card rounded-card p-4 space-y-1.5">
         {accounts.map((account) => (
           <AccountRow
             key={account.id}
@@ -178,7 +178,7 @@ export default function Accounts({ onBack, base }: Props) {
             }}
             placeholder="New account name"
             aria-label="New account name"
-            className="w-full px-2 py-1 border border-highlight rounded-md bg-card text-sm"
+            className="w-full px-2 py-1 border border-highlight rounded-control bg-card text-sm"
           />
         )}
 
@@ -186,7 +186,7 @@ export default function Accounts({ onBack, base }: Props) {
           type="button"
           onClick={() => setDrafting(true)}
           disabled={drafting}
-          className="mt-2 w-full text-xs text-muted bg-bg rounded-lg px-2.5 py-1.5 disabled:opacity-50"
+          className="mt-2 w-full text-xs text-muted bg-bg rounded-control px-2.5 py-1.5 disabled:opacity-50"
           style={{ border: '1px dashed var(--dashed)' }}
         >
           + Add account

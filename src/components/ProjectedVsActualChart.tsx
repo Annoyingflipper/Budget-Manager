@@ -11,7 +11,7 @@ export default function ProjectedVsActualChart({ totals }: Props) {
   const max = Math.max(...visible.map((t) => Math.max(t.projected, t.actual)), 1);
 
   return (
-    <section className="bg-card rounded-xl p-4 space-y-3">
+    <section className="bg-card rounded-card p-4 space-y-3">
       {visible.map((t) => {
         const over = t.actual > t.projected;
         return (
@@ -24,11 +24,11 @@ export default function ProjectedVsActualChart({ totals }: Props) {
             </div>
             <div className="space-y-1" aria-hidden="true">
               <div
-                className="h-2 rounded-sm bg-muted"
+                className="h-2 rounded-control bg-muted"
                 style={{ width: `${(t.projected / max) * 100}%` }}
               />
               <div
-                className={`h-2 rounded-sm ${over ? 'bg-negative' : 'bg-positive'}`}
+                className={`h-2 rounded-control ${over ? 'bg-negative' : 'bg-positive'}`}
                 style={{ width: `${(t.actual / max) * 100}%` }}
               />
             </div>

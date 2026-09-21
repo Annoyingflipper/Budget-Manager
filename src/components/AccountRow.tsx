@@ -57,7 +57,7 @@ export default function AccountRow({
       onBlur={commitName}
       onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.blur(); }}
       aria-label={`Name for ${account.name}`}
-      className="w-full min-w-0 px-2 py-1 border border-highlight rounded-md bg-card text-sm"
+      className="w-full min-w-0 px-2 py-1 border border-highlight rounded-control bg-card text-sm"
     />
   );
 
@@ -66,7 +66,7 @@ export default function AccountRow({
       value={account.currency}
       onChange={(e) => onChange(account.id, { currency: e.target.value as Currency })}
       aria-label={`Currency for ${account.name}`}
-      className="w-full min-w-0 px-1 py-1 border border-highlight rounded-md bg-card text-xs"
+      className="w-full min-w-0 px-1 py-1 border border-highlight rounded-control bg-card text-xs"
     >
       {CURRENCY_CODES.map((code) => (
         <option key={code} value={code}>{CURRENCIES[code].symbol} {code}</option>
@@ -84,7 +84,7 @@ export default function AccountRow({
       onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.blur(); }}
       aria-label={`Balance for ${account.name}`}
       data-testid={`account-balance-${account.id}`}
-      className={`w-full min-w-0 px-2 py-1 border border-highlight rounded-md bg-card text-sm text-right ${
+      className={`w-full min-w-0 px-2 py-1 border border-highlight rounded-control bg-card text-sm text-right ${
         account.balance < 0 ? 'text-negative' : ''
       }`}
     />
@@ -124,7 +124,7 @@ export default function AccountRow({
     return (
       <div
         data-testid={`account-row-mobile-${account.id}`}
-        className="flex flex-col gap-2 bg-bg rounded-lg p-2"
+        className="flex flex-col gap-2 bg-bg rounded-control p-2"
       >
         <div className="flex items-center gap-2">
           {iconButton}
@@ -142,7 +142,7 @@ export default function AccountRow({
 
   return (
     <div
-      className="grid items-center gap-2 bg-bg rounded-lg p-2"
+      className="grid items-center gap-2 bg-bg rounded-control p-2"
       style={{ gridTemplateColumns: '32px minmax(0, 1fr) 84px 110px 28px' }}
     >
       {iconButton}

@@ -86,7 +86,7 @@ export default function ComingUp({ categories, accounts, rates, base, month }: P
   }
 
   return (
-    <section data-testid="coming-up" className="bg-card rounded-xl px-4 py-3 mb-3">
+    <section data-testid="coming-up" className="bg-card rounded-card px-4 py-3 mb-3">
       <div className="text-xs uppercase tracking-wider text-muted mb-1">
         ⏰ Coming up — {formatMonthLabel(month)}
       </div>

@@ -23,7 +23,7 @@ export default function TotalAvailable({ accounts, rates, base, date, compact, o
         type="button"
         onClick={onOpen}
         data-testid="total-available-card"
-        className="w-full text-left bg-card rounded-xl p-4 mb-4"
+        className="w-full text-left bg-card rounded-card p-4 mb-4"
       >
         <div className="text-xs uppercase tracking-wider text-muted">Total available</div>
         {total === null ? (
@@ -51,7 +51,7 @@ export default function TotalAvailable({ accounts, rates, base, date, compact, o
   }
 
   return (
-    <section className="bg-card rounded-xl p-4">
+    <section className="bg-card rounded-card p-4">
       {subtotals.map((s) => (
         <div key={s.currency} className="flex justify-between text-sm">
           <span className="text-muted">{s.currency} subtotal</span>

@@ -129,7 +129,7 @@ export default function CategoriesEditor({ onCategoriesChanged }: Props = {}) {
   }
 
   return (
-    <section className="bg-card rounded-xl p-4">
+    <section className="bg-card rounded-card p-4">
       <div className="font-extrabold text-sm">Categories</div>
       <div className="text-muted text-xs mb-2">Drag to reorder. Click an emoji to change it.</div>
       {error && <div className="text-negative text-xs mb-2">{error}</div>}
@@ -152,7 +152,7 @@ export default function CategoriesEditor({ onCategoriesChanged }: Props = {}) {
           </div>
         ))}
         {drafting && (
-          <div className="grid items-center gap-2 bg-bg rounded-lg p-2"
+          <div className="grid items-center gap-2 bg-bg rounded-control p-2"
                style={{ gridTemplateColumns: '24px 32px 1fr 28px' }}>
             <span />
             <span className="text-xl text-center">📁</span>
@@ -168,7 +168,7 @@ export default function CategoriesEditor({ onCategoriesChanged }: Props = {}) {
                 if (e.key === 'Escape') { e.preventDefault(); setDrafting(false); setDraftName(''); }
               }}
               placeholder="New category name"
-              className="w-full px-2 py-1 border border-highlight rounded-md bg-card text-sm"
+              className="w-full px-2 py-1 border border-highlight rounded-control bg-card text-sm"
             />
             <span />
           </div>
@@ -178,7 +178,7 @@ export default function CategoriesEditor({ onCategoriesChanged }: Props = {}) {
         type="button"
         onClick={() => setDrafting(true)}
         disabled={drafting}
-        className="mt-2 w-full text-xs text-muted bg-bg rounded-lg px-2.5 py-1.5 disabled:opacity-50"
+        className="mt-2 w-full text-xs text-muted bg-bg rounded-control px-2.5 py-1.5 disabled:opacity-50"
         style={{ border: '1px dashed var(--dashed)' }}
       >
         + Add category
@@ -192,7 +192,7 @@ export default function CategoriesEditor({ onCategoriesChanged }: Props = {}) {
           onClick={() => setDialog({ open: false })}
         >
           <div
-            className="bg-card rounded-xl p-5 max-w-sm w-full"
+            className="bg-card rounded-card p-5 max-w-sm w-full"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="font-extrabold text-sm mb-2">Delete "{dialog.source.name}"?</div>
@@ -209,7 +209,7 @@ export default function CategoriesEditor({ onCategoriesChanged }: Props = {}) {
                     aria-label="Move to"
                     value={dstChoice ?? ''}
                     onChange={(e) => setDstChoice(Number(e.target.value) || null)}
-                    className="w-full mt-1 px-2 py-1 border border-highlight rounded-md bg-bg text-sm"
+                    className="w-full mt-1 px-2 py-1 border border-highlight rounded-control bg-bg text-sm"
                   >
                     <option value="">Pick a category</option>
                     {categories
@@ -225,7 +225,7 @@ export default function CategoriesEditor({ onCategoriesChanged }: Props = {}) {
               <button
                 type="button"
                 onClick={() => setDialog({ open: false })}
-                className="text-xs bg-bg rounded-md px-2.5 py-1"
+                className="text-xs bg-bg rounded-control px-2.5 py-1"
               >
                 Cancel
               </button>
@@ -233,7 +233,7 @@ export default function CategoriesEditor({ onCategoriesChanged }: Props = {}) {
                 type="button"
                 onClick={confirmDelete}
                 disabled={dialog.itemCount > 0 && !dstChoice}
-                className="text-xs bg-negative text-white rounded-md px-2.5 py-1 disabled:opacity-50"
+                className="text-xs bg-negative text-white rounded-control px-2.5 py-1 disabled:opacity-50"
               >
                 {dialog.itemCount === 0 ? 'Delete' : 'Move & delete'}
               </button>

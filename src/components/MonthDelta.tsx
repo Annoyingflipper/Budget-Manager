@@ -9,7 +9,7 @@ export default function MonthDelta({ delta }: Props) {
   }
 
   return (
-    <section className="bg-card rounded-xl p-4">
+    <section className="bg-card rounded-card p-4">
       <div className="text-[10px] uppercase tracking-widest text-muted mb-2">
         vs last month
       </div>

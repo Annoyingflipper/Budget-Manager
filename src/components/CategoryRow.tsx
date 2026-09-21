@@ -53,7 +53,7 @@ export default function CategoryRow({
 
   return (
     <div
-      className="grid items-center gap-2 bg-bg rounded-lg p-2"
+      className="grid items-center gap-2 bg-bg rounded-control p-2"
       style={{ gridTemplateColumns: '24px 32px 1fr 28px' }}
     >
       <button
@@ -70,7 +70,7 @@ export default function CategoryRow({
           onClick={() => setPickerOpen((o) => !o)}
           onMouseDown={(e) => e.stopPropagation()}
           aria-label={`Change icon for ${category.name}`}
-          className="text-xl hover:bg-card rounded-md w-full text-center"
+          className="text-xl hover:bg-card rounded-control w-full text-center"
         >
           {category.icon}
         </button>
@@ -87,7 +87,7 @@ export default function CategoryRow({
         onChange={(e) => setName(e.target.value)}
         onBlur={saveName}
         aria-label={`Name for ${category.name}`}
-        className="w-full px-2 py-1 border border-highlight rounded-md bg-card text-sm"
+        className="w-full px-2 py-1 border border-highlight rounded-control bg-card text-sm"
       />
       <button
         type="button"

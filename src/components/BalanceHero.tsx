@@ -15,7 +15,7 @@ export default function BalanceHero({ income, categories }: Props) {
   const balanceClass = differenceClass('income', balanceDelta);
 
   return (
-    <section className="bg-card rounded-xl p-4 mb-4">
+    <section className="bg-card rounded-card p-4 mb-4">
       <div className="text-xs uppercase tracking-wider text-muted">Where you stand</div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-1">
         <div>

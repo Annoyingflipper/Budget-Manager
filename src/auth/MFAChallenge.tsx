@@ -64,7 +64,7 @@ export default function MFAChallenge() {
           placeholder="123456"
           value={code}
           onChange={(e) => setCode(e.target.value)}
-          className="w-full border border-highlight bg-card rounded-lg px-3 py-2 text-center text-lg tracking-widest"
+          className="w-full border border-highlight bg-card rounded-control px-3 py-2 text-center text-lg tracking-widest"
           required
           autoFocus
         />
@@ -72,7 +72,7 @@ export default function MFAChallenge() {
         <button
           type="submit"
           disabled={busy || code.length !== 6}
-          className="w-full bg-hero-bg text-hero-text rounded-lg py-2 font-bold disabled:opacity-50"
+          className="w-full bg-hero-bg text-hero-text rounded-control py-2 font-bold disabled:opacity-50"
         >
           {busy ? 'Verifying…' : 'Continue'}
         </button>

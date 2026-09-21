@@ -34,7 +34,7 @@ export default function Signup({ onSwitch }: Props) {
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full border border-highlight bg-card rounded-lg px-3 py-2"
+          className="w-full border border-highlight bg-card rounded-control px-3 py-2"
           required
         />
         <input
@@ -43,7 +43,7 @@ export default function Signup({ onSwitch }: Props) {
           minLength={6}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full border border-highlight bg-card rounded-lg px-3 py-2"
+          className="w-full border border-highlight bg-card rounded-control px-3 py-2"
           required
         />
         {error && <p className="text-negative text-sm">{error}</p>}
@@ -51,7 +51,7 @@ export default function Signup({ onSwitch }: Props) {
         <button
           type="submit"
           disabled={busy}
-          className="w-full bg-hero-bg text-hero-text rounded-lg py-2 font-bold disabled:opacity-50"
+          className="w-full bg-hero-bg text-hero-text rounded-control py-2 font-bold disabled:opacity-50"
         >
           {busy ? 'Creating account…' : 'Sign up'}
         </button>

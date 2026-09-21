@@ -70,7 +70,7 @@ export default function MFAEnroll() {
         <img
           src={qr}
           alt="TOTP QR code"
-          className="border border-highlight rounded-lg mx-auto bg-card p-2"
+          className="border border-highlight rounded-control mx-auto bg-card p-2"
           width={200}
           height={200}
         />
@@ -78,7 +78,7 @@ export default function MFAEnroll() {
       {secret && (
         <p className="text-xs text-muted break-all">
           Or enter this secret manually:{' '}
-          <code className="bg-bg px-1 rounded-sm">{secret}</code>
+          <code className="bg-bg px-1 rounded-control">{secret}</code>
         </p>
       )}
       <form onSubmit={verify} className="space-y-2">
@@ -90,14 +90,14 @@ export default function MFAEnroll() {
           placeholder="123456"
           value={code}
           onChange={(e) => setCode(e.target.value)}
-          className="w-full border border-highlight bg-card rounded-lg px-3 py-2 text-center text-lg tracking-widest"
+          className="w-full border border-highlight bg-card rounded-control px-3 py-2 text-center text-lg tracking-widest"
           required
         />
         {error && <p className="text-negative text-sm">{error}</p>}
         <button
           type="submit"
           disabled={busy || code.length !== 6}
-          className="w-full bg-hero-bg text-hero-text rounded-lg py-2 font-bold disabled:opacity-50"
+          className="w-full bg-hero-bg text-hero-text rounded-control py-2 font-bold disabled:opacity-50"
         >
           {busy ? 'Verifying…' : 'Verify and continue'}
         </button>

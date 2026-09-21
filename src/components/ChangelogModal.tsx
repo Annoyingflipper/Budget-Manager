@@ -16,7 +16,7 @@ export default function ChangelogModal({ entry, onDismiss, showAllAfter }: Props
       onClick={onDismiss}
     >
       <div
-        className="bg-card rounded-xl p-5 max-w-md w-full max-h-[80vh] overflow-y-auto"
+        className="bg-card rounded-card p-5 max-w-md w-full max-h-[80vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between mb-3">
@@ -59,7 +59,7 @@ export default function ChangelogModal({ entry, onDismiss, showAllAfter }: Props
           <button
             type="button"
             onClick={onDismiss}
-            className="bg-positive text-white text-sm font-bold px-3 py-1.5 rounded-md"
+            className="bg-positive text-white text-sm font-bold px-3 py-1.5 rounded-control"
           >
             Got it
           </button>

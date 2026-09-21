@@ -235,7 +235,7 @@ export default function LineItemRow({
       onChange={(e) => setName(e.target.value)}
       onBlur={saveName}
       aria-label={`Name for ${item.name}`}
-      className="w-full min-w-0 px-2 py-1 border border-highlight rounded-md bg-card text-sm"
+      className="w-full min-w-0 px-2 py-1 border border-highlight rounded-control bg-card text-sm"
     />
   );
 
@@ -247,7 +247,7 @@ export default function LineItemRow({
       onChange={(e) => setProjected(e.target.value)}
       onBlur={saveProjected}
       aria-label={`Projected for ${item.name}`}
-      className="w-full min-w-0 px-2 py-1 border border-highlight rounded-md bg-card text-sm text-right"
+      className="w-full min-w-0 px-2 py-1 border border-highlight rounded-control bg-card text-sm text-right"
     />
   );
 
@@ -259,7 +259,7 @@ export default function LineItemRow({
       onChange={(e) => setActual(e.target.value)}
       onBlur={saveActual}
       aria-label={`Actual for ${item.name}`}
-      className="w-full min-w-0 px-2 py-1 border border-highlight rounded-md bg-card text-sm text-right"
+      className="w-full min-w-0 px-2 py-1 border border-highlight rounded-control bg-card text-sm text-right"
     />
   );
 
@@ -269,7 +269,7 @@ export default function LineItemRow({
       onChange={(e) => saveCurrency((e.target.value || null) as Currency | null)}
       aria-label="Currency"
       title="Currency for this expense"
-      className="w-full min-w-0 px-1 py-1 border border-highlight rounded-md bg-card text-xs"
+      className="w-full min-w-0 px-1 py-1 border border-highlight rounded-control bg-card text-xs"
     >
       <option value="">—</option>
       {CURRENCY_CODES.map((code) => <option key={code} value={code}>{code}</option>)}
@@ -344,7 +344,7 @@ export default function LineItemRow({
 
   if (isMobile) {
     return (
-      <div className="flex flex-col gap-2 p-2 bg-bg rounded-lg">
+      <div className="flex flex-col gap-2 p-2 bg-bg rounded-control">
         <div className="flex items-center gap-2">
           {nameInput}
           <div className="shrink-0">{deleteButton}</div>

@@ -14,7 +14,7 @@ export default function StillToPay({ categories }: Props) {
     return (
       <section
         data-testid="still-to-pay"
-        className="bg-card rounded-xl px-4 py-2.5 mb-3 text-sm text-positive font-bold"
+        className="bg-card rounded-card px-4 py-2.5 mb-3 text-sm text-positive font-bold"
       >
         ✓ All paid this month
       </section>
@@ -24,7 +24,7 @@ export default function StillToPay({ categories }: Props) {
   return (
     <section
       data-testid="still-to-pay"
-      className="bg-card rounded-xl px-4 py-2.5 mb-3 flex justify-between items-center text-sm"
+      className="bg-card rounded-card px-4 py-2.5 mb-3 flex justify-between items-center text-sm"
     >
       <span className="font-bold">
         {count} {count === 1 ? 'bill' : 'bills'} left

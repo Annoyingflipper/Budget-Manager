@@ -66,7 +66,7 @@ export default function CategoryTable({
   }
 
   return (
-    <section className="bg-card rounded-xl p-4 mb-3">
+    <section className="bg-card rounded-card p-4 mb-3">
       <div className="flex justify-between items-center mb-2">
         <div className="flex items-center gap-1.5">
           <span className="text-base">{category.icon}</span>
@@ -128,7 +128,7 @@ export default function CategoryTable({
         type="button"
         onClick={() => setDrafting(true)}
         disabled={drafting}
-        className="mt-2 w-full text-xs text-muted bg-bg rounded-lg px-2.5 py-1.5 disabled:opacity-50"
+        className="mt-2 w-full text-xs text-muted bg-bg rounded-control px-2.5 py-1.5 disabled:opacity-50"
         style={{ border: '1px dashed var(--dashed)' }}
       >
         + Add item

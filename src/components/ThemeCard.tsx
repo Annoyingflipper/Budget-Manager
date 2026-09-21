@@ -43,7 +43,7 @@ export default function ThemeCard({ theme, selected, onSelect }: Props) {
       role="radio"
       aria-checked={selected}
       aria-label={`${meta.label} theme`}
-      className={`text-left bg-card rounded-xl p-3 transition-all border-2 ${
+      className={`text-left bg-card rounded-card p-3 transition-all border-2 ${
         selected ? 'border-negative' : 'border-transparent hover:border-dashed'
       }`}
     >
@@ -51,7 +51,7 @@ export default function ThemeCard({ theme, selected, onSelect }: Props) {
         {meta.swatches.map((color) => (
           <div
             key={color}
-            className="w-5 h-5 rounded-sm"
+            className="w-5 h-5 rounded-control"
             style={{ backgroundColor: color, border: '1px solid rgba(0,0,0,0.08)' }}
           />
         ))}
