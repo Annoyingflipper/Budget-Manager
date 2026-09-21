@@ -224,6 +224,9 @@ export default function LineItemRow({
     </button>
   );
 
+  // Built from item.name (the committed value), never the local `name` draft:
+  // a label rebuilt from the draft changes on every keystroke in the field it
+  // labels, and screen readers announce that.
   const nameInput = (
     <input
       type="text"
@@ -231,6 +234,7 @@ export default function LineItemRow({
       maxLength={80}
       onChange={(e) => setName(e.target.value)}
       onBlur={saveName}
+      aria-label={`Name for ${item.name}`}
       className="w-full min-w-0 px-2 py-1 border border-highlight rounded-md bg-card text-sm"
     />
   );
@@ -242,6 +246,7 @@ export default function LineItemRow({
       value={projected}
       onChange={(e) => setProjected(e.target.value)}
       onBlur={saveProjected}
+      aria-label={`Projected for ${item.name}`}
       className="w-full min-w-0 px-2 py-1 border border-highlight rounded-md bg-card text-sm text-right"
     />
   );
@@ -253,6 +258,7 @@ export default function LineItemRow({
       value={actual}
       onChange={(e) => setActual(e.target.value)}
       onBlur={saveActual}
+      aria-label={`Actual for ${item.name}`}
       className="w-full min-w-0 px-2 py-1 border border-highlight rounded-md bg-card text-sm text-right"
     />
   );

@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 const listAccounts = vi.fn();
 const addAccount = vi.fn();
@@ -168,5 +169,12 @@ describe('Accounts page', () => {
     fireEvent.click(screen.getByRole('button', { name: /backfill euro history/i }));
     await waitFor(() => expect(screen.getByTestId('backfill-result')).toHaveTextContent(/up to date/i));
     expect(upsertRate).not.toHaveBeenCalled();
+  });
+
+  it('labels the new-account draft input', async () => {
+    const user = userEvent.setup();
+    render(<Accounts onBack={vi.fn()} base="USD" />);
+    await user.click(await screen.findByRole('button', { name: /add account/i }));
+    expect(await screen.findByLabelText('New account name')).toBeInTheDocument();
   });
 });

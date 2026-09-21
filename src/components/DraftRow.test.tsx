@@ -59,4 +59,11 @@ describe('DraftRow', () => {
     expect(onCommit).not.toHaveBeenCalled();
     expect(onDiscard).toHaveBeenCalled();
   });
+
+  it('labels the name input', () => {
+    // A placeholder is not a label. This input only exists while a draft is
+    // open, so no axe scan has ever reached it.
+    setup();
+    expect(screen.getByLabelText('Item name')).toBeInTheDocument();
+  });
 });

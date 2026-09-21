@@ -55,4 +55,12 @@ describe('CategoryRow', () => {
     await user.click(screen.getByRole('button', { name: /delete services/i }));
     expect(onDelete).toHaveBeenCalledWith(baseCategory);
   });
+
+  it('labels the name input, scoped by category', () => {
+    // Eight of these render on Settings and they are that page's entire axe
+    // failure — which its existing a11y test never saw, because it scanned
+    // before CategoriesEditor's fetch resolved.
+    setup({ id: 1, name: 'Services', display_order: 0, icon: '🔧' });
+    expect(screen.getByLabelText('Name for Services')).toBeInTheDocument();
+  });
 });

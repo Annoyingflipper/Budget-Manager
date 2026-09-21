@@ -358,4 +358,26 @@ describe('LineItemRow', () => {
       vi.useRealTimers();
     });
   });
+
+  it('labels all three text inputs for screen readers, scoped by row', () => {
+    // The dashboard's only axe violation before chunk 3: nine unlabelled
+    // inputs, three per row. Row-scoped rather than bare "Projected" so a
+    // screen-reader user tabbing the budget knows which item they are in.
+    renderRow({ item: { ...baseItem, name: 'Internet' } });
+    expect(screen.getByLabelText('Name for Internet')).toBeInTheDocument();
+    expect(screen.getByLabelText('Projected for Internet')).toBeInTheDocument();
+    expect(screen.getByLabelText('Actual for Internet')).toBeInTheDocument();
+  });
+
+  it('keeps the name input labelled by the committed name while it is being edited', async () => {
+    // The label must come from item.name, not the local draft. Built from the
+    // draft it would change on every keystroke in the field it labels, which
+    // a screen reader announces each time.
+    const user = userEvent.setup();
+    renderRow({ item: { ...baseItem, name: 'Internet' } });
+    const input = screen.getByLabelText('Name for Internet');
+    await user.clear(input);
+    await user.type(input, 'Broadband');
+    expect(screen.getByLabelText('Name for Internet')).toHaveValue('Broadband');
+  });
 });

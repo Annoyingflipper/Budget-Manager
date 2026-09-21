@@ -47,6 +47,7 @@ export default function DraftRow({ onCommit, onDiscard }: Props) {
       autoFocus
       type="text"
       placeholder="Item name"
+      aria-label="Item name"
       maxLength={80}
       value={name}
       onChange={(e) => setName(e.target.value)}

@@ -177,6 +177,7 @@ export default function Accounts({ onBack, base }: Props) {
               if (e.key === 'Escape') { e.preventDefault(); setDrafting(false); setDraftName(''); }
             }}
             placeholder="New account name"
+            aria-label="New account name"
             className="w-full px-2 py-1 border border-highlight rounded-md bg-card text-sm"
           />
         )}

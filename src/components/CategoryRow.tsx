@@ -86,6 +86,7 @@ export default function CategoryRow({
         maxLength={80}
         onChange={(e) => setName(e.target.value)}
         onBlur={saveName}
+        aria-label={`Name for ${category.name}`}
         className="w-full px-2 py-1 border border-highlight rounded-md bg-card text-sm"
       />
       <button
