@@ -116,7 +116,12 @@ export default function ComingUp({ categories, accounts, rates, base, month }: P
               </div>
               {shortfall !== null && shortfall > 0 ? (
                 <div className="text-label text-negative mt-0.5">
-                  Short by <span className="text-money">{formatCurrency(shortfall, base)}</span>
+                  {/* Inherits rather than taking text-money: this is a one-off
+                      sentence, not a column entry, and rem units don't compound
+                      — a text-money span here renders larger than the sentence
+                      around it. Same call as the "due soon · available" line
+                      above. */}
+                  Short by {formatCurrency(shortfall, base)}
                   {undatedCount > 0 ? ' — dated bills only' : ''}
                 </div>
               ) : (

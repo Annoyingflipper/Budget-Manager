@@ -64,8 +64,8 @@ independently.
 
 - `as="h1"` on auth screens (Login, Signup) — they're standalone pages, so
   the wordmark should also be the page's heading landmark for screen
-  reader users. Default `as="span"` in the in-app header, which has its
-  own separate heading structure and shouldn't get a second `h1`.
+  reader users. Default `as="span"` in the sidebar, which sits alongside a
+  page that has its own heading structure and shouldn't get a second `h1`.
 - The mark itself is `aria-hidden` unconditionally inside `Wordmark`. The
   adjacent visible text "Mesada" already names the app; giving the SVG an
   accessible name too would announce "Mesada Mesada" to assistive tech.

@@ -24,6 +24,11 @@ export default function TabBarNav({ page, onNavigate }: Props) {
           type="button"
           onClick={() => onNavigate(item.page)}
           aria-current={page === item.page ? 'page' : undefined}
+          // text-caption, not the text-label SidebarNav uses for the same four
+          // destinations. Deliberate, not an oversight: a four-up bottom bar on
+          // a 375px screen gives each label ~80px, and platform tab bars set
+          // their labels a step below body text for exactly that reason. The
+          // role is the same; the space it has to live in is not.
           className={`flex-1 flex flex-col items-center gap-1 py-2 text-caption border-0 bg-transparent ${
             page === item.page ? 'text-text' : 'text-muted'
           }`}
