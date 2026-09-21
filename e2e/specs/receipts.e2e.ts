@@ -49,10 +49,7 @@ test.describe('receipt attachments @regression', () => {
     await expect(dialog).toBeVisible();
     await expect(dashboardPage.page.getByTestId('viewer-position')).toHaveText('1 / 1');
 
-    // Scoped to the dialog: the dashboard behind it has its own pre-existing
-    // contrast/label findings, and this test is about the viewer specifically.
     const results = await new AxeBuilder({ page: dashboardPage.page })
-      .include('[role="dialog"]')
       .withTags(['wcag2a', 'wcag2aa'])
       .analyze();
     const serious = results.violations.filter(

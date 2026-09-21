@@ -59,6 +59,10 @@ test.describe('theme switching @regression @a11y', () => {
     await dashboardPage.goto();
     await dashboardPage.header.openSettings();
     await expect(settingsPage.heading).toBeVisible();
+    // Wait for CategoriesEditor's fetch. Without this the scan runs against a
+    // page with zero category rows and passes while the page is failing —
+    // which is exactly what it did from v1.5 until chunk 3.
+    await expect(settingsPage.page.locator('input[type="text"]').first()).toBeVisible();
 
     const results = await new AxeBuilder({ page: settingsPage.page })
       .withTags(['wcag2a', 'wcag2aa'])
