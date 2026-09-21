@@ -69,7 +69,8 @@ independently.
 - The mark itself is `aria-hidden` unconditionally inside `Wordmark`. The
   adjacent visible text "Mesada" already names the app; giving the SVG an
   accessible name too would announce "Mesada Mesada" to assistive tech.
-- `size="sm"` (24px mark, `text-heading` name) for the header; `size="lg"`
+- `size="sm"` (24px mark, `text-heading` name) for the sidebar (`Header.tsx`
+  retired in chunk 2 — `SidebarNav` is where this renders now); `size="lg"`
   (40px mark, `text-title` name) for auth screens. `size` and `as` are independent
   props on purpose — a large wordmark isn't always a page heading, and
   tying them together would be an implicit, surprising coupling for
@@ -257,7 +258,23 @@ is exactly the anti-pattern called out above.
 | `text-base` / `text-sm` on running prose or a description | `text-body` (0.9375rem/400) | Default running text. |
 | `text-sm` / `text-xs` **with** `font-bold` or `font-extrabold`, on a form label, column header, or button | `text-label` (0.8125rem/600) | The mid weight the app never had. |
 | `text-xs` on helper text, counts, hints, timestamps | `text-caption` (0.75rem/400) | Secondary information. |
-| Any rendered money amount | `text-money` (0.9375rem/600, tabular) | Columns line up digit-for-digit. |
+| A money amount that is one entry in a column of amounts | `text-money` (0.9375rem/600, tabular) | The tabular figures line the column up digit-for-digit — that's what the step is *for*. |
+
+**"Any rendered money amount → `text-money`" is not the rule — that flat
+version is the exact bug fixed at `efdd6ec`.** `text-money`'s tabular
+figures exist to align a *column* of amounts sharing a baseline
+(`CategoryTable`'s Projected/Actual/Diff, `LineItemRow`'s inputs); a
+standalone summary figure isn't in a column with anything, so it takes a
+heading step instead — `BalanceHero` uses `text-display`, `TotalAvailable`'s
+compact dashboard card uses `text-title` (both corrected from an initial
+`text-money` pass that left the figure the same size as the caption
+beneath it, reading as if the card had no subject). And money that sits
+**inline in a running caption sentence** ("$500 due soon · $200 available")
+should inherit the sentence's size rather than jump 25% mid-clause — `rem`
+units don't compound, so a `text-money` span dropped into `text-caption`
+prose renders visibly larger than its neighbours for no reason tied to
+its importance. Reach for `text-money` when the amount is its own cell or
+column entry; let it inherit everywhere the amount is part of a sentence.
 
 **Sizes that visibly change as a result — expected, not mistakes:**
 
@@ -290,9 +307,14 @@ Three radius tokens, defined in `src/tokens.css`:
 | `--radius-card` | 0.75rem | Cards and panels. |
 | `--radius-chip` | 9999px | Reserved — see below. |
 
-As of chunk 3, every non-test component in `src/` is on the
-`rounded-control`/`rounded-card`/`rounded-chip` utility classes; no
-component writes Tailwind's default radius utilities directly any more.
+As of chunk 3, every non-test component in `src/` maps its radii through
+`--radius-control`/`--radius-card`/`--radius-chip`, with one deliberate,
+documented exception: `rounded-full` on `CategoryBudgetBar`'s progress
+fills (see below). No component writes an *ad-hoc* Tailwind radius
+utility — a bare `rounded`, a named size like `rounded-md`/`rounded-sm`,
+or a directional radius like `rounded-t-lg` — and `src/theme/styleRatchet.test.ts`
+now bans all three outright, so a new one reintroduced anywhere is a
+failing test, not a style-guide violation someone has to notice by eye.
 The migration was **not a uniform rename** — a survey of every
 `rounded-*` use in `src/` (non-test files) going in found four distinct
 existing values doing three different jobs, and each was mapped
