@@ -39,15 +39,31 @@ test.describe('app shell @smoke', () => {
   });
 
   test('a mobile user can still sign out, from Settings', async ({ dashboardPage }) => {
-    // The tab bar has room for four destinations and nothing else. If this
-    // fails, phone users are stranded with no way to log out.
+    // The question this test answers is "can a phone user reach sign-out,
+    // and does the fixed tab bar cover it once they get there?" — NOT
+    // "is it above the fold on load". Settings is legitimately taller than
+    // a phone screen (eight categories plus a theme picker), so requiring
+    // Log out to be in view before any scrolling would be wrong, not just
+    // strict: on the current seed data the button sits below the fold at
+    // load, and that's normal, not the bug.
+    //
+    // scrollIntoViewIfNeeded() + toBeInViewport() proves both halves: the
+    // control is actually reachable by scrolling, and once scrolled to,
+    // the tab bar's `fixed` positioning isn't sitting on top of it — the
+    // exact failure mode pb-24 exists to prevent. toBeVisible() cannot
+    // catch that: Playwright's visibility check doesn't account for a
+    // fixed element painted over the target, so a covered button still
+    // reads as "visible". If this fails, phone users are stranded with no
+    // way to log out.
     await dashboardPage.page.setViewportSize({ width: 375, height: 812 });
     await dashboardPage.goto();
     await dashboardPage.page
       .getByRole('navigation', { name: 'Main' })
       .getByRole('button', { name: 'Settings' })
       .click();
-    await expect(dashboardPage.page.getByRole('button', { name: 'Log out' })).toBeInViewport();
+    const logout = dashboardPage.page.getByRole('button', { name: 'Log out' });
+    await logout.scrollIntoViewIfNeeded();
+    await expect(logout).toBeInViewport();
   });
 
   test('every destination is reachable by keyboard', async ({ dashboardPage }) => {
