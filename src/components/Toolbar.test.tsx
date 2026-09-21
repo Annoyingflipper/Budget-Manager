@@ -37,6 +37,14 @@ describe('Toolbar', () => {
     expect(screen.queryByRole('button', { name: 'Next month' })).not.toBeInTheDocument();
   });
 
+  it('clicking "Start …" calls onRollover, not onNext', async () => {
+    const user = userEvent.setup();
+    const props = renderToolbar({ selectedMonth: '2026-06-01', latestMonth: '2026-06-01' });
+    await user.click(screen.getByRole('button', { name: 'Start July 2026' }));
+    expect(props.onRollover).toHaveBeenCalledTimes(1);
+    expect(props.onNext).not.toHaveBeenCalled();
+  });
+
   it('offers forward navigation when a later month already exists', () => {
     renderToolbar({ selectedMonth: '2026-05-01', latestMonth: '2026-06-01' });
     expect(screen.getByRole('button', { name: 'Next month' })).toBeInTheDocument();

@@ -58,8 +58,9 @@ ordering check couldn't tell the difference between "subtly two-tone" and
 ## 2. The wordmark
 
 `Wordmark` (`src/components/Wordmark.tsx`) composes `MesadaMark` with the
-name "Mesada" and is the single source for what used to be three
-copy-pasted logo blocks across Header, Login, and Signup.
+name "Mesada" and is the single source rendered by `SidebarNav`, `Login`,
+and `Signup` — three places that used to duplicate the logo blocks
+independently.
 
 - `as="h1"` on auth screens (Login, Signup) — they're standalone pages, so
   the wordmark should also be the page's heading landmark for screen

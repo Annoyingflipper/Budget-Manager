@@ -70,7 +70,7 @@ describe('App', () => {
     });
   });
 
-  it('navigates to the accounts page from the header', async () => {
+  it('navigates to the accounts page from the sidebar', async () => {
     vi.mocked(api.listMonths).mockResolvedValue(['2026-06-01']);
     render(<App />);
     fireEvent.click(await screen.findByRole('button', { name: /accounts/i }));

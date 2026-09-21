@@ -47,7 +47,7 @@ test.describe('app shell @smoke', () => {
       .getByRole('navigation', { name: 'Main' })
       .getByRole('button', { name: 'Settings' })
       .click();
-    await expect(dashboardPage.page.getByRole('button', { name: 'Log out' })).toBeVisible();
+    await expect(dashboardPage.page.getByRole('button', { name: 'Log out' })).toBeInViewport();
   });
 
   test('every destination is reachable by keyboard', async ({ dashboardPage }) => {

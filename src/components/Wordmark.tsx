@@ -18,8 +18,8 @@ type Props = {
 };
 
 /**
- * The app's lockup: mark plus name. Single source for what used to be three
- * copy-pasted 💵 + "Budget" blocks in Header, Login and Signup.
+ * The app's lockup: mark plus name. Rendered by SidebarNav, Login, and
+ * Signup — the single source those three used to duplicate independently.
  *
  * The mark is aria-hidden on purpose — the visible text already names the
  * app, so labelling both would announce "Mesada Mesada".

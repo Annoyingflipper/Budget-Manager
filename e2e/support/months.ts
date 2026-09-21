@@ -24,7 +24,7 @@ export function addMonths(period: string, delta: number): string {
   return `${Math.floor(absolute / 12)}-${pad2((absolute % 12) + 1)}-01`;
 }
 
-/** Header label, e.g. `2026-08-01` -> `August 2026`. */
+/** Toolbar label, e.g. `2026-08-01` -> `August 2026`. */
 export function monthLabel(period: string): string {
   const [year, month] = period.split('-').map(Number);
   return `${MONTH_NAMES[month - 1]} ${year}`;

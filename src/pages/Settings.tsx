@@ -138,7 +138,7 @@ export default function Settings({ onBack, onCategoriesChanged, onOpenChangelog 
         </button>
       </div>
 
-      <section className="bg-card rounded-xl p-4">
+      <section className="bg-card rounded-card p-4">
         <button
           type="button"
           onClick={() => { supabase.auth.signOut(); }}

@@ -15,7 +15,11 @@ export class HeaderComponent {
   // — scoped by the shared aria-label="Main" landmark. Settings.tsx also
   // renders its own "Log out" button for mobile users, so this scope is
   // load-bearing: an unscoped locator would be a strict-mode violation the
-  // moment a spec touches sign-out with Settings open.
+  // moment a spec touches sign-out with Settings open. On desktop with
+  // Settings open there are two buttons named "Log out" on screen at once
+  // — the sidebar's and Settings.tsx's own — so any future sign-out
+  // locator must be nav-scoped (or otherwise disambiguated) or it is an
+  // instant Playwright strict-mode violation.
   private readonly nav: Locator;
 
   constructor(page: Page) {
