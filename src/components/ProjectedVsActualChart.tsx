@@ -6,7 +6,7 @@ type Props = { totals: CategoryTotal[] };
 export default function ProjectedVsActualChart({ totals }: Props) {
   const visible = totals.filter((t) => t.projected > 0 || t.actual > 0);
   if (visible.length === 0) {
-    return <p className="text-muted text-sm">No spending to chart yet.</p>;
+    return <p className="text-muted text-body">No spending to chart yet.</p>;
   }
   const max = Math.max(...visible.map((t) => Math.max(t.projected, t.actual)), 1);
 
@@ -16,9 +16,9 @@ export default function ProjectedVsActualChart({ totals }: Props) {
         const over = t.actual > t.projected;
         return (
           <div key={t.id} data-testid={`chart-row-${t.id}`}>
-            <div className="flex justify-between text-sm font-bold mb-1">
-              <span>{t.icon} {t.name}</span>
-              <span className={over ? 'text-negative' : 'text-positive'}>
+            <div className="flex justify-between mb-1">
+              <span className="text-caption">{t.icon} {t.name}</span>
+              <span className={`text-money ${over ? 'text-negative' : 'text-positive'}`}>
                 {formatMoney(t.actual)} / {formatMoney(t.projected)}
               </span>
             </div>

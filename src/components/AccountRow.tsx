@@ -42,7 +42,7 @@ export default function AccountRow({
       type="button"
       onClick={() => setPickingIcon((v) => !v)}
       aria-label={`Change icon for ${account.name}`}
-      className="text-xl text-center shrink-0"
+      className="text-heading text-center shrink-0"
     >
       {account.icon}
     </button>
@@ -57,7 +57,7 @@ export default function AccountRow({
       onBlur={commitName}
       onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.blur(); }}
       aria-label={`Name for ${account.name}`}
-      className="w-full min-w-0 px-2 py-1 border border-highlight rounded-control bg-card text-sm"
+      className="w-full min-w-0 px-2 py-1 border border-highlight rounded-control bg-card text-body"
     />
   );
 
@@ -66,7 +66,7 @@ export default function AccountRow({
       value={account.currency}
       onChange={(e) => onChange(account.id, { currency: e.target.value as Currency })}
       aria-label={`Currency for ${account.name}`}
-      className="w-full min-w-0 px-1 py-1 border border-highlight rounded-control bg-card text-xs"
+      className="w-full min-w-0 px-1 py-1 border border-highlight rounded-control bg-card text-label"
     >
       {CURRENCY_CODES.map((code) => (
         <option key={code} value={code}>{CURRENCIES[code].symbol} {code}</option>
@@ -84,7 +84,7 @@ export default function AccountRow({
       onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.blur(); }}
       aria-label={`Balance for ${account.name}`}
       data-testid={`account-balance-${account.id}`}
-      className={`w-full min-w-0 px-2 py-1 border border-highlight rounded-control bg-card text-sm text-right ${
+      className={`w-full min-w-0 px-2 py-1 border border-highlight rounded-control bg-card text-money text-right ${
         account.balance < 0 ? 'text-negative' : ''
       }`}
     />
@@ -96,7 +96,7 @@ export default function AccountRow({
       onClick={() => onDelete(account.id)}
       onBlur={onCancelDelete}
       aria-label={`Confirm delete ${account.name}`}
-      className="text-negative text-sm shrink-0"
+      className="text-negative text-body shrink-0"
     >
       ✓
     </button>
@@ -105,7 +105,7 @@ export default function AccountRow({
       type="button"
       onClick={() => onRequestDelete(account.id)}
       aria-label={`Delete ${account.name}`}
-      className="text-muted text-sm hover:text-negative shrink-0"
+      className="text-muted text-body hover:text-negative shrink-0"
     >
       ✕
     </button>

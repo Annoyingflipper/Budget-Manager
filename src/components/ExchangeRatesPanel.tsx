@@ -52,13 +52,13 @@ export default function ExchangeRatesPanel({
   return (
     <section className="bg-card rounded-card p-4">
       <div className="flex items-center justify-between mb-2">
-        <div className="font-extrabold text-sm">Exchange rates</div>
+        <div className="text-heading">Exchange rates</div>
         <button
           type="button"
           onClick={onRefresh}
           disabled={refreshing}
           aria-label="Refresh rates"
-          className="text-xs text-muted bg-bg rounded-control px-2 py-1 disabled:opacity-50"
+          className="text-label text-muted bg-bg rounded-control px-2 py-1 disabled:opacity-50"
         >
           {refreshing ? 'Refreshing…' : '↻ Refresh'}
         </button>
@@ -67,11 +67,11 @@ export default function ExchangeRatesPanel({
       {FOREIGN.map((code) => {
         const row = effectiveRow(rates, code, date);
         return (
-          <div key={code} data-testid={`rate-${code}`} className="flex justify-between text-xs py-0.5">
+          <div key={code} data-testid={`rate-${code}`} className="flex justify-between text-caption py-0.5">
             <span className="text-muted">1 USD =</span>
             {row ? (
               <span>
-                <span className="font-bold">{row.unitsPerUsd}</span> {code}
+                <span className="text-money">{row.unitsPerUsd}</span> {code}
                 <span className="text-muted"> · {SOURCE_LABEL[row.source]} · {row.rateDate}</span>
               </span>
             ) : (
@@ -83,7 +83,7 @@ export default function ExchangeRatesPanel({
 
       <div className="border-t border-highlight mt-3 pt-3">
         <div className="flex items-center justify-between gap-2 mb-2">
-          <div className="text-muted text-xs">
+          <div className="text-muted text-caption">
             Import the full euro history from the ECB
           </div>
           <button
@@ -93,19 +93,19 @@ export default function ExchangeRatesPanel({
             // Stable accessible name: the visible label changes while running,
             // and the control should not lose its identity mid-action.
             aria-label="Backfill euro history"
-            className="shrink-0 text-xs bg-bg rounded-control px-2 py-1 disabled:opacity-50"
+            className="shrink-0 text-label bg-bg rounded-control px-2 py-1 disabled:opacity-50"
           >
             {backfilling ? 'Importing…' : 'Backfill euro history'}
           </button>
         </div>
         {backfillResult !== null && (
-          <div data-testid="backfill-result" className="text-muted text-xs mb-2">
+          <div data-testid="backfill-result" className="text-muted text-caption mb-2">
             {backfillResult === 0
               ? 'Already up to date — no new days to import.'
               : `Imported ${backfillResult} days of euro rates.`}
           </div>
         )}
-        <div className="text-muted text-xs mb-1">
+        <div className="text-muted text-caption mb-1">
           Add or correct a rate for a past date (bolívar history has to be entered by hand)
         </div>
         <div className="flex gap-2">
@@ -113,7 +113,7 @@ export default function ExchangeRatesPanel({
             value={currency}
             onChange={(e) => setCurrency(e.target.value as Foreign)}
             aria-label="Manual rate currency"
-            className="px-1 py-1 border border-highlight rounded-control bg-bg text-xs"
+            className="px-1 py-1 border border-highlight rounded-control bg-bg text-label"
           >
             {FOREIGN.map((code) => <option key={code} value={code}>{code}</option>)}
           </select>
@@ -122,7 +122,7 @@ export default function ExchangeRatesPanel({
             value={manualDate}
             onChange={(e) => setManualDate(e.target.value)}
             aria-label="Manual rate date"
-            className="px-1 py-1 border border-highlight rounded-control bg-bg text-xs"
+            className="px-1 py-1 border border-highlight rounded-control bg-bg text-label"
           />
           <input
             type="number"
@@ -131,13 +131,13 @@ export default function ExchangeRatesPanel({
             onChange={(e) => setValue(e.target.value)}
             placeholder="per USD"
             aria-label="Manual rate value"
-            className="w-24 px-1 py-1 border border-highlight rounded-control bg-bg text-xs"
+            className="w-24 px-1 py-1 border border-highlight rounded-control bg-bg text-money"
           />
           <button
             type="button"
             onClick={save}
             aria-label="Save rate"
-            className="text-xs bg-bg rounded-control px-2 py-1"
+            className="text-label bg-bg rounded-control px-2 py-1"
           >
             Save
           </button>

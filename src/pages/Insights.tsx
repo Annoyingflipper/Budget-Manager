@@ -48,15 +48,15 @@ export default function Insights({ selectedMonth, budget, onBack, base = 'USD' }
         <button
           type="button"
           onClick={onBack}
-          className="text-muted text-sm hover:text-text"
+          className="text-label text-muted hover:text-text"
         >
           ← Back to budget
         </button>
       </header>
 
       <div>
-        <h1 className="text-3xl font-extrabold">Insights</h1>
-        <p className="text-muted text-sm">{formatMonthLabel(selectedMonth)}</p>
+        <h1 className="text-title">Insights</h1>
+        <p className="text-muted text-caption">{formatMonthLabel(selectedMonth)}</p>
       </div>
 
       <ProjectedVsActualChart totals={totals} />

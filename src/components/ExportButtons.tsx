@@ -49,7 +49,7 @@ export default function ExportButtons({ month, budget, base = 'USD' }: Props) {
       <button
         type="button"
         onClick={exportThisMonth}
-        className="bg-card border-0 rounded-control px-3 py-2 text-sm font-bold"
+        className="bg-card border-0 rounded-control px-3 py-2 text-label"
       >
         ⤓ Export this month
       </button>
@@ -57,7 +57,7 @@ export default function ExportButtons({ month, budget, base = 'USD' }: Props) {
         type="button"
         onClick={exportAll}
         disabled={busy}
-        className="bg-card border-0 rounded-control px-3 py-2 text-sm font-bold disabled:opacity-50"
+        className="bg-card border-0 rounded-control px-3 py-2 text-label disabled:opacity-50"
       >
         {busy ? 'Exporting…' : '⤓ Export all history'}
       </button>

@@ -139,17 +139,17 @@ export default function Accounts({ onBack, base }: Props) {
   return (
     <div className="mx-auto max-w-2xl p-6 space-y-5">
       <header className="flex items-center gap-3">
-        <button type="button" onClick={onBack} className="text-muted text-sm hover:text-text">
+        <button type="button" onClick={onBack} className="text-label text-muted hover:text-text">
           ← Back to budget
         </button>
       </header>
 
       <div>
-        <h1 className="text-3xl font-extrabold">Accounts</h1>
-        <p className="text-muted text-sm">What you hold, across every currency.</p>
+        <h1 className="text-title">Accounts</h1>
+        <p className="text-muted text-body">What you hold, across every currency.</p>
       </div>
 
-      {error && <div className="text-negative text-xs">{error}</div>}
+      {error && <div className="text-negative text-caption">{error}</div>}
 
       <section className="bg-card rounded-card p-4 space-y-1.5">
         {accounts.map((account) => (
@@ -178,7 +178,7 @@ export default function Accounts({ onBack, base }: Props) {
             }}
             placeholder="New account name"
             aria-label="New account name"
-            className="w-full px-2 py-1 border border-highlight rounded-control bg-card text-sm"
+            className="w-full px-2 py-1 border border-highlight rounded-control bg-card text-body"
           />
         )}
 
@@ -186,7 +186,7 @@ export default function Accounts({ onBack, base }: Props) {
           type="button"
           onClick={() => setDrafting(true)}
           disabled={drafting}
-          className="mt-2 w-full text-xs text-muted bg-bg rounded-control px-2.5 py-1.5 disabled:opacity-50"
+          className="mt-2 w-full text-label text-muted bg-bg rounded-control px-2.5 py-1.5 disabled:opacity-50"
           style={{ border: '1px dashed var(--dashed)' }}
         >
           + Add account

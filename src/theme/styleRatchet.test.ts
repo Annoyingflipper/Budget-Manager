@@ -16,17 +16,11 @@ export const UNMIGRATED: string[] = [
   'auth/MFAChallenge.tsx',
   'auth/MFAEnroll.tsx',
   'auth/Signup.tsx',
-  'components/AccountRow.tsx',
   'components/AttachmentViewer.tsx',
   'components/ChangelogModal.tsx',
   'components/ErrorBoundary.tsx',
-  'components/ExchangeRatesPanel.tsx',
-  'components/ExportButtons.tsx',
-  'components/ProjectedVsActualChart.tsx',
   'components/Toast.tsx',
   'components/Wordmark.tsx',
-  'pages/Accounts.tsx',
-  'pages/Insights.tsx',
 ];
 
 /**
