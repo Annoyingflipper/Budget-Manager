@@ -40,17 +40,27 @@ describe('BalanceHero', () => {
     expect(screen.getByTestId('actual-balance')).toHaveTextContent('$4,840.00');
   });
 
-  // Shape assertion guarding a measured layout fix, not a re-derivation of the
-  // measurement itself — jsdom has no layout engine, so it cannot see that
-  // $4,840.00 (189px) overflows a 160px column at a 640px viewport once the
-  // sidebar has appeared. The actual scrollWidth/clientWidth numbers that
-  // justify this change are recorded in the commit message for the fix
-  // (checked live at 640/768/900/1024/1280px against the running app).
-  it('uses lg:grid-cols-2 rather than sm:grid-cols-2, so the two balances never appear inside a main area narrower than they need', () => {
+  // Shape assertion pinning a coupling jsdom cannot see: the breakpoint the
+  // two balances split at depends on how wide the figures are.
+  //
+  // At text-display (40px) they did not fit. $4,840.00 rendered 189px wide in
+  // the 160px column a 640px viewport leaves once the sidebar appears, with no
+  // overflow-hidden and no break opportunity, so the figures painted over each
+  // other — which is why this briefly used lg:grid-cols-2 instead.
+  //
+  // At text-title (24px) they fit with real slack. Measured live in that same
+  // 160px column: $711.00 is 93px, $4,840.00 is 113px, $14,840.00 is 128px,
+  // and even -$123,456.78 is 152px. So sm: is correct again and the hero does
+  // not need to stack on every window narrower than 1024px.
+  //
+  // If the figures ever go back up to text-display, this pairing has to go
+  // back to lg: with it. That is the whole reason this test exists.
+  it('splits at sm:, which is only safe because the figures are text-title', () => {
     const categories = [category(1, 'Services', [{ id: 1, projected: 160, actual: 160 }])];
     const { container } = render(<BalanceHero income={INCOME} categories={categories} />);
     const grid = container.querySelector('.grid');
-    expect(grid?.className).toContain('lg:grid-cols-2');
-    expect(grid?.className).not.toContain('sm:grid-cols-2');
+    expect(grid?.className).toContain('sm:grid-cols-2');
+    expect(screen.getByTestId('projected-balance').className).toContain('text-title');
+    expect(screen.getByTestId('projected-balance').className).not.toContain('text-display');
   });
 });
