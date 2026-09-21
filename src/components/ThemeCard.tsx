@@ -56,11 +56,11 @@ export default function ThemeCard({ theme, selected, onSelect }: Props) {
           />
         ))}
       </div>
-      <div className="flex items-center justify-between font-extrabold text-sm">
+      <div className="flex items-center justify-between text-label">
         <span>{meta.emoji} {meta.label}</span>
         {selected && <span className="text-negative">●</span>}
       </div>
-      <div className="text-muted text-xs">{meta.tagline}</div>
+      <div className="text-muted text-caption">{meta.tagline}</div>
     </button>
   );
 }

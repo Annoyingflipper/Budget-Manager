@@ -43,23 +43,23 @@ export default function Settings({ onBack, onCategoriesChanged, onOpenChangelog 
         <button
           type="button"
           onClick={onBack}
-          className="text-muted text-sm hover:text-text"
+          className="text-label text-muted hover:text-text"
         >
           ← Back to budget
         </button>
       </header>
 
       <div>
-        <h1 className="text-3xl font-extrabold">Appearance</h1>
-        <p className="text-muted text-sm">Make Budget feel like yours.</p>
+        <h1 className="text-title">Appearance</h1>
+        <p className="text-muted text-body">Make Budget feel like yours.</p>
       </div>
 
       {/* Color mode toggle */}
       <section className="bg-card rounded-card p-4">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <div className="font-extrabold text-sm">Color mode</div>
-            <div className="text-muted text-xs">Light during the day, dark at night.</div>
+            <div className="text-label">Color mode</div>
+            <div className="text-muted text-caption">Light during the day, dark at night.</div>
           </div>
           <div
             role="radiogroup"
@@ -71,7 +71,7 @@ export default function Settings({ onBack, onCategoriesChanged, onOpenChangelog 
               role="radio"
               aria-checked={mode === 'light'}
               onClick={() => setMode('light')}
-              className={`px-3 py-1 text-xs font-bold rounded-control ${
+              className={`px-3 py-1 text-label rounded-control ${
                 mode === 'light' ? 'bg-card shadow-e1' : 'text-muted'
               }`}
             >
@@ -82,7 +82,7 @@ export default function Settings({ onBack, onCategoriesChanged, onOpenChangelog 
               role="radio"
               aria-checked={mode === 'dark'}
               onClick={() => setMode('dark')}
-              className={`px-3 py-1 text-xs font-bold rounded-control ${
+              className={`px-3 py-1 text-label rounded-control ${
                 mode === 'dark' ? 'bg-card shadow-e1' : 'text-muted'
               }`}
             >
@@ -93,7 +93,7 @@ export default function Settings({ onBack, onCategoriesChanged, onOpenChangelog 
       </section>
 
       {/* Theme picker */}
-      <div className="font-extrabold text-sm">Theme</div>
+      <div className="text-label">Theme</div>
       <div role="radiogroup" aria-label="Theme" className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {THEMES.map((t) => (
           <ThemeCard
@@ -106,19 +106,19 @@ export default function Settings({ onBack, onCategoriesChanged, onOpenChangelog 
       </div>
 
       <div>
-        <h2 className="text-2xl font-extrabold">Categories</h2>
-        <p className="text-muted text-sm">Make the budget match what you actually spend on.</p>
+        <h2 className="text-title">Categories</h2>
+        <p className="text-muted text-body">Make the budget match what you actually spend on.</p>
       </div>
       <section className="bg-card rounded-card p-4">
-        <div className="font-extrabold text-sm">Base currency</div>
-        <div className="text-muted text-xs mb-2">
+        <div className="text-label">Base currency</div>
+        <div className="text-muted text-caption mb-2">
           The currency your total available is shown in.
         </div>
         <select
           value={baseCurrency}
           onChange={(e) => handleBaseCurrency(e.target.value as Currency)}
           aria-label="Base currency"
-          className="px-2 py-1 border border-highlight rounded-control bg-bg text-sm"
+          className="px-2 py-1 border border-highlight rounded-control bg-bg text-body"
         >
           {CURRENCY_CODES.map((code) => (
             <option key={code} value={code}>{CURRENCIES[code].label} ({code})</option>
@@ -132,7 +132,7 @@ export default function Settings({ onBack, onCategoriesChanged, onOpenChangelog 
         <button
           type="button"
           onClick={onOpenChangelog}
-          className="bg-card border-0 rounded-control px-3 py-2 text-sm font-bold"
+          className="bg-card border-0 rounded-control px-3 py-2 text-label"
         >
           🆕 What's new
         </button>

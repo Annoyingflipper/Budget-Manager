@@ -59,7 +59,7 @@ export default function CategoryRow({
       <button
         type="button"
         aria-label={dragHandleLabel ?? 'Drag handle'}
-        className="text-muted cursor-grab text-sm"
+        className="text-muted cursor-grab text-body"
         draggable
       >
         ⋮⋮
@@ -70,7 +70,7 @@ export default function CategoryRow({
           onClick={() => setPickerOpen((o) => !o)}
           onMouseDown={(e) => e.stopPropagation()}
           aria-label={`Change icon for ${category.name}`}
-          className="text-xl hover:bg-card rounded-control w-full text-center"
+          className="text-heading hover:bg-card rounded-control w-full text-center"
         >
           {category.icon}
         </button>
@@ -87,7 +87,7 @@ export default function CategoryRow({
         onChange={(e) => setName(e.target.value)}
         onBlur={saveName}
         aria-label={`Name for ${category.name}`}
-        className="w-full px-2 py-1 border border-highlight rounded-control bg-card text-sm"
+        className="w-full px-2 py-1 border border-highlight rounded-control bg-card text-body"
       />
       <button
         type="button"

@@ -52,7 +52,7 @@ export default function EmojiPicker({ onPick, onClose }: Props) {
             type="button"
             onClick={() => onPick(emoji)}
             aria-label={emoji}
-            className="text-lg hover:bg-bg rounded-control p-1"
+            className="text-heading hover:bg-bg rounded-control p-1"
           >
             {emoji}
           </button>
@@ -66,7 +66,7 @@ export default function EmojiPicker({ onPick, onClose }: Props) {
           if (e.key === 'Enter') { e.preventDefault(); submitFreeform(); }
         }}
         placeholder="Or paste any emoji"
-        className="w-full px-2 py-1 border border-highlight rounded-control bg-bg text-sm"
+        className="w-full px-2 py-1 border border-highlight rounded-control bg-bg text-body"
       />
     </div>
   );

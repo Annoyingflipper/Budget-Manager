@@ -18,20 +18,15 @@ export const UNMIGRATED: string[] = [
   'auth/Signup.tsx',
   'components/AccountRow.tsx',
   'components/AttachmentViewer.tsx',
-  'components/CategoriesEditor.tsx',
-  'components/CategoryRow.tsx',
   'components/ChangelogModal.tsx',
-  'components/EmojiPicker.tsx',
   'components/ErrorBoundary.tsx',
   'components/ExchangeRatesPanel.tsx',
   'components/ExportButtons.tsx',
   'components/ProjectedVsActualChart.tsx',
-  'components/ThemeCard.tsx',
   'components/Toast.tsx',
   'components/Wordmark.tsx',
   'pages/Accounts.tsx',
   'pages/Insights.tsx',
-  'pages/Settings.tsx',
 ];
 
 /**
