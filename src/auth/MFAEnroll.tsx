@@ -59,10 +59,10 @@ export default function MFAEnroll() {
   return (
     <div className="mx-auto max-w-sm p-8 space-y-4">
       <div className="text-center">
-        <div className="text-4xl mb-1">🔐</div>
-        <h1 className="text-xl font-extrabold">Set up two-factor authentication</h1>
+        <div className="text-display mb-1">🔐</div>
+        <h1 className="text-heading">Set up two-factor authentication</h1>
       </div>
-      <p className="text-sm text-muted">
+      <p className="text-caption text-muted">
         Scan this QR code with an authenticator app (Google Authenticator, 1Password, Authy, etc.),
         then enter the 6-digit code to confirm.
       </p>
@@ -76,7 +76,7 @@ export default function MFAEnroll() {
         />
       )}
       {secret && (
-        <p className="text-xs text-muted break-all">
+        <p className="text-caption text-muted break-all">
           Or enter this secret manually:{' '}
           <code className="bg-bg px-1 rounded-control">{secret}</code>
         </p>
@@ -90,21 +90,21 @@ export default function MFAEnroll() {
           placeholder="123456"
           value={code}
           onChange={(e) => setCode(e.target.value)}
-          className="w-full border border-highlight bg-card rounded-control px-3 py-2 text-center text-lg tracking-widest"
+          className="w-full border border-highlight bg-card rounded-control px-3 py-2 text-center text-body tracking-widest"
           required
         />
-        {error && <p className="text-negative text-sm">{error}</p>}
+        {error && <p className="text-negative text-body">{error}</p>}
         <button
           type="submit"
           disabled={busy || code.length !== 6}
-          className="w-full bg-hero-bg text-hero-text rounded-control py-2 font-bold disabled:opacity-50"
+          className="w-full bg-hero-bg text-hero-text rounded-control py-2 text-label disabled:opacity-50"
         >
           {busy ? 'Verifying…' : 'Verify and continue'}
         </button>
         <button
           type="button"
           onClick={signOut}
-          className="w-full text-sm text-muted underline"
+          className="w-full text-caption text-muted underline"
         >
           Sign out
         </button>

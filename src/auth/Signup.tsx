@@ -34,7 +34,7 @@ export default function Signup({ onSwitch }: Props) {
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full border border-highlight bg-card rounded-control px-3 py-2"
+          className="w-full border border-highlight bg-card rounded-control px-3 py-2 text-body"
           required
         />
         <input
@@ -43,15 +43,15 @@ export default function Signup({ onSwitch }: Props) {
           minLength={6}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full border border-highlight bg-card rounded-control px-3 py-2"
+          className="w-full border border-highlight bg-card rounded-control px-3 py-2 text-body"
           required
         />
-        {error && <p className="text-negative text-sm">{error}</p>}
-        {info && <p className="text-positive text-sm">{info}</p>}
+        {error && <p className="text-negative text-body">{error}</p>}
+        {info && <p className="text-positive text-body">{info}</p>}
         <button
           type="submit"
           disabled={busy}
-          className="w-full bg-hero-bg text-hero-text rounded-control py-2 font-bold disabled:opacity-50"
+          className="w-full bg-hero-bg text-hero-text rounded-control py-2 text-label disabled:opacity-50"
         >
           {busy ? 'Creating account…' : 'Sign up'}
         </button>
@@ -59,7 +59,7 @@ export default function Signup({ onSwitch }: Props) {
       <button
         type="button"
         onClick={onSwitch}
-        className="text-sm text-muted underline"
+        className="text-caption text-muted underline"
       >
         Have an account? Log in
       </button>

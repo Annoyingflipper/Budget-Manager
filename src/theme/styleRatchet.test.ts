@@ -11,17 +11,7 @@ const SRC = resolve(__dirname, '..');
  * an empty array is the end state and this test then guards the whole app.
  * Adding a file back is a regression, not a fix.
  */
-export const UNMIGRATED: string[] = [
-  'auth/Login.tsx',
-  'auth/MFAChallenge.tsx',
-  'auth/MFAEnroll.tsx',
-  'auth/Signup.tsx',
-  'components/AttachmentViewer.tsx',
-  'components/ChangelogModal.tsx',
-  'components/ErrorBoundary.tsx',
-  'components/Toast.tsx',
-  'components/Wordmark.tsx',
-];
+export const UNMIGRATED: string[] = [];
 
 /**
  * Tailwind's own size, weight, radius and shadow utilities — the ones

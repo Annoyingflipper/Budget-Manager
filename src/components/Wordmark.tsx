@@ -26,12 +26,12 @@ type Props = {
  */
 export default function Wordmark({ size = 'sm', className, as: Tag = 'span' }: Props) {
   const markSize = size === 'lg' ? 40 : 24;
-  const textClass = size === 'lg' ? 'text-2xl' : 'text-xl';
+  const textClass = size === 'lg' ? 'text-title' : 'text-heading';
 
   return (
     <div className={`flex items-center gap-2 ${className ?? ''}`}>
       <MesadaMark size={markSize} />
-      <Tag className={`font-extrabold ${textClass}`}>Mesada</Tag>
+      <Tag className={textClass}>Mesada</Tag>
     </div>
   );
 }

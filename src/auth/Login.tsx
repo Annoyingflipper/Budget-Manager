@@ -31,7 +31,7 @@ export default function Login({ onSwitch }: Props) {
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full border border-highlight bg-card rounded-control px-3 py-2"
+          className="w-full border border-highlight bg-card rounded-control px-3 py-2 text-body"
           required
         />
         <input
@@ -39,14 +39,14 @@ export default function Login({ onSwitch }: Props) {
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full border border-highlight bg-card rounded-control px-3 py-2"
+          className="w-full border border-highlight bg-card rounded-control px-3 py-2 text-body"
           required
         />
-        {error && <p className="text-negative text-sm">{error}</p>}
+        {error && <p className="text-negative text-body">{error}</p>}
         <button
           type="submit"
           disabled={busy}
-          className="w-full bg-hero-bg text-hero-text rounded-control py-2 font-bold disabled:opacity-50"
+          className="w-full bg-hero-bg text-hero-text rounded-control py-2 text-label disabled:opacity-50"
         >
           {busy ? 'Logging in…' : 'Log in'}
         </button>
@@ -54,7 +54,7 @@ export default function Login({ onSwitch }: Props) {
       <button
         type="button"
         onClick={onSwitch}
-        className="text-sm text-muted underline"
+        className="text-caption text-muted underline"
       >
         Need an account? Sign up
       </button>

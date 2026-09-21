@@ -23,12 +23,12 @@ export default function Toast({ message, type, onDismiss, timeoutMs = 3000 }: Pr
     <div
       role="status"
       aria-live="polite"
-      className={`fixed top-4 right-4 ${bg} text-white text-sm font-bold pl-3 pr-4 py-3 rounded-card shadow-2xl z-50 flex items-center gap-2 min-w-[200px] max-w-xs ring-1 ring-white/20 transition-all duration-200 ease-out ${
+      className={`fixed top-4 right-4 ${bg} text-white pl-3 pr-4 py-3 rounded-card shadow-e3 z-50 flex items-center gap-2 min-w-[200px] max-w-xs ring-1 ring-white/20 transition-all duration-200 ease-out ${
         visible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-6'
       }`}
     >
-      <span className="text-lg leading-none">{icon}</span>
-      <span>{message}</span>
+      <span className="text-heading">{icon}</span>
+      <span className="text-body">{message}</span>
     </div>
   );
 }

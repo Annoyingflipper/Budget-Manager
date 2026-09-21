@@ -40,11 +40,11 @@ export default class ErrorBoundary extends Component<Props, State> {
       return (
         <div className="min-h-screen bg-bg text-text flex items-center justify-center p-6">
           <div className="bg-card rounded-card p-6 max-w-sm w-full text-center space-y-4">
-            <p className="text-sm">Something went wrong. Reload to get the latest version.</p>
+            <p className="text-body">Something went wrong. Reload to get the latest version.</p>
             <button
               type="button"
               onClick={() => window.location.reload()}
-              className="bg-positive text-white rounded-control px-4 py-2 text-sm font-bold"
+              className="bg-positive text-white rounded-control px-4 py-2 text-label"
             >
               Reload
             </button>

@@ -69,8 +69,8 @@ independently.
 - The mark itself is `aria-hidden` unconditionally inside `Wordmark`. The
   adjacent visible text "Mesada" already names the app; giving the SVG an
   accessible name too would announce "Mesada Mesada" to assistive tech.
-- `size="sm"` (24px mark, `text-xl` name) for the header; `size="lg"` (40px
-  mark, `text-2xl` name) for auth screens. `size` and `as` are independent
+- `size="sm"` (24px mark, `text-heading` name) for the header; `size="lg"`
+  (40px mark, `text-title` name) for auth screens. `size` and `as` are independent
   props on purpose — a large wordmark isn't always a page heading, and
   tying them together would be an implicit, surprising coupling for
   whoever reaches for this component next.

@@ -87,14 +87,14 @@ export default function AttachmentViewer({
       >
         <div className="flex items-start justify-between gap-3 mb-3">
           <div className="min-w-0">
-            <div className="font-extrabold text-sm truncate">{title}</div>
-            <div className="text-muted text-xs">{subtitle}</div>
+            <div className="text-caption truncate">{title}</div>
+            <div className="text-muted text-caption">{subtitle}</div>
           </div>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="text-muted hover:text-text text-lg shrink-0"
+            className="text-muted hover:text-text text-label shrink-0"
           >
             ✕
           </button>
@@ -106,7 +106,7 @@ export default function AttachmentViewer({
               type="button"
               onClick={prev}
               aria-label="Previous attachment"
-              className="text-2xl text-muted hover:text-text px-1"
+              className="text-label text-muted hover:text-text px-1"
             >
               ‹
             </button>
@@ -114,7 +114,7 @@ export default function AttachmentViewer({
 
           <div className="flex-1 min-w-0 flex items-center justify-center min-h-40">
             {!url ? (
-              <span className="text-muted text-sm">Loading…</span>
+              <span className="text-muted text-caption">Loading…</span>
             ) : isImage ? (
               <img
                 src={url}
@@ -127,7 +127,7 @@ export default function AttachmentViewer({
                 href={url}
                 target="_blank"
                 rel="noreferrer"
-                className="text-sm underline"
+                className="text-body underline"
               >
                 📄 Open PDF — {current.originalName}
               </a>
@@ -139,7 +139,7 @@ export default function AttachmentViewer({
               type="button"
               onClick={next}
               aria-label="Next attachment"
-              className="text-2xl text-muted hover:text-text px-1"
+              className="text-label text-muted hover:text-text px-1"
             >
               ›
             </button>
@@ -147,7 +147,7 @@ export default function AttachmentViewer({
         </div>
 
         <div className="flex items-center justify-between mt-3">
-          <span data-testid="viewer-position" className="text-muted text-xs">
+          <span data-testid="viewer-position" className="text-muted text-caption">
             {index + 1} / {count}
           </span>
           {confirming ? (
@@ -155,7 +155,7 @@ export default function AttachmentViewer({
               type="button"
               onClick={() => { setConfirming(false); onDelete(current); }}
               aria-label="Confirm delete attachment"
-              className="text-xs bg-negative text-white rounded-control px-2.5 py-1"
+              className="text-label bg-negative text-white rounded-control px-2.5 py-1"
             >
               Confirm delete
             </button>
@@ -164,7 +164,7 @@ export default function AttachmentViewer({
               type="button"
               onClick={() => setConfirming(true)}
               aria-label="Delete attachment"
-              className="text-xs text-muted hover:text-negative"
+              className="text-label text-muted hover:text-negative"
             >
               Delete
             </button>
