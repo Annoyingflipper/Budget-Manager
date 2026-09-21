@@ -25,17 +25,17 @@ export default function TotalAvailable({ accounts, rates, base, date, compact, o
         data-testid="total-available-card"
         className="w-full text-left bg-card rounded-card p-4 mb-4"
       >
-        <div className="text-xs uppercase tracking-wider text-muted">Total available</div>
+        <div className="text-caption uppercase tracking-wider text-muted">Total available</div>
         {total === null ? (
-          <div data-testid="total-unavailable" className="text-sm text-muted mt-1">
+          <div data-testid="total-unavailable" className="text-body text-muted mt-1">
             Set an exchange rate to see your total
           </div>
         ) : (
-          <div className="text-2xl font-extrabold" data-testid="grand-total">
+          <div className="text-money" data-testid="grand-total">
             {formatCurrency(total, base)}
           </div>
         )}
-        <div className="text-xs text-muted">
+        <div className="text-caption text-muted">
           {accounts.length} {accounts.length === 1 ? 'account' : 'accounts'} ›
         </div>
       </button>
@@ -44,7 +44,7 @@ export default function TotalAvailable({ accounts, rates, base, date, compact, o
 
   if (accounts.length === 0) {
     return (
-      <div data-testid="accounts-empty" className="text-muted text-sm">
+      <div data-testid="accounts-empty" className="text-muted text-body">
         No accounts yet. Add one to see your total.
       </div>
     );
@@ -53,23 +53,23 @@ export default function TotalAvailable({ accounts, rates, base, date, compact, o
   return (
     <section className="bg-card rounded-card p-4">
       {subtotals.map((s) => (
-        <div key={s.currency} className="flex justify-between text-sm">
+        <div key={s.currency} className="flex justify-between text-body">
           <span className="text-muted">{s.currency} subtotal</span>
-          <span data-testid={`subtotal-${s.currency}`} className="font-bold">
+          <span data-testid={`subtotal-${s.currency}`} className="text-money">
             {formatCurrency(s.total, s.currency)}
           </span>
         </div>
       ))}
       <div className="border-t border-highlight mt-2 pt-2 flex justify-between items-baseline">
-        <span className="text-xs uppercase tracking-wider text-muted">
+        <span className="text-caption uppercase tracking-wider text-muted">
           Total available ({base})
         </span>
         {total === null ? (
-          <span data-testid="total-unavailable" className="text-sm text-muted">
+          <span data-testid="total-unavailable" className="text-body text-muted">
             Set an exchange rate to see your total
           </span>
         ) : (
-          <span data-testid="grand-total" className="text-2xl font-extrabold">
+          <span data-testid="grand-total" className="text-money">
             {formatCurrency(total, base)}
           </span>
         )}

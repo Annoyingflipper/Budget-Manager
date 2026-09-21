@@ -39,35 +39,35 @@ export default function IncomeSummary({ income, periodMonth, onChange }: Props) 
   return (
     <section className="bg-card rounded-card p-4 mb-3">
       <div className="flex items-center gap-1.5 mb-2.5">
-        <span className="text-lg">💰</span>
-        <span className="font-extrabold text-sm">Income</span>
+        <span className="text-heading">💰</span>
+        <span className="text-heading">Income</span>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
         <label className="block">
-          <div className="text-xs text-muted">Projected</div>
+          <div className="text-label text-muted">Projected</div>
           <input
             type="number"
             step="0.01"
             value={projectedDraft}
             onChange={(e) => setProjectedDraft(e.target.value)}
             onBlur={saveProjected}
-            className="w-full px-2 py-1 border border-highlight rounded-control bg-bg text-base font-bold"
+            className="w-full px-2 py-1 border border-highlight rounded-control bg-bg text-money"
           />
         </label>
         <label className="block">
-          <div className="text-xs text-muted">Actual</div>
+          <div className="text-label text-muted">Actual</div>
           <input
             type="number"
             step="0.01"
             value={actualDraft}
             onChange={(e) => setActualDraft(e.target.value)}
             onBlur={saveActual}
-            className="w-full px-2 py-1 border border-highlight rounded-control bg-bg text-base font-bold"
+            className="w-full px-2 py-1 border border-highlight rounded-control bg-bg text-money"
           />
         </label>
         <div className="col-span-2 sm:col-span-1">
-          <div className="text-xs text-muted">Difference</div>
-          <div className={`text-base font-bold ${differenceClass('income', diff)}`}>
+          <div className="text-label text-muted">Difference</div>
+          <div className={`text-money ${differenceClass('income', diff)}`}>
             {formatMoney(diff)}
           </div>
         </div>

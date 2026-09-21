@@ -61,21 +61,21 @@ export default function ComingUp({ categories, accounts, rates, base, month }: P
           data-testid={`bucket-${bucket}`}
           aria-expanded={isOpen}
           onClick={() => setExpanded(isOpen ? null : bucket)}
-          className="w-full flex justify-between items-center py-1 text-sm"
+          className="w-full flex justify-between items-center py-1"
         >
-          <span className={`font-bold ${BUCKET_TONE[bucket]}`}>{BUCKET_LABEL[bucket]}</span>
-          <span className="text-muted">
+          <span className={`text-label ${BUCKET_TONE[bucket]}`}>{BUCKET_LABEL[bucket]}</span>
+          <span className="text-caption text-muted">
             {group.count} {group.count === 1 ? 'item' : 'items'} ·{' '}
-            <span className="font-bold">{formatCurrency(group.amount, base)}</span>
+            <span className="text-money">{formatCurrency(group.amount, base)}</span>
           </span>
         </button>
         {isOpen && (
           <ul className="pl-3 pb-1 space-y-0.5">
             {group.items.map((i) => (
-              <li key={i.id} className="flex justify-between text-xs text-muted">
+              <li key={i.id} className="flex justify-between text-caption text-muted">
                 <span>{i.name}</span>
                 <span>
-                  {i.dueOn} · {formatCurrency(i.baseProjected, base)}
+                  {i.dueOn} · <span className="text-money">{formatCurrency(i.baseProjected, base)}</span>
                 </span>
               </li>
             ))}
@@ -87,7 +87,7 @@ export default function ComingUp({ categories, accounts, rates, base, month }: P
 
   return (
     <section data-testid="coming-up" className="bg-card rounded-card px-4 py-3 mb-3">
-      <div className="text-xs uppercase tracking-wider text-muted mb-1">
+      <div className="text-heading uppercase tracking-wider text-muted mb-1">
         ⏰ Coming up — {formatMonthLabel(month)}
       </div>
 
@@ -96,7 +96,7 @@ export default function ComingUp({ categories, accounts, rates, base, month }: P
       {row('later', summary.later)}
 
       {undatedCount > 0 && (
-        <div data-testid="undated-count" className="text-xs text-muted pt-1">
+        <div data-testid="undated-count" className="text-caption text-muted pt-1">
           {undatedCount} more unpaid, no due date set
         </div>
       )}
@@ -104,27 +104,27 @@ export default function ComingUp({ categories, accounts, rates, base, month }: P
       {available !== undefined && (
         <div
           data-testid="cashflow-verdict"
-          className="border-t border-highlight mt-2 pt-2 text-xs"
+          className="border-t border-highlight mt-2 pt-2"
         >
           {available === null ? (
-            <span className="text-muted">Set an exchange rate to compare with your accounts</span>
+            <span className="text-caption text-muted">Set an exchange rate to compare with your accounts</span>
           ) : (
             <>
-              <div className="text-muted">
-                {formatCurrency(summary.actionableAmount, base)} due soon ·{' '}
-                {formatCurrency(available, base)} available
+              <div className="text-caption text-muted">
+                <span className="text-money">{formatCurrency(summary.actionableAmount, base)}</span> due soon ·{' '}
+                <span className="text-money">{formatCurrency(available, base)}</span> available
               </div>
               {shortfall !== null && shortfall > 0 ? (
-                <div className="text-negative font-bold mt-0.5">
-                  Short by {formatCurrency(shortfall, base)}
+                <div className="text-label text-negative mt-0.5">
+                  Short by <span className="text-money">{formatCurrency(shortfall, base)}</span>
                   {undatedCount > 0 ? ' — dated bills only' : ''}
                 </div>
               ) : (
-                <div className="text-positive font-bold mt-0.5">
+                <div className="text-label text-positive mt-0.5">
                   ✓ Covered{undatedCount > 0 ? ' — dated bills only' : ''}
                 </div>
               )}
-              <div className="text-muted mt-0.5">balances as you last set them</div>
+              <div className="text-caption text-muted mt-0.5">balances as you last set them</div>
             </>
           )}
         </div>
